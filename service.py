@@ -90,7 +90,7 @@ def checkDependence(ADDONID):
 
 # Auslesen der installierten Kodi Version und setze danach den Release Branch in den settings
 
-xbmcaddon.Addon().setSetting('matrixv2.branch.release', 'master')
+xbmcaddon.Addon().setSetting('matrixv2.branch.release', 'main')
 
 
 

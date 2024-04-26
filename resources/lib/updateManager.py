@@ -60,9 +60,9 @@ def Matrixv2Update(silent=False):
     plugin_id = 'plugin.video.matrixv2'
     # Abfrage aus den Einstellungen welcher Branch
     if Addon().getSetting('matrixv2.branch') == 'release':
-        branch = Addon().getSettingString('matrixv2.branch.release')
+        branch = 'main'
     else:
-        branch = 'master'
+        branch = 'main'
     token = ''
     try:
         return Update(username, plugin_id, branch, token, silent)
@@ -264,17 +264,17 @@ def devUpdates():  # für manuelles Updates vorgesehen
             result = Dialog().yesno(HEADERMESSAGE, cConfig().getLocalizedString(30155), yeslabel='Nightly',
                                     nolabel='Release')
             if result == 0:
-                Addon().setSetting('matrixv2.branch', 'master')
+                Addon().setSetting('matrixv2.branch', 'release')
             elif result == 1:
-                Addon().setSetting('matrixv2.branch', 'master')
+                Addon().setSetting('matrixv2.branch', 'nightly')
 
             # Abfrage ob ResolveURL Release oder Nightly Branch (kann erweitert werden)
             result = Dialog().yesno(HEADERMESSAGE, cConfig().getLocalizedString(30268), yeslabel='Nightly',
                                     nolabel='Release')
             if result == 0:
-                Addon().setSetting('resolver.branch', 'master')
+                Addon().setSetting('resolver.branch', 'release')
             elif result == 1:
-                Addon().setSetting('resolver.branch', 'master')
+                Addon().setSetting('resolver.branch', 'nightly')
 
             # Voreinstellung beendet
             if Dialog().yesno(HEADERMESSAGE, cConfig().getLocalizedString(30269),
@@ -290,9 +290,9 @@ def devUpdates():  # für manuelles Updates vorgesehen
             result = Dialog().yesno(HEADERMESSAGE, cConfig().getLocalizedString(30155), yeslabel='Nightly',
                                     nolabel='Release')
             if result == 0:
-                Addon().setSetting('matrixv2.branch', 'master')
+                Addon().setSetting('matrixv2.branch', 'release')
             elif result == 1:
-                Addon().setSetting('matrixv2.branch', 'master')
+                Addon().setSetting('matrixv2.branch', 'nightly')
 
             # Voreinstellung beendet
             if Dialog().yesno(HEADERMESSAGE, cConfig().getLocalizedString(30269),
