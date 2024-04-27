@@ -1234,11 +1234,11 @@ msgid "Shahid4u"
 msgstr ""
 
 msgctxt "#30706"
-msgid "Kinokiste"
+msgid "CoolCima"
 msgstr ""
 
 msgctxt "#30707"
-msgid "Kino"
+msgid "Cinematy"
 msgstr ""
 
 msgctxt "#30708"

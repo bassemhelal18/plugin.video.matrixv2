@@ -195,9 +195,9 @@ def showHosters():
             isMatch, aResult = cParser().parse(sHtmlContent2,sPattern)
             if isMatch:
              for sUrl in aResult:
+              if 'cimanow' in sUrl:
+                  continue
               sName = cParser.urlparse(sUrl)
-              
-              
               if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
               if 'youtube' in sUrl:
                 continue

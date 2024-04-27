@@ -624,6 +624,84 @@
 					</control>
 				</setting>
 			</group>
+			<group id="plugin_coolcima" label="30706">
+				<setting id="plugin_coolcima" type="boolean" label="30050" help="">
+					<level>0</level>
+                    <default>True</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="global_search_coolcima" type="boolean" label="30052">
+					<level>0</level>
+					<default>True</default>
+					<dependencies>
+						<dependency type="enable" operator="!is" setting="plugin_coolcima">False</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<!-- Domain Überprüfung mit automatischer und manueller Anpassung -->
+				<setting id="plugin_coolcima_checkDomain" type="boolean" label="30277">
+					<level>3</level>
+					<default>True</default>
+					<dependencies>
+						<dependency type="enable" operator="!is" setting="plugin_coolcima">false</dependency>
+						<dependency type="visible" operator="!is" setting="plugin_coolcima">false</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="plugin_coolcima.domain" type="string" label="30278" help="">
+					<level>3</level>
+					<default/>
+					<constraints>
+						<allowempty>true</allowempty>
+					</constraints>
+					<dependencies>
+						<dependency type="enable" operator="!is" setting="plugin_coolcima">false</dependency>
+						<dependency type="visible" operator="!is" setting="plugin_coolcima">false</dependency>
+					</dependencies>
+					<control type="edit" format="string">
+						<heading>30278</heading>
+					</control>
+				</setting>
+			</group>
+			<group id="plugin_cinematy" label="30707">
+				<setting id="plugin_cinematy" type="boolean" label="30050" help="">
+					<level>0</level>
+                    <default>True</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="global_search_cinematy" type="boolean" label="30052">
+					<level>0</level>
+					<default>True</default>
+					<dependencies>
+						<dependency type="enable" operator="!is" setting="plugin_cinematy">False</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<!-- Domain Überprüfung mit automatischer und manueller Anpassung -->
+				<setting id="plugin_cinematy_checkDomain" type="boolean" label="30277">
+					<level>3</level>
+					<default>True</default>
+					<dependencies>
+						<dependency type="enable" operator="!is" setting="plugin_cinematy">false</dependency>
+						<dependency type="visible" operator="!is" setting="plugin_cinematy">false</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="plugin_cinematy.domain" type="string" label="30278" help="">
+					<level>3</level>
+					<default/>
+					<constraints>
+						<allowempty>true</allowempty>
+					</constraints>
+					<dependencies>
+						<dependency type="enable" operator="!is" setting="plugin_cinematy">false</dependency>
+						<dependency type="visible" operator="!is" setting="plugin_cinematy">false</dependency>
+					</dependencies>
+					<control type="edit" format="string">
+						<heading>30278</heading>
+					</control>
+				</setting>
+			</group>
 		</category>
 		<category id="tmdb" label="30174" help="">
 			<group id="tmdbhandler" label="30033">
