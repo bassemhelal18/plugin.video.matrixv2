@@ -242,6 +242,7 @@ class cGuiElement:
 
     def getItemValues(self):
         self.__aItemValues['title'] = self.getTitle()
+        self.__aItemValues['mediatype'] = self._mediaType
         if self.getDescription():
             self.__aItemValues['plot'] = self.getDescription()
         for sPropertyKey in self.__aProperties.keys():

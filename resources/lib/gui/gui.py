@@ -101,7 +101,33 @@ class cGui:
         except:
             pass
         listitem = xbmcgui.ListItem(itemTitle + infoString, oGuiElement.getIcon(), oGuiElement.getThumbnail())
-        listitem.setInfo(oGuiElement.getType(), itemValues)
+        videoInfoTag = listitem.getVideoInfoTag()
+       
+        
+        videoInfoTag.setMediaType(itemValues.get('mediatype', ''))
+        videoInfoTag.setTvShowTitle(itemValues.get('TVShowTitle', ''))
+        videoInfoTag.setTitle(itemValues.get('title', ""))
+        videoInfoTag.setOriginalTitle(itemValues.get('originaltitle', ""))
+        videoInfoTag.setPlot(itemValues.get('plot', ""))
+        videoInfoTag.setPlotOutline(itemValues.get('tagline', ""))
+        videoInfoTag.setYear(int(itemValues.get('year', 0)))
+        videoInfoTag.setRating(float(itemValues.get('rating', 0.0)))
+        videoInfoTag.setMpaa(itemValues.get('mpaa', ""))
+        videoInfoTag.setPremiered(itemValues.get('premiered', ""))
+        videoInfoTag.setDateAdded(itemValues.get('date'))
+        videoInfoTag.setFirstAired(itemValues.get('aired'))
+        videoInfoTag.setDuration(int(itemValues.get('duration', 0)))
+        videoInfoTag.setPlaycount(int(itemValues.get('playcount', 0)))
+        videoInfoTag.setTrailer(itemValues.get('trailer', ""))
+        videoInfoTag.setTagLine(itemValues.get('tagline', ""))
+        videoInfoTag.setStudios(list(itemValues.get('studio', '').split("/")))
+        videoInfoTag.setWriters(list(itemValues.get('writer', '').split("/")))
+        videoInfoTag.setDirectors(list(itemValues.get('director', '').split("/")))
+        videoInfoTag.setGenres(''.join(itemValues.get('genre', [""])).split('/'))
+        videoInfoTag.setSeason(int(itemValues.get('season', 0)))
+        videoInfoTag.setEpisode(int(itemValues.get('episode', 0)))
+        videoInfoTag.setResumePoint(float(itemValues.get('resumetime', 0.0)), float(itemValues.get('totaltime', 0.0)))
+        
         listitem.setProperty('fanart_image', oGuiElement.getFanart())
         listitem.setArt({'icon': oGuiElement.getIcon(), 'thumb': oGuiElement.getThumbnail(), 'poster': oGuiElement.getThumbnail(), 'fanart': oGuiElement.getFanart()})
         aProperties = oGuiElement.getItemProperties()
@@ -178,7 +204,7 @@ class cGui:
     def setEndOfDirectory(self, success=True):
         # mark the listing as completed, this is mandatory
         if not self._isViewSet:
-            self.setView('files')
+            self.setView('')
         xbmcplugin.setPluginCategory(self.pluginHandle, "")
         # add some sort methods, these will be available in all views
         xbmcplugin.addSortMethod(self.pluginHandle, xbmcplugin.SORT_METHOD_UNSORTED)

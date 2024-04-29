@@ -1242,7 +1242,7 @@ msgid "Cinematy"
 msgstr ""
 
 msgctxt "#30708"
-msgid "KinoX"
+msgid "Egydead"
 msgstr ""
 
 msgctxt "#30709"
