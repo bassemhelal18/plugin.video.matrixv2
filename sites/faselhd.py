@@ -96,7 +96,7 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
 
             oGui.addFolder(oGuiElement, params, isTvshow, total)
         
-    if not sGui:
+    if not sGui and not sSearchText:
         isMatchNextPage, sNextUrl = cParser.parseSingleResult(sHtmlContent,'''<a class="page-link" href='([^<]+)'>&rsaquo;</a>''')
         if isMatchNextPage:
             params.setParam('sUrl', sNextUrl)

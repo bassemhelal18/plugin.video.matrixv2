@@ -68,7 +68,7 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     oRequest.addHeaderEntry('Referer', quote(sUrl))
     sHtmlContent = oRequest.request()
     
-    pattern = 'class="MovieBlock\s*">.*?<a\s*href="(.*?)">.*?data-src="(.*?)".*?alt="(.*?)"'
+    pattern = 'class="MovieBlock.*?<a\s*href="(.*?)">.*?data-src="(.*?)".*?alt="(.*?)"'
     isMatch, aResult = cParser.parse(sHtmlContent, pattern)
     if not isMatch:
         if not sGui: oGui.showInfo()

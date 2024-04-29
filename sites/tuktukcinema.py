@@ -60,7 +60,7 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     sHtmlContent = oRequest.request()
     
     
-    sPattern = '<div class="Block--Item">.*?<a\s*href="(.*?)"\s*title="(.*?)">.*?data-src="(.*?)" alt'
+    sPattern = '<div class="Block--Item">.*?<a.*?href="(.*?)" title="(.*?)">.*?src="(.*?)" alt'
     isMatch, aResult = cParser.parse(sHtmlContent, sPattern)
     if not isMatch:
         if not sGui: oGui.showInfo()
@@ -102,8 +102,8 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
             params.setParam('trumb', os.path.join(ART, 'Next.png'))
             oGui.addNextPage(SITE_IDENTIFIER, 'showEntries', params)
         
-            oGui.setView('tvshows' if isTvshow else 'movies')
-            oGui.setEndOfDirectory()
+        oGui.setView('tvshows' if isTvshow else 'movies')
+        oGui.setEndOfDirectory()
 
 
 
@@ -252,27 +252,5 @@ def showSearch():
 def _search(oGui, sSearchText):
     showEntries(URL_SEARCH % cParser.quotePlus(sSearchText), oGui, sSearchText)
 
-def __checkForNextPage(sHtmlContent, sUrl):
-    
-    oParser = cParser()
-    sStart = '<ul class="pagination">'
-    sEnd = '<div class="footer">'
-    sHtmlContent0 = oParser.abParse(sHtmlContent, sStart, sEnd)
-    
-    sPattern = '<li class="page-item">.*?<button class="page-link cursor-pointer" type="button" aria-label="Page Button".*?onclick="(.*?)">(.*?)</button>' 
-    oParser = cParser()
-    aResult = oParser.parse(sHtmlContent0, sPattern)
-
-    if aResult[0]:
-        for aEntry in aResult[1]:
-            if 'fa-solid fa-backward' not in aEntry[1]:
-                 continue
-            if '?page=' in sUrl:
-                sUrl = sUrl.split('?page=')[0]
-                aResult = sUrl+'?page='+aEntry[0].replace(')','').replace("updateQuery('page', ","")
-            else:
-                aResult = sUrl+'?page='+aEntry[0].replace(')','').replace("updateQuery('page', ","")
-            
-            return aResult
 
     
