@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Python 3
 
-from resources.lib.tools import cParser, cUtil
+from resources.lib.tools import cParser, cUtil, logger
 from resources.lib.config import cConfig
 from resources.lib.common import addon
 from xbmc import LOGINFO as LOGNOTICE, LOGERROR, LOGWARNING, log, executebuiltin, getCondVisibility, getInfoLabel
@@ -25,6 +25,7 @@ class cGuiElement:
         self.__sType = 'video'
         self.__sMediaUrl = ''
         self.__sTitle = cUtil.cleanse_text(sTitle)
+        self.__stvShowTitle=''
         self.__sTitleSecond = ''
         self.__sDescription = ''
         self.__sThumbnail = ''
@@ -133,6 +134,7 @@ class cGuiElement:
         self.__aItemValues['episode'] = str(episode)
 
     def setTVShowTitle(self, tvShowTitle):
+        self.__stvShowTitle =str(tvShowTitle)
         self.__aItemValues['TVShowTitle'] = str(tvShowTitle)
 
     def setYear(self, year):
@@ -243,6 +245,9 @@ class cGuiElement:
     def getItemValues(self):
         self.__aItemValues['title'] = self.getTitle()
         self.__aItemValues['mediatype'] = self._mediaType
+        if self.__aItemValues['mediatype'] in ['tvshow', 'season', 'episode']:
+            self.__aItemValues['tvshowtitle']=self.__stvShowTitle
+        self.__aItemValues['title'] =self.getTitle()
         if self.getDescription():
             self.__aItemValues['plot'] = self.getDescription()
         for sPropertyKey in self.__aProperties.keys():

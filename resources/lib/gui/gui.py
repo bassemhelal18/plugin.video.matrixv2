@@ -105,7 +105,7 @@ class cGui:
        
         
         videoInfoTag.setMediaType(itemValues.get('mediatype', ''))
-        videoInfoTag.setTvShowTitle(itemValues.get('TVShowTitle', ''))
+        videoInfoTag.setTvShowTitle(itemValues.get('tvshowtitle', ''))
         videoInfoTag.setTitle(itemValues.get('title', ""))
         videoInfoTag.setOriginalTitle(itemValues.get('originaltitle', ""))
         videoInfoTag.setPlot(itemValues.get('plot', ""))
