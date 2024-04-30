@@ -86,7 +86,12 @@ class cHosterGui:
             info['Episode'] = data['episode']
             info['Season'] = data['season']
             info['TVShowTitle'] = data['showTitle']
-        list_item.setInfo(type="Video", infoLabels=info)
+        videoInfoTag = list_item.getVideoInfoTag()
+        videoInfoTag.setMediaType('video')
+        videoInfoTag.setTvShowTitle(data.get('TVShowTitle', ''))
+        videoInfoTag.setTitle(data.get('Title', ""))
+        videoInfoTag.setSeason(int(data.get('Season', 0)))
+        videoInfoTag.setEpisode(int(data.get('Episode', 0)))
         list_item.setProperty('IsPlayable', 'true')
         if cGui().pluginHandle > 0:
             xbmcplugin.setResolvedUrl(cGui().pluginHandle, True, list_item)

@@ -1246,7 +1246,7 @@ msgid "Egydead"
 msgstr ""
 
 msgctxt "#30709"
-msgid "KKiste"
+msgid "Dramacafe"
 msgstr ""
 
 msgctxt "#30710"
