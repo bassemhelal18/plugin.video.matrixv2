@@ -62,12 +62,11 @@ class cHosterGui:
             return False
         # resolver response
         if link is not False:
-            data = {'title': fileName, 'season': params.getValue('season'), 'episode': params.getValue('episode'), 'showTitle': params.getValue('TVShowTitle'), 'thumb': params.getValue('thumb'), 'link': link}
+            data = {'title': fileName, 'season': params.getValue('season'), 'episode': params.getValue('episode'), 'showTitle': params.getValue('TVShowTitle'), 'thumb': params.getValue('thumb'), 'link': link,'mediatype': params.getValue('mediaType')}
             return data
         return False
 
     def play(self, siteResult=False):
-        logger.info('-> [hoster]: attempt to play file')
         data = self._getInfoAndResolve(siteResult)
         if not data:
             return False
@@ -79,19 +78,14 @@ class cHosterGui:
 
         logger.info('-> [hoster]: play file link: ' + str(data['link']))
         list_item = xbmcgui.ListItem(path=data['link'])
-        info = {'Title': data['title']}
-        if data['thumb']:
-            list_item.setArt(data['thumb'])
-        if data['showTitle']:
-            info['Episode'] = data['episode']
-            info['Season'] = data['season']
-            info['TVShowTitle'] = data['showTitle']
         videoInfoTag = list_item.getVideoInfoTag()
-        videoInfoTag.setMediaType('video')
-        videoInfoTag.setTvShowTitle(data.get('TVShowTitle', ''))
-        videoInfoTag.setTitle(data.get('Title', ""))
-        videoInfoTag.setSeason(int(data.get('Season', 0)))
-        videoInfoTag.setEpisode(int(data.get('Episode', 0)))
+        if data['episode']:
+         data['title'] = data['showTitle']
+        videoInfoTag.setMediaType(data.get('mediatype', ""))
+        videoInfoTag.setTitle(data.get('title', ""))
+        videoInfoTag.setTvShowTitle(data.get('title', ""))
+        videoInfoTag.setSeason(int(data.get('season', 0)))
+        videoInfoTag.setEpisode(int(data.get('episode', 0)))
         list_item.setProperty('IsPlayable', 'true')
         if cGui().pluginHandle > 0:
             xbmcplugin.setResolvedUrl(cGui().pluginHandle, True, list_item)
