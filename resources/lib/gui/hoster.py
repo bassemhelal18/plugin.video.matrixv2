@@ -79,11 +79,9 @@ class cHosterGui:
         logger.info('-> [hoster]: play file link: ' + str(data['link']))
         list_item = xbmcgui.ListItem(path=data['link'])
         videoInfoTag = list_item.getVideoInfoTag()
-        if data['episode']:
-         data['title'] = data['showTitle']
         videoInfoTag.setMediaType(data.get('mediatype', ""))
+        videoInfoTag.setTvShowTitle(data.get('showTitle', ""))
         videoInfoTag.setTitle(data.get('title', ""))
-        videoInfoTag.setTvShowTitle(data.get('title', ""))
         videoInfoTag.setSeason(int(data.get('season', 0)))
         videoInfoTag.setEpisode(int(data.get('episode', 0)))
         list_item.setProperty('IsPlayable', 'true')
