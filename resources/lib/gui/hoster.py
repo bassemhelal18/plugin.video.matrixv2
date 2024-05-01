@@ -80,7 +80,7 @@ class cHosterGui:
         list_item = xbmcgui.ListItem(path=data['link'])
         videoInfoTag = list_item.getVideoInfoTag()
         videoInfoTag.setMediaType(data.get('mediatype', ""))
-        videoInfoTag.setTvShowTitle(data.get('showTitle', ""))
+        videoInfoTag.setTvShowTitle(str(data.get('showTitle', "")))
         videoInfoTag.setTitle(data.get('title', ""))
         videoInfoTag.setSeason(int(data.get('season', 0)))
         videoInfoTag.setEpisode(int(data.get('episode', 0)))
