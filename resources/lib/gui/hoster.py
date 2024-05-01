@@ -89,6 +89,7 @@ class cHosterGui:
         videoInfoTag.setTvShowTitle(str(data.get('showTitle', "")))
         videoInfoTag.setTitle(data.get('title', ""))
         videoInfoTag.setOriginalTitle(data.get('originaltitle', ""))
+        videoInfoTag.setUniqueIDs(data.get('tmdb_id', ""),'tmdb')
         videoInfoTag.setPlot(data.get('plot', ""))
         videoInfoTag.setPlotOutline(data.get('tagline', ""))
         videoInfoTag.setYear(int(data.get('year', 0)))
