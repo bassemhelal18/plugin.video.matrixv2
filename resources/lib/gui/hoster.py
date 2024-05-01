@@ -67,7 +67,7 @@ class cHosterGui:
             return False
         # resolver response
         if link is not False:
-            data = {'title': fileName, 'season': params.getValue('season'), 'episode': params.getValue('episode'), 'showTitle': params.getValue('TVShowTitle'), 'thumb': params.getValue('thumb'), 'link': link,'mediatype': params.getValue('mediaType')}
+            data = {'title': fileName, 'season': params.getValue('season'), 'episode': params.getValue('episode'), 'showTitle': params.getValue('TVShowTitle'), 'thumb': params.getValue('thumb'), 'link': link,'mediatype': params.getValue('mediaType'),'tmdb_id':params.getValue('tmdbID')}
             data.update(value)
             return data
         return False
