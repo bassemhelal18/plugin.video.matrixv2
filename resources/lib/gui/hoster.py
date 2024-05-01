@@ -3,6 +3,7 @@
 #
 # 24.01.23 - Heptamer: Korrektur getpriorities (nun werden alle Hoster gelesen und sortiert)
 
+from resources.lib.tmdb import cTMDB
 import xbmc
 import xbmcgui 
 import xbmcplugin
@@ -31,7 +32,11 @@ class cHosterGui:
         mediaUrl = params.getValue('sMediaUrl')
         fileName = params.getValue('MovieTitle')
         
-            
+        if params.getValue('mediaType')=='episode':
+         value = cTMDB().get_meta_episodes( params.getValue('mediaType'), name=params.getValue('TVShowTitle'), tmdb_id=params.getValue('tmdbID'), season=params.getValue('season'),episode=params.getValue('episode'), advanced='true')
+        else:
+         value = cTMDB().get_meta( params.getValue('mediaType'), name=fileName, tmdb_id=params.getValue('tmdbID'), advanced='true')
+
         try:
             try:
                 import resolveurl as resolver
@@ -63,6 +68,7 @@ class cHosterGui:
         # resolver response
         if link is not False:
             data = {'title': fileName, 'season': params.getValue('season'), 'episode': params.getValue('episode'), 'showTitle': params.getValue('TVShowTitle'), 'thumb': params.getValue('thumb'), 'link': link,'mediatype': params.getValue('mediaType')}
+            data.update(value)
             return data
         return False
 
@@ -82,8 +88,27 @@ class cHosterGui:
         videoInfoTag.setMediaType(data.get('mediatype', ""))
         videoInfoTag.setTvShowTitle(str(data.get('showTitle', "")))
         videoInfoTag.setTitle(data.get('title', ""))
+        videoInfoTag.setOriginalTitle(data.get('originaltitle', ""))
+        videoInfoTag.setPlot(data.get('plot', ""))
+        videoInfoTag.setPlotOutline(data.get('tagline', ""))
+        videoInfoTag.setYear(int(data.get('year', 0)))
+        videoInfoTag.setRating(float(data.get('rating', 0.0)))
+        videoInfoTag.setMpaa(data.get('mpaa', ""))
+        videoInfoTag.setDuration(int(data.get('duration', 0)))
+        videoInfoTag.setPlaycount(int(data.get('playcount', 0)))
+        videoInfoTag.setTrailer(data.get('trailer', ""))
+        videoInfoTag.setTagLine(data.get('tagline', ""))
+        videoInfoTag.setStudios(list(data.get('studio', '').split("/")))
+        videoInfoTag.setWriters(list(data.get('writer', '').split("/")))
+        videoInfoTag.setDirectors(list(data.get('director', '').split("/")))
+        videoInfoTag.setGenres(''.join(data.get('genre', [""])).split('/'))
         videoInfoTag.setSeason(int(data.get('season', 0)))
         videoInfoTag.setEpisode(int(data.get('episode', 0)))
+        videoInfoTag.setResumePoint(float(data.get('resumetime', 0.0)), float(data.get('totaltime', 0.0)))
+        list_item.setArt({'poster': data.get('cover_url'),
+                           'thumb': data.get('cover_url'),
+                           'icon': data.get('cover_url'),
+                          'fanart': data.get('backdrop_url')})
         list_item.setProperty('IsPlayable', 'true')
         if cGui().pluginHandle > 0:
             xbmcplugin.setResolvedUrl(cGui().pluginHandle, True, list_item)
