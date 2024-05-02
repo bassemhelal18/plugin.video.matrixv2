@@ -250,6 +250,8 @@ def showHosters():
                         
                         sName = cParser.urlparse(sUrl)
                         if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
+                        if 'ma2d'  in sUrl:
+                            sUrl = sUrl + "$$" + URL_MAIN
                         if 'youtube' in sUrl:
                            continue
                         elif sUrl.startswith('//'):
@@ -283,7 +285,8 @@ def showHosters():
             if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
             if 'youtube' in sUrl:
                 continue
-        
+            if 'ma2d' in sUrl:
+                sUrl = sUrl + "$$" + URL_MAIN
             elif sUrl.startswith('//'):
                  sUrl = 'https:' + sUrl
                  
@@ -294,7 +297,8 @@ def showHosters():
     return hosters
 
 def getHosterUrl(sUrl=False):
-    
+    if '$$' in sUrl:
+       return [{'streamUrl': sUrl, 'resolved': False}]
     Request = cRequestHandler(sUrl, caching=False)
     Request.addHeaderEntry('Referer',URL_MAIN)
     Request.request()

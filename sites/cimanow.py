@@ -211,7 +211,7 @@ def showHosters():
     sEnd = '</section>'
     sHtmlContent = cParser.abParse(sHtmlContent, sStart, sEnd)
     
-    pattern = '<a href="(.+?)".+?class="fas fa-cloud-download-alt"></i>(.+?)<p'  # start element
+    pattern = '<a href="(.+?)".+?class="fas fa-cloud-download-alt"></i>\s*(.+?)\s*<p'  # start element
     isMatch, aResult = cParser().parse(sHtmlContent, pattern)
     if isMatch:
         for sUrl ,sQuality in aResult:
@@ -226,7 +226,25 @@ def showHosters():
                 sName = 'CimaNow'
                 sUrl = sUrl +'|AUTH=TLS&verifypeer=false&Referer='+URL_MAIN
                 
-            hoster = {'link': sUrl, 'name': sName, 'displayedName':sName+sQuality, 'quality': sQuality, 'resolveable': True} # Qualität Anzeige aus Release Eintrag
+            hoster = {'link': sUrl, 'name': sName, 'displayedName':sName+' '+sQuality, 'quality': sQuality} # Qualität Anzeige aus Release Eintrag
+            hosters.append(hoster)
+    sStart = '</i>سيرفرات اخري :</span>'
+    sEnd = '</section>'
+    sHtmlContent = cParser.abParse(sHtmlContent, sStart, sEnd)
+    pattern = '<a href="(.*?)">\s*<i class="fa fa-download"></i>'  # start element
+    isMatch, aResult = cParser().parse(sHtmlContent, pattern)
+    if isMatch:
+        for sUrl in aResult:
+            sName = cParser.urlparse(sUrl)
+            
+             # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
+            if 'youtube' in sUrl:
+                continue
+            if cConfig().isBlockedHoster(sName)[0]: continue
+            elif sUrl.startswith('//'):
+                 sUrl = 'https:' + sUrl
+            
+            hoster = {'link': sUrl, 'name': sName, 'displayedName':sName} # Qualität Anzeige aus Release Eintrag
             hosters.append(hoster)
     if hosters:
         hosters.append('getHosterUrl')
