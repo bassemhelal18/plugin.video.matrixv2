@@ -58,9 +58,14 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     params = ParameterHandler()
     isTvshow = False
     if not sUrl: sUrl = params.getValue('sUrl')
-    oRequest = cRequestHandler(sUrl, ignoreErrors=(sGui is not False))
+    oRequest = cRequestHandler(sUrl,caching=False, ignoreErrors=(sGui is not False))
+    token = oRequest.getCookie('XSRF-TOKEN')
+    
+    
+    
     if cConfig().getSetting('global_search_' + SITE_IDENTIFIER) == 'true':
         oRequest.cacheTime = 60 * 60 * 6  # HTML Cache Zeit 6 Stunden
+    oRequest.addHeaderEntry('Cookie','XSRF-TOKEN='+str(token.value))
     sHtmlContent = oRequest.request()
     
     
@@ -107,8 +112,12 @@ def showSeasons():
     sUrl = params.getValue('sUrl')
     sThumbnail = params.getValue('sThumbnail')
     sName = params.getValue('sName')
+    oRequest=cRequestHandler(sUrl,caching=False)
+    token = oRequest.getCookie('XSRF-TOKEN')
     
-    sHtmlContent = cRequestHandler(sUrl).request()
+    
+    oRequest.addHeaderEntry('Cookie','XSRF-TOKEN='+str(token.value))
+    sHtmlContent = oRequest.request()
     
     
     pattern = 'meta property=".+?title".+?content="([^<]+)".+?/>.+?<meta property=".+?image".+?content="([^<]+)".+?/>.+?<link rel=".+?" href="(.+?)">'  # start element
@@ -160,7 +169,10 @@ def showEpisodes():
     params = ParameterHandler()
     sUrl = params.getValue('sUrl')
     sThumbnail = params.getValue('sThumbnail')
-    sHtmlContent = cRequestHandler(sUrl).request()
+    oRequest=cRequestHandler(sUrl,caching=False)
+    token = oRequest.getCookie('XSRF-TOKEN')
+    oRequest.addHeaderEntry('Cookie','XSRF-TOKEN='+str(token.value))
+    sHtmlContent = oRequest.request()
     sSeason = params.getValue('season')
     sShowName = params.getValue('TVShowTitle')
     
@@ -190,23 +202,31 @@ def showEpisodes():
 def showHosters():
     hosters = []
     sUrl = ParameterHandler().getValue('sUrl')
-    
-    sHtmlContent = cRequestHandler(sUrl).request()
-    
-    
-    pattern = 'href="(http[^<]+/watch/.+?)"'  # start element
-    isMatch, aResult = cParser.parse(sHtmlContent, pattern)
-    if not isMatch: return
-    for slink in aResult:
-        sHtmlContent = cRequestHandler(slink, caching=False).request()
-        
+    oRequest=cRequestHandler(sUrl,caching=False)
+    token = oRequest.getCookie('XSRF-TOKEN')
+    oRequest.addHeaderEntry('Cookie','XSRF-TOKEN='+str(token.value))
+    sHtmlContent = oRequest.request()
     
     
-    pattern = 'href="(http[^<]+/watch/.+?)"'  # start element
-    isMatch, aResult = cParser.parse(sHtmlContent, pattern)
-    if not isMatch: return
-    for slink in aResult:
-        sHtmlContent = cRequestHandler(slink, caching=False).request()
+    sPattern =  'href="(http[^<]+/watch/.+?)"' 
+    aResult = cParser.parse(sHtmlContent,sPattern)
+    if aResult[0]:
+        murl =  aResult[1][0]
+        oRequest = cRequestHandler(murl,caching=False)
+        token = oRequest.getCookie('XSRF-TOKEN')
+        oRequest.addHeaderEntry('Cookie','XSRF-TOKEN='+str(token.value))
+        sHtmlContent = oRequest.request()
+
+    sPattern =  'href="(http[^<]+/watch/.+?)".*?>اضغط هنا</span>'  
+    aResult = cParser.parse(sHtmlContent,sPattern)
+    
+    if aResult[0]:
+        murl =  aResult[1][0]
+        oRequest = cRequestHandler(murl,caching=False)
+        token = oRequest.getCookie('XSRF-TOKEN')
+        oRequest.addHeaderEntry('Cookie','XSRF-TOKEN='+str(token.value))
+        oRequest.addHeaderEntry('Referer',murl.split(''))
+        sHtmlContent = oRequest.request()
         
 
     pattern = '<source.+?src="(.+?)".+?size="(.+?)"'  # start element
