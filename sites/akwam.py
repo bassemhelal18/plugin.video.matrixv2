@@ -59,13 +59,8 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     isTvshow = False
     if not sUrl: sUrl = params.getValue('sUrl')
     oRequest = cRequestHandler(sUrl,caching=False, ignoreErrors=(sGui is not False))
-    token = oRequest.getCookie('XSRF-TOKEN')
-    
-    
-    
     if cConfig().getSetting('global_search_' + SITE_IDENTIFIER) == 'true':
         oRequest.cacheTime = 60 * 60 * 6  # HTML Cache Zeit 6 Stunden
-    oRequest.addHeaderEntry('Cookie','XSRF-TOKEN='+str(token.value))
     sHtmlContent = oRequest.request()
     
     
@@ -113,10 +108,6 @@ def showSeasons():
     sThumbnail = params.getValue('sThumbnail')
     sName = params.getValue('sName')
     oRequest=cRequestHandler(sUrl,caching=False)
-    token = oRequest.getCookie('XSRF-TOKEN')
-    
-    
-    oRequest.addHeaderEntry('Cookie','XSRF-TOKEN='+str(token.value))
     sHtmlContent = oRequest.request()
     
     
@@ -170,8 +161,6 @@ def showEpisodes():
     sUrl = params.getValue('sUrl')
     sThumbnail = params.getValue('sThumbnail')
     oRequest=cRequestHandler(sUrl,caching=False)
-    token = oRequest.getCookie('XSRF-TOKEN')
-    oRequest.addHeaderEntry('Cookie','XSRF-TOKEN='+str(token.value))
     sHtmlContent = oRequest.request()
     sSeason = params.getValue('season')
     sShowName = params.getValue('TVShowTitle')
@@ -203,8 +192,6 @@ def showHosters():
     hosters = []
     sUrl = ParameterHandler().getValue('sUrl')
     oRequest=cRequestHandler(sUrl,caching=False)
-    token = oRequest.getCookie('XSRF-TOKEN')
-    oRequest.addHeaderEntry('Cookie','XSRF-TOKEN='+str(token.value))
     sHtmlContent = oRequest.request()
     
     
@@ -213,8 +200,6 @@ def showHosters():
     if aResult[0]:
         murl =  aResult[1][0]
         oRequest = cRequestHandler(murl,caching=False)
-        token = oRequest.getCookie('XSRF-TOKEN')
-        oRequest.addHeaderEntry('Cookie','XSRF-TOKEN='+str(token.value))
         sHtmlContent = oRequest.request()
 
     sPattern =  'href="(http[^<]+/watch/.+?)".*?>اضغط هنا</span>'  
@@ -223,9 +208,6 @@ def showHosters():
     if aResult[0]:
         murl =  aResult[1][0]
         oRequest = cRequestHandler(murl,caching=False)
-        token = oRequest.getCookie('XSRF-TOKEN')
-        oRequest.addHeaderEntry('Cookie','XSRF-TOKEN='+str(token.value))
-        oRequest.addHeaderEntry('Referer',murl.split(''))
         sHtmlContent = oRequest.request()
         
 
