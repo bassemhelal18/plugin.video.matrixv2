@@ -263,11 +263,13 @@ def showHosters():
     isMatch,aResult = cParser.parse(sHtmlContent, sPattern)
     if isMatch:
        for shost in aResult :
-        logger.error('active: ' + str(shost))
         sName = cParser.urlparse(shost)
+        sName =  sName.split('.')[-2]
         if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
         if 'youtube' in shost:
             continue
+        if 'goveed' in shost:
+            shost = shost+'$$'+URL_MAIN
         elif shost.startswith('//'):
                shost = 'https:' + shost
         hoster = {'link': shost, 'name': sName, 'displayedName':sName} # Qualität Anzeige aus Release Eintrag
@@ -281,6 +283,7 @@ def showHosters():
        for shost,sQuality  in aResult :
         
         sName = cParser.urlparse(shost)
+        sName =  sName.split('.')[-2]
         if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
         if 'top15top'in shost:
            sName='Wecima'
@@ -298,7 +301,8 @@ def showHosters():
     return hosters
 
 def getHosterUrl(sUrl=False):
-    
+    if '$$' in sUrl:
+       return [{'streamUrl': sUrl, 'resolved': False}]
     Request = cRequestHandler(sUrl, caching=False)
     Request.addHeaderEntry('Referer',URL_MAIN)
     Request.request()

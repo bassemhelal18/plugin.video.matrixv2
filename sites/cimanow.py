@@ -203,7 +203,7 @@ def showHosters():
                 continue
               elif sUrl.startswith('//'):
                 sUrl = 'https:' + sUrl
-              hoster = {'link': sUrl, 'name': sName, 'displayedName':sName, 'resolveable': True} # Qualität Anzeige aus Release Eintrag
+              hoster = {'link': sUrl, 'name': sName, 'displayedName':sName} # Qualität Anzeige aus Release Eintrag
               hosters.append(hoster)
                
     
@@ -252,9 +252,8 @@ def showHosters():
 
 
 def getHosterUrl(sUrl=False):
-    if 'cimanow' in sUrl:
-         # hole reale URL von der Umleitung
-        
+    if 'cimanow'in sUrl:
+        sUrl = sUrl.replace(' ','%20')
         return [{'streamUrl': sUrl, 'resolved': True}]
     else:
         Request = cRequestHandler(sUrl, caching=False)

@@ -199,7 +199,8 @@ def showHosters():
               if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
               if 'youtube' in sUrl:
                 continue
-              
+              if 'trgsfjll.sbs' in sUrl:
+                sUrl = sUrl + "$$" + URL_MAIN
               elif sUrl.startswith('//'):
                 sUrl = 'https:' + sUrl
               hoster = {'link': sUrl, 'name': sName, 'displayedName':sName} # Qualität Anzeige aus Release Eintrag
@@ -222,7 +223,8 @@ def showHosters():
                 continue
             elif sUrl.startswith('//'):
                  sUrl = 'https:' + sUrl
-            
+            if 'trgsfjll.sbs' in sUrl:
+                sUrl = sUrl + "$$" + URL_MAIN
             hoster = {'link': sUrl, 'name': sName, 'displayedName':sName+' '+sQuality, 'quality': sQuality} # Qualität Anzeige aus Release Eintrag
             hosters.append(hoster)
     if hosters:
@@ -230,12 +232,13 @@ def showHosters():
     return hosters
 
 def getHosterUrl(sUrl=False):
-    
-     Request = cRequestHandler(sUrl, caching=False)
-     Request.addHeaderEntry('Referer',URL_MAIN)
-     Request.request()
-     sUrl = Request.getRealUrl()  # hole reale sURL
-     return [{'streamUrl': sUrl, 'resolved': False}]
+    if '$$' in sUrl:
+       return [{'streamUrl': sUrl, 'resolved': False}]
+    Request = cRequestHandler(sUrl, caching=False)
+    Request.addHeaderEntry('Referer',URL_MAIN)
+    Request.request()
+    sUrl = Request.getRealUrl()  # hole reale sURL
+    return [{'streamUrl': sUrl, 'resolved': False}]
     
 
 def showSearch():

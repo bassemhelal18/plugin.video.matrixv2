@@ -190,7 +190,6 @@ def showHosters():
        for shost in aResult :
         if 'megamax' in shost or 'tuktukcimamulti' in shost:
             sHtmlContent2 = cMegamax().GetUrls(shost)
-            logger.error('active: ' + str(sHtmlContent2))
             sPattern = "(https.*?),(.*?p)"
             isMatch, aResult = cParser.parse(str(sHtmlContent2), sPattern)
             if isMatch: 
@@ -207,9 +206,12 @@ def showHosters():
 
         else:
          sName = cParser.urlparse(shost)
+         sName =  sName.split('.')[-2]
          if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
          if 'youtube' in shost:
             continue
+         if 'goveed' in shost:
+            shost = shost+'$$'+URL_MAIN
          elif shost.startswith('//'):
                shost = 'https:' + shost
          hoster = {'link': shost, 'name': sName, 'displayedName':sName} # Qualität Anzeige aus Release Eintrag
@@ -235,6 +237,8 @@ def showHosters():
 
 
 def getHosterUrl(sUrl=False):
+    if '$$' in sUrl:
+       return [{'streamUrl': sUrl, 'resolved': False}]
     Request = cRequestHandler(sUrl, caching=False)
     Request.addHeaderEntry('Referer',URL_MAIN)
     Request.request()

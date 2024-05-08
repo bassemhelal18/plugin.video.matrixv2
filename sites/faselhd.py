@@ -190,6 +190,7 @@ def showHosters():
     isMatch, aResult = cParser.parse(sHtmlContent, pattern)
     if not isMatch: return
     for slink in aResult:
+        slink=slink.replace(' ','')
         oRequest = cRequestHandler(slink)
         oRequest.addHeaderEntry('referer',URL_MAIN)
         sHtmlContent = oRequest.request()
@@ -209,7 +210,6 @@ def showHosters():
                  sUrl = 'https:' + sUrl
             elif 'fasel' in sUrl:
                 sName = 'FaselHD'
-                sQuality = sQuality
             hoster = {'link': sUrl, 'name': sName, 'displayedName':sName+' '+sQuality, 'quality': sQuality, 'resolveable': True} # Qualität Anzeige aus Release Eintrag
             hosters.append(hoster)
     if hosters:
