@@ -114,6 +114,8 @@ class cHosterGui:
                       'episode':int(data.get('episode'))})
         tmdb = {'tmdb':'{0}'.format(data.get('tmdb_id', "")),'imdb':'{0}'.format(data.get('imbd_id', ""))}
         info_tag.set_unique_ids(tmdb)
+        info_tag.set_resume_point({'ResumeTime': data.get('resumetime', 0.0),
+                                   'TotalTime': data.get('totaltime', 0.0)})
         info_tag.set_info(info)
         list_item.setArt({'poster': data.get('cover_url'),
                            'thumb': data.get('cover_url'),
