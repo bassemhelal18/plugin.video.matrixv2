@@ -7,6 +7,7 @@ import re
 from requestHandler import cRequestHandler
 from resources.lib.config import cConfig
 from urllib.parse import quote_plus
+from resources.lib.tools import logger
 from xbmcaddon import Addon
 
 class cTMDB:
@@ -241,6 +242,8 @@ class cTMDB:
         _meta['genre'] = ''
         if 'id' in meta:
             _meta['tmdb_id'] = meta['id']
+        if 'imdb_id' in meta:
+            _meta['imdb_id'] = meta['imdb_id']
         if 'backdrop_path' in meta and meta['backdrop_path']:
             _meta['backdrop_url'] = self.fanart + str(meta['backdrop_path'])
         if 'original_language' in meta and meta['original_language']:

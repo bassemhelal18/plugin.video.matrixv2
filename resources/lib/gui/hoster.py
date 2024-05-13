@@ -3,6 +3,7 @@
 #
 # 24.01.23 - Heptamer: Korrektur getpriorities (nun werden alle Hoster gelesen und sortiert)
 
+import json
 from resources.lib.tmdb import cTMDB
 import xbmc
 import xbmcgui 
@@ -91,6 +92,7 @@ class cHosterGui:
             'title' : str(data.get('title', "")),
             'originaltitle':str(data.get('originaltitle', "")),
             'plot':str(data.get('plot', "")),
+            'imdbnumber':str(data.get('imdb_id', "")),
             'plotoutline':str(data.get('tagline', "")),
             'year':int(data.get('year', 0)),
             'rating':float(data.get('rating', 0.0)),
@@ -110,10 +112,9 @@ class cHosterGui:
          info.update({'tvshowtitle':str(data.get('showTitle', "")),
                        'season':int(data.get('season')),
                       'episode':int(data.get('episode'))})
-        
-        info_tag.set_info(info)
-        tmdb = {'tmdb':'{}'.format(data.get('tmdb_id', ""))}
+        tmdb = {'tmdb':'{0}'.format(data.get('tmdb_id', "")),'imdb':'{0}'.format(data.get('imbd_id', ""))}
         info_tag.set_unique_ids(tmdb)
+        info_tag.set_info(info)
         list_item.setArt({'poster': data.get('cover_url'),
                            'thumb': data.get('cover_url'),
                            'icon': data.get('cover_url'),
