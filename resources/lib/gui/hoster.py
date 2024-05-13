@@ -85,29 +85,35 @@ class cHosterGui:
 
         logger.info('-> [hoster]: play file link: ' + str(data['link']))
         list_item = xbmcgui.ListItem(path=data['link'])
-        videoInfoTag = list_item.getVideoInfoTag()
-        videoInfoTag.setMediaType(str(data.get('mediatype', "")))
+        info_tag=ListItemInfoTag(list_item,'video')
+        info={
+            'mediatype':str(data.get('mediatype', "")),
+            'title' : str(data.get('title', "")),
+            'originaltitle':str(data.get('originaltitle', "")),
+            'plot':str(data.get('plot', "")),
+            'plotoutline':str(data.get('tagline', "")),
+            'year':int(data.get('year', 0)),
+            'rating':float(data.get('rating', 0.0)),
+            'mpaa':str(data.get('mpaa', "")),
+            'duration':int(data.get('duration', 0)),
+            'playcount':int(data.get('playcount', 0)),
+            'trailer':str(data.get('trailer', "")),
+            'tagline':str(data.get('tagline', "")),
+            'studio':list(data.get('studio', '').split("/")),
+            'writer':list(data.get('writer', '').split("/")),
+            'director':list(data.get('director', '').split("/")),
+            'genre':''.join(data.get('genre', [""])).split('/'),
+            'premiered':str(data.get('premiered', "")),
+            'dateadded':str(data.get('date'))
+        }
         if data.get('mediatype')=='episode':
-         videoInfoTag.setTvShowTitle(str(data.get('showTitle', "")))
-        videoInfoTag.setTitle(str(data.get('title', "")))
-        videoInfoTag.setOriginalTitle(str(data.get('originaltitle', "")))
-        videoInfoTag.setUniqueIDs(data.get('tmdb_id', ""),'tmdb')
-        videoInfoTag.setPlot(str(data.get('plot', "")))
-        videoInfoTag.setPlotOutline(str(data.get('tagline', "")))
-        videoInfoTag.setYear(int(data.get('year', 0)))
-        videoInfoTag.setRating(float(data.get('rating', 0.0)))
-        videoInfoTag.setMpaa(str(data.get('mpaa', "")))
-        videoInfoTag.setDuration(int(data.get('duration', 0)))
-        videoInfoTag.setPlaycount(int(data.get('playcount', 0)))
-        videoInfoTag.setTrailer(str(data.get('trailer', "")))
-        videoInfoTag.setTagLine(str(data.get('tagline', "")))
-        videoInfoTag.setStudios(list(data.get('studio', '').split("/")))
-        videoInfoTag.setWriters(list(data.get('writer', '').split("/")))
-        videoInfoTag.setDirectors(list(data.get('director', '').split("/")))
-        videoInfoTag.setGenres(''.join(data.get('genre', [""])).split('/'))
-        videoInfoTag.setSeason(int(data.get('season', 0)))
-        videoInfoTag.setEpisode(int(data.get('episode', 0)))
-        videoInfoTag.setResumePoint(float(data.get('resumetime', 0.0)), float(data.get('totaltime', 0.0)))
+         info.update({'tvshowtitle':str(data.get('showTitle', "")),
+                       'season':int(data.get('season')),
+                      'episode':int(data.get('episode'))})
+        
+        info_tag.set_info(info)
+        tmdb = {'tmdb':'{}'.format(data.get('tmdb_id', ""))}
+        info_tag.set_unique_ids(tmdb)
         list_item.setArt({'poster': data.get('cover_url'),
                            'thumb': data.get('cover_url'),
                            'icon': data.get('cover_url'),
