@@ -189,7 +189,7 @@ def showHosters():
     if isMatch:
        for shost in aResult :
         sName = cParser.urlparse(shost)
-        
+        sName =  sName.split('.')[-2]
         if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
         if 'youtube' in shost:
             continue
