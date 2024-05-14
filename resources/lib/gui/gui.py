@@ -125,8 +125,9 @@ class cGui:
         videoInfoTag.setWriters(list(itemValues.get('writer', '').split("/")))
         videoInfoTag.setDirectors(list(itemValues.get('director', '').split("/")))
         videoInfoTag.setGenres(''.join(itemValues.get('genre', [""])).split('/'))
-        videoInfoTag.setSeason(int(itemValues.get('season', 0)))
-        videoInfoTag.setEpisode(int(itemValues.get('episode', 0)))
+        if itemValues.get('mediatype')!='movie':
+         videoInfoTag.setSeason(int(itemValues.get('season', 0)))
+         videoInfoTag.setEpisode(int(itemValues.get('episode', 0)))
         videoInfoTag.setResumePoint(float(itemValues.get('resumetime', 0.0)), float(itemValues.get('totaltime', 0.0)))
         
         listitem.setProperty('fanart_image', oGuiElement.getFanart())
