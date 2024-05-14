@@ -105,7 +105,7 @@ class cGui:
        
         
         videoInfoTag.setMediaType(str(itemValues.get('mediatype', '')))
-        videoInfoTag.setTvShowTitle(str(itemValues.get('tvshowtitle', '')))
+        videoInfoTag.setTvShowTitle(str(itemValues.get('tvshowtitle', '').strip()))
         videoInfoTag.setTitle(str(itemValues.get('title', "")))
         videoInfoTag.setOriginalTitle(str(itemValues.get('originaltitle', "")))
         videoInfoTag.setUniqueIDs(itemValues.get('tmdb_id', ""),'tmdb')

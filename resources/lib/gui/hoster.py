@@ -83,12 +83,16 @@ class cHosterGui:
                 self.dialog.close()
             except:
                 pass
-
+        if data.get('mediatype')=='movie':
+            data.pop('showTitle')
+            data.pop('episode')
+            data.pop('season')
         logger.info('-> [hoster]: play file link: ' + str(data['link']))
         list_item = xbmcgui.ListItem(path=data['link'])
         info_tag=ListItemInfoTag(list_item,'video')
         info={
             'mediatype':str(data.get('mediatype', "")),
+            'tvshowtitle':str(data.get('showTitle', "").strip()),
             'title' : str(data.get('title', "")),
             'originaltitle':str(data.get('originaltitle', "")),
             'plot':str(data.get('plot', "")),
@@ -108,9 +112,8 @@ class cHosterGui:
             'premiered':str(data.get('premiered', "")),
             'dateadded':str(data.get('date'))
         }
-        if data.get('mediatype')=='episode':
-         info.update({'tvshowtitle':str(data.get('showTitle', "")),
-                       'season':int(data.get('season')),
+        if data.get('mediatype')!='movie':
+         info.update({'season':int(data.get('season')),
                       'episode':int(data.get('episode'))})
         tmdb = {'tmdb':'{0}'.format(data.get('tmdb_id', "")),'imdb':'{0}'.format(data.get('imbd_id', ""))}
         info_tag.set_unique_ids(tmdb)
