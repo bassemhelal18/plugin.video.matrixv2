@@ -87,6 +87,14 @@ class cHosterGui:
             data.pop('showTitle')
             data.pop('episode')
             data.pop('season')
+            trakt={}
+            trakt['tmdb']=str(data.get('tmdb_id', ""))
+            trakt['imdb']=str(data.get('imbd_id', ""))
+            slug = '{0} {1}'.format(str(data.get('title', "")),int(data.get('year', 0)))
+            slug = slug.replace(' ','-').strip().lower()
+            trakt['slug']=slug
+            xbmcgui.Window(10000).setProperty('script.trakt.ids', json.dumps(trakt))
+
         logger.info('-> [hoster]: play file link: ' + str(data['link']))
         list_item = xbmcgui.ListItem(path=data['link'])
         info_tag=ListItemInfoTag(list_item,'video')
