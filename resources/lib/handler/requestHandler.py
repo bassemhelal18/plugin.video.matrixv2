@@ -11,6 +11,7 @@ import os
 import sys
 import hashlib
 import json
+import traceback
 import urllib.parse
 from resources.lib.config import cConfig
 from resources.lib.tools import logger
@@ -158,27 +159,30 @@ class cRequestHandler:
                     oResponse = opener.open(self._sUrl, sParameters if len(sParameters) > 0 else None)
                     if not oResponse:
                         logger.error(' -> [requestHandler]: Failed DDOS-GUARD active: ' + self._sUrl)
-                        return ''
+                        return 'DDOS GUARD PROTECTION'
                 elif 'cloudflare' in str(e.headers):
+                    if not self.ignoreErrors:
+                        value = ('!!! CLOUDFLARE PROTECTION ACTIVE!!! Additional Information:' + str(e.__class__.__name__) + ' : ' + str(e), str(traceback.format_exc().splitlines()[-3].split('addons')[-1]))
+                        xbmcgui.Dialog().ok(cConfig().getLocalizedString(30166), str(value))  # Error
                     logger.error(' -> [requestHandler]: Failed Cloudflare active: ' + self._sUrl)
-                    return 'CLOUDFLARE-SCHUTZ AKTIV' # Meldung geht als "e.doc" in die exception nach default.py
+                    return 'CLOUDFLARE PROTECTION ACTIVE' # Meldung geht als "e.doc" in die exception nach default.py
                 else:
                     if not self.ignoreErrors:
                         xbmcgui.Dialog().ok('Matrixv2', cConfig().getLocalizedString(30259) + ' {0} {1}'.format(self._sUrl, str(e)))
                         logger.error(' -> [requestHandler]: HTTPError ' + str(e) + ' Url: ' + self._sUrl)
-                    return ''
+                    return 'PAGE NOT AVAILABLE'
             else:
                 oResponse = e
         except URLError as e:
             if not self.ignoreErrors:
                 xbmcgui.Dialog().ok('Matrixv2', str(e.reason))
             logger.error(' -> [requestHandler]: URLError ' + str(e.reason) + ' Url: ' + self._sUrl)
-            return ''
+            return 'URL ERROR'
         except HTTPException as e:
             if not self.ignoreErrors:
                 xbmcgui.Dialog().ok('Matrixv2', str(e))
             logger.error(' -> [requestHandler]: HTTPException ' + str(e) + ' Url: ' + self._sUrl)
-            return ''
+            return 'TIMEOUT'
 
         self._sResponseHeader = oResponse.info()
         if self._sResponseHeader.get('Content-Encoding') == 'gzip':

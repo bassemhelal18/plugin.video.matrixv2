@@ -32,9 +32,6 @@ except Exception as e:
         import traceback
         import xbmcgui
         log(traceback.format_exc(), LOGNOTICE)
-        try:
-            value = ('!!! ' + str(e.doc) + ' !!! More information: ' + str(e.__class__.__name__) + ' : ' + str(e), str(traceback.format_exc().splitlines()[-3].split('addons')[-1]))
-        finally:
-            value = (str(e.__class__.__name__) + ' : ' + str(e), str(traceback.format_exc().splitlines()[-3].split('addons')[-1]))
+        value = (str(e.__class__.__name__) + ' : ' + str(e), str(traceback.format_exc().splitlines()[-3].split('addons')[-1]))
         from resources.lib.config import cConfig
         dialog = xbmcgui.Dialog().ok(cConfig().getLocalizedString(257), str(value)) # Error
