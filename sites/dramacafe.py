@@ -246,12 +246,14 @@ def showHosters():
     return hosters
 
 def getHosterUrl(sUrl=False):
-    
-    Request = cRequestHandler(sUrl, caching=False)
-    Request.addHeaderEntry('Referer',URL_MAIN)
-    Request.request()
-    sUrl = Request.getRealUrl()  # hole reale sURL
-    return [{'streamUrl': sUrl, 'resolved': False}]
+    if 'vk.com'in sUrl:
+        return [{'streamUrl': sUrl, 'resolved': False}]
+    else:
+     Request = cRequestHandler(sUrl, caching=False)
+     Request.addHeaderEntry('Referer',URL_MAIN)
+     Request.request()
+     sUrl = Request.getRealUrl()  # hole reale sURL
+     return [{'streamUrl': sUrl, 'resolved': False}]
     
 
 def showSearch():
