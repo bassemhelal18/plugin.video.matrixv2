@@ -255,6 +255,8 @@ def getHosterUrl(sUrl=False):
     if 'cimanow'in sUrl:
         sUrl = sUrl.replace(' ','%20')
         return [{'streamUrl': sUrl, 'resolved': True}]
+    if 'vk.com'in sUrl:
+        return [{'streamUrl': sUrl, 'resolved': False}]
     else:
         Request = cRequestHandler(sUrl, caching=False)
         Request.addHeaderEntry('Referer',URL_MAIN)
