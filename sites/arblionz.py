@@ -31,6 +31,7 @@ URL_MAIN = 'https://' + DOMAIN + '/'
 
 URL_MOVIES_English = URL_MAIN + 'category/movies/english-movies/'
 URL_SERIES_English = URL_MAIN + 'category/series/english-series/'
+URL_MOVIES_Kids = URL_MAIN + 'category/anime-cartoon/cartoon/'
 URL_SEARCH = URL_MAIN + '/search/%s'
 
 #ToDo Serien auch auf reinen Filmseiten, prüfen ob Filterung möglich
@@ -43,6 +44,9 @@ def load(): # Menu structure of the site plugin
     params.setParam('sUrl', URL_SERIES_English)
     params.setParam('trumb', os.path.join(ART, 'TVShowsEnglish.png'))
     cGui().addFolder(cGuiElement(cConfig().getLocalizedString(30514), SITE_IDENTIFIER, 'showEntries'), params) 
+    params.setParam('sUrl', URL_MOVIES_Kids)
+    params.setParam('trumb', os.path.join(ART, 'Kids.png'))
+    cGui().addFolder(cGuiElement(cConfig().getLocalizedString(30503), SITE_IDENTIFIER, 'showEntries'), params)
     params.setParam('trumb', os.path.join(ART, 'search.png'))
     cGui().addFolder(cGuiElement(cConfig().getLocalizedString(30520), SITE_IDENTIFIER, 'showSearch'),params)  
     cGui().setEndOfDirectory()

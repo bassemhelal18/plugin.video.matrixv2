@@ -1040,7 +1040,7 @@ msgid "Movies English"
 msgstr ""
 
 msgctxt "#30503"
-msgid "Movies for Children"
+msgid "Movies Kids"
 msgstr ""
 
 msgctxt "#30504"

@@ -35,6 +35,7 @@ URL_MOVIES_English = URL_MAIN + 'category.php?cat=aflam-agnaby'
 URL_MOVIES_Arabic = URL_MAIN + 'category.php?cat=aflam-araby1'
 URL_SERIES_English = URL_MAIN + 'category.php?cat=moslslat-agnaby'
 URL_SERIES_Arabic = URL_MAIN + 'category.php?cat=moslslat-arabia'
+URL_MOVIES_Kids = URL_MAIN + 'category.php?cat=aflam-cartoon'
 URL_SEARCH = URL_MAIN + 'search.php?keywords=%s&video-id='
 
 #ToDo Serien auch auf reinen Filmseiten, prüfen ob Filterung möglich
@@ -53,6 +54,9 @@ def load(): # Menu structure of the site plugin
     params.setParam('sUrl', URL_SERIES_Arabic)
     params.setParam('trumb', os.path.join(ART, 'TVShowsArabic.png'))
     cGui().addFolder(cGuiElement(cConfig().getLocalizedString(30511), SITE_IDENTIFIER, 'showEntries'), params)  
+    params.setParam('sUrl', URL_MOVIES_Kids)
+    params.setParam('trumb', os.path.join(ART, 'Kids.png'))
+    cGui().addFolder(cGuiElement(cConfig().getLocalizedString(30503), SITE_IDENTIFIER, 'showEntries'), params)
     params.setParam('trumb', os.path.join(ART, 'search.png'))
     cGui().addFolder(cGuiElement(cConfig().getLocalizedString(30520), SITE_IDENTIFIER, 'showSearch'),params) 
     cGui().setEndOfDirectory()
