@@ -165,7 +165,7 @@ def showEpisodes():
     sStart = '<div class="epAll" id="epAll">'
     sEnd = '<div class="postShare">'
     sHtmlContent = cParser.abParse(sHtmlContent, sStart, sEnd)
-    logger.error('active: ' + sHtmlContent)
+    
     pattern = '<a href="(.+?)".*?>\s*(.*?)\s*</a>'  # start element
     isMatch, aResult = cParser.parse(sHtmlContent, pattern)
     if not isMatch: return
