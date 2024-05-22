@@ -172,14 +172,13 @@ def showEpisodes():
     sShowName = params.getValue('TVShowTitle')
     dataid = params.getValue('dataid')
     dataseason = params.getValue('dataseason')
-    import requests
-    s = requests.Session()            
     
     if dataid:
-     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:65.0) Gecko/20100101 Firefox/65.0'}
-     data = {'post_id':dataid,'season':dataseason}
-     r = s.post(URL_MAIN + '/wp-content/themes/Elshaikh2021/Ajaxat/Single/Episodes.php', headers=headers,data = data)
-     sHtmlContent = r.content.decode('utf8',errors='ignore')
+     urlseason = URL_MAIN + '/wp-content/themes/Elshaikh2021/Ajaxat/Single/Episodes.php'
+     Handler = cRequestHandler(urlseason)
+     Handler.addParameters('post_id', dataid)
+     Handler.addParameters('season', dataseason)
+     sHtmlContent =Handler.request()
      
      pattern = 'href="([^<]+)">.*?<em>([^<]+)</em>'  # start element
      isMatch, aResult = cParser.parse(sHtmlContent, pattern)

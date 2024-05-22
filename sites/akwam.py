@@ -62,7 +62,7 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     params = ParameterHandler()
     isTvshow = False
     if not sUrl: sUrl = params.getValue('sUrl')
-    oRequest = cRequestHandler(sUrl,caching=False, ignoreErrors=(sGui is not False))
+    oRequest = cRequestHandler(sUrl, ignoreErrors=(sGui is not False))
     if cConfig().getSetting('global_search_' + SITE_IDENTIFIER) == 'true':
         oRequest.cacheTime = 60 * 60 * 6  # HTML Cache Zeit 6 Stunden
     sHtmlContent = oRequest.request()
@@ -111,7 +111,7 @@ def showSeasons():
     sUrl = params.getValue('sUrl')
     sThumbnail = params.getValue('sThumbnail')
     sName = params.getValue('sName')
-    oRequest=cRequestHandler(sUrl,caching=False)
+    oRequest=cRequestHandler(sUrl)
     sHtmlContent = oRequest.request()
     
     
@@ -164,7 +164,7 @@ def showEpisodes():
     params = ParameterHandler()
     sUrl = params.getValue('sUrl')
     sThumbnail = params.getValue('sThumbnail')
-    oRequest=cRequestHandler(sUrl,caching=False)
+    oRequest=cRequestHandler(sUrl)
     sHtmlContent = oRequest.request()
     sSeason = params.getValue('season')
     sShowName = params.getValue('TVShowTitle')
@@ -195,7 +195,7 @@ def showEpisodes():
 def showHosters():
     hosters = []
     sUrl = ParameterHandler().getValue('sUrl')
-    oRequest=cRequestHandler(sUrl,caching=False)
+    oRequest=cRequestHandler(sUrl)
     sHtmlContent = oRequest.request()
     
     
@@ -203,7 +203,7 @@ def showHosters():
     aResult = cParser.parse(sHtmlContent,sPattern)
     if aResult[0]:
         murl =  aResult[1][0]
-        oRequest = cRequestHandler(murl,caching=False)
+        oRequest = cRequestHandler(murl)
         sHtmlContent = oRequest.request()
 
     sPattern =  'href="(http[^<]+/watch/.+?)".*?>اضغط هنا</span>'  
@@ -211,7 +211,7 @@ def showHosters():
     
     if aResult[0]:
         murl =  aResult[1][0]
-        oRequest = cRequestHandler(murl,caching=False)
+        oRequest = cRequestHandler(murl)
         sHtmlContent = oRequest.request()
         
 
@@ -237,15 +237,8 @@ def showHosters():
     return hosters
 
 def getHosterUrl(sUrl=False):
-    if sUrl.endswith('.mp4'):
-        Request = cRequestHandler(sUrl, caching=False)
-        
-        Request.request()
-        sUrl = Request.getRealUrl()  # hole reale URL von der Umleitung
+    return [{'streamUrl': sUrl, 'resolved': True}]
 
-        return [{'streamUrl': sUrl, 'resolved': False}]
-    else:
-     return [{'streamUrl': sUrl, 'resolved': True}]
 
 def showSearch():
     sSearchText = cGui().showKeyBoard()

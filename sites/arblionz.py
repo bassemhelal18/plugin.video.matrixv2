@@ -121,7 +121,6 @@ def showSeasons():
     sName = params.getValue('sName')
     oRequest = cRequestHandler(sUrl)
     sHtmlContent = oRequest.request()
-    logger.error('active: ' + sHtmlContent)
     
     pattern = 'href="([^<]+)"><span>([^<]+)</span><em'  # start element
     isMatch, aResult = cParser.parse(sHtmlContent, pattern)
