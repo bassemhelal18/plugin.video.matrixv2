@@ -15,7 +15,7 @@ import traceback
 import urllib.parse
 from resources.lib.config import cConfig
 from resources.lib.tools import logger
-from resources.lib import common, random_ua
+from resources.lib import common
 
 from urllib.parse import quote, urlencode, urlparse
 from urllib.error import HTTPError, URLError
@@ -23,7 +23,7 @@ from urllib.request import HTTPHandler, HTTPSHandler, HTTPCookieProcessor, build
 from http.cookiejar import LWPCookieJar, Cookie
 from http.client import HTTPException
 from xbmc import LOGINFO as LOGNOTICE, LOGERROR, LOGWARNING, LOGDEBUG, log, executebuiltin, getCondVisibility, getInfoLabel
-UA = random_ua.get_ua()
+UA = common.RAND_UA
 
 class cRequestHandler:
     def __init__(self, sUrl, caching=True, ignoreErrors=False, compression=True, jspost=False, ssl_verify=False):
