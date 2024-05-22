@@ -183,18 +183,19 @@ def showHosters():
     isMatch, aResult = cParser().parse(sHtmlContent, pattern)
     if isMatch:
      for dataid ,dataserver in aResult:
-            import requests
-            s = requests.Session()            
-            headers = {'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Mobile Safari/537.36 Edg/115.0.1901.203',
-            'origin': URL_MAIN,
-            'referer': URL_MAIN,
-            'Sec-Fetch-Mode':'cors',
-            'X-Requested-With':'XMLHttpRequest',
-            'Sec-Fetch-Dest':'empty',
-            'Sec-Fetch-Site':'same-origin'}
-
-            data = {'id':dataid,'i':dataserver}
-            sHtmlContent2 = s.post((URL_MAIN+'/wp-content/themes/movies2023/Ajaxat/Single/Server.php'),data=data,headers=headers).text
+            
+            urlframe= '{}/wp-content/themes/movies2023/Ajaxat/Single/Server.php'.format(URL_MAIN)
+            Handler = cRequestHandler(urlframe)
+            Handler.addHeaderEntry('origin',URL_MAIN)
+            Handler.addHeaderEntry('referer',URL_MAIN)
+            Handler.addHeaderEntry('Sec-Fetch-Mode','cors')
+            Handler.addHeaderEntry('X-Requested-With','XMLHttpRequest')
+            Handler.addHeaderEntry('Sec-Fetch-Dest','empty')
+            Handler.addHeaderEntry('Sec-Fetch-Site','same-origin')
+            Handler.addParameters('id', dataid)
+            Handler.addParameters('i', dataserver)
+            sHtmlContent2 =Handler.request()
+            
             sPattern =  '<iframe.+?src="([^"]+)"'
             isMatch, aResult = cParser().parse(sHtmlContent2,sPattern)
             if isMatch:
