@@ -184,7 +184,7 @@ def showHosters():
     if isMatch:
      for dataid ,dataserver in aResult:
             
-            urlframe= '{}/wp-content/themes/movies2023/Ajaxat/Single/Server.php'.format(URL_MAIN)
+            urlframe= '{}wp-content/themes/movies2023/Ajaxat/Single/Server.php'.format(URL_MAIN)
             Handler = cRequestHandler(urlframe)
             Handler.addHeaderEntry('origin',URL_MAIN)
             Handler.addHeaderEntry('referer',URL_MAIN)
