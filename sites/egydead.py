@@ -123,10 +123,10 @@ def showSeasons():
     sStart = '<div class="seasons-list">'
     sEnd = '<div class="singleBottomArea">'
     sHtmlContent1 = cParser.abParse(sHtmlContent, sStart, sEnd)
-    
-    sPattern = 'class="movieItem">.*?href="(.+?)" title="([^<]+)">.*?<img src="([^<]+)"'  # start element
-    isMatch, aResult = cParser.parse(sHtmlContent1, sPattern)
-    if  isMatch:
+    if '<div class="seasons-list">' in sHtmlContent1:
+     sPattern = 'class="movieItem">.*?href="(.+?)" title="([^<]+)">.*?<img src="([^<]+)"'  # start element
+     isMatch, aResult = cParser.parse(sHtmlContent1, sPattern)
+     if  isMatch:
        total = len(aResult)
     
        for sUrl,sSeason,sThumbnail in aResult:
@@ -151,9 +151,10 @@ def showSeasons():
          params.setParam('sYear', sYear)
         cGui().addFolder(oGuiElement, params, True, total)
     else:
-        s = requests.Session()
-        data = {'View':'1'}
-        sHtmlContent = s.post(sUrl, data = data).text
+        Handler = cRequestHandler(sUrl)
+        Handler.addParameters('View', '1')
+        sHtmlContent =Handler.request()
+        
         sStart = '<div class="seasons-list">'
         sEnd = '<div class="clr">'
         sHtmlContent1 = cParser.abParse(sHtmlContent, sStart, sEnd)
@@ -185,9 +186,9 @@ def showSeasons():
             params.setParam('sYear', sYear)
            cGui().addFolder(oGuiElement, params, True, total)
         else:
-           s = requests.Session()
-           data = {'View':'1'}
-           sHtmlContent = s.post(sUrl, data = data).text
+           Handler = cRequestHandler(sUrl)
+           Handler.addParameters('View', '1')
+           sHtmlContent =Handler.request()
            
            sPattern ='<meta property="og:title" content="([^<]+)">.*?<meta property="og:url" content="([^<]+)"'  # start element
            isMatch, aResult = cParser.parse(sHtmlContent, sPattern)
@@ -248,9 +249,9 @@ def showEpisodes():
         params.setParam('sUrl', sUrl)
         cGui().addFolder(oGuiElement, params, False, total)
     else:
-        s = requests.Session()
-        data = {'View':'1'}
-        sHtmlContent = s.post(sUrl, data=data).text
+        Handler = cRequestHandler(sUrl)
+        Handler.addParameters('View', '1')
+        sHtmlContent =Handler.request()
         
         sPattern = '<meta property="og:title" content="(.*?)">.*?<meta property="og:url" content="(.*?)" />'
         isMatch, aResult = cParser.parse(sHtmlContent, sPattern)
@@ -296,9 +297,9 @@ def showHosters():
     hosters = []
     sUrl = ParameterHandler().getValue('sUrl')
     
-    s = requests.Session()
-    data = {'View':'1'}
-    sHtmlContent= s.post(sUrl, data = data).text
+    Handler = cRequestHandler(sUrl)
+    Handler.addParameters('View', '1')
+    sHtmlContent =Handler.request()
     
     sPattern = '<li data-link="(.+?)">'
     isMatch,aResult = cParser.parse(sHtmlContent, sPattern)
