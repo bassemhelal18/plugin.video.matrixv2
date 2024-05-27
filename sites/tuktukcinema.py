@@ -64,7 +64,7 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     sHtmlContent = oRequest.request()
     
     
-    sPattern = '<div class="Block--Item">.*?<a.*?href="(.*?)" title="(.*?)">.*?data-src="(.*?)" alt'
+    sPattern = '<div class="Block--Item">.*?<a.*?href="(.*?)" title="(.*?)">.*?src="(.*?)" alt'
     isMatch, aResult = cParser.parse(sHtmlContent, sPattern)
     if not isMatch:
         if not sGui: oGui.showInfo()
