@@ -260,7 +260,9 @@ def showHosters():
     sUrl = ParameterHandler().getValue('sUrl')
     sR,sUrl = sUrl.split('watch')
     sUrl = URL_MAIN+'watch'+sUrl
-    sHtmlContent = cRequestHandler(sUrl).request()
+    oRequestHandler = cRequestHandler(sUrl)
+    oRequestHandler.addHeaderEntry('Referer', URL_MAIN)
+    sHtmlContent = oRequestHandler.request()
     
     
     sPattern = '<btn data-url="([^<]+)" class="hoverable activable">'
