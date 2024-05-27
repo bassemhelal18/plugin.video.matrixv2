@@ -126,6 +126,7 @@ def showSeasons():
     sThumbnail = params.getValue('sThumbnail')
     sName = params.getValue('sName')
     oRequestHandler = cRequestHandler(sUrl)
+    oRequestHandler.addHeaderEntry('Referer', URL_MAIN)
     sHtmlContent = oRequestHandler.request()
     
     seasonList =[]
@@ -200,6 +201,7 @@ def showEpisodes():
     sUrl = params.getValue('sUrl')
     sThumbnail = params.getValue('sThumbnail')
     oRequestHandler = cRequestHandler(sUrl)
+    oRequestHandler.addHeaderEntry('Referer', URL_MAIN)
     sHtmlContent = oRequestHandler.request()
 
     sSeason = params.getValue('season')
