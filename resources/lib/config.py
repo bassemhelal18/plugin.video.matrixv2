@@ -32,7 +32,7 @@ class cConfig:
         
     def isBlockedHoster(self, domain, checkResolver=True ):
         domain = urlparse(domain).path if urlparse(domain).hostname == None else urlparse(domain).hostname
-        hostblockDict = ['flashx','streamlare','evoload']  # permanenter Block
+        hostblockDict = ['flashx','streamlare','evoload','megaup']  # permanenter Block
         blockedHoster = cConfig().getSetting('blockedHoster').split(',')  # aus setting.xml blockieren
         if len(blockedHoster) <= 1: blockedHoster = cConfig().getSetting('blockedHoster').split()
         for i in blockedHoster: hostblockDict.append(i.lower())
