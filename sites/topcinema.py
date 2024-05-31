@@ -204,7 +204,7 @@ def showHosters():
               if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
               if 'youtube' in sUrl:
                 continue
-              if 'trgsfjll.sbs' in sUrl:
+              if 'trgsfjll.sbs' or 'vidhidepro' in sUrl:
                 sUrl = sUrl + "$$" + URL_MAIN
               elif sUrl.startswith('//'):
                 sUrl = 'https:' + sUrl
@@ -228,7 +228,7 @@ def showHosters():
                 continue
             elif sUrl.startswith('//'):
                  sUrl = 'https:' + sUrl
-            if 'trgsfjll.sbs' in sUrl:
+            if 'trgsfjll.sbs' or 'vidhidepro' in sUrl:
                 sUrl = sUrl + "$$" + URL_MAIN
             hoster = {'link': sUrl, 'name': sName, 'displayedName':sName+' '+sQuality, 'quality': sQuality} # Qualität Anzeige aus Release Eintrag
             hosters.append(hoster)
