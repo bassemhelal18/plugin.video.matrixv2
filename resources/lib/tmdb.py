@@ -31,7 +31,7 @@ class cTMDB:
         else:
             term = quote_plus(name)
         meta = self._call('search/movie', 'query=' + term + '&page=' + str(page))
-        if 'errors' not in meta and 'status_code' not in meta:
+        if 'errors' not in meta and 'status_code' not in meta and len(meta['results'])>=1:
             if 'total_results' in meta and meta['total_results'] == 0 and year:
                 meta = self.search_movie_name(name, '')
             if 'total_results' in meta and meta['total_results'] != 0:
