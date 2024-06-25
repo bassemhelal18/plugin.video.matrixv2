@@ -1226,7 +1226,7 @@ msgid "ArbLionz"
 msgstr ""
 
 msgctxt "#30704"
-msgid "Alfajertv"
+msgid "Cimawbas"
 msgstr ""
 
 msgctxt "#30705"
