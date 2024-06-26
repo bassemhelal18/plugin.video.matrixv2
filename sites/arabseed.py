@@ -149,7 +149,9 @@ def showSeasons():
           for sUrl,sSeason in aResult:
             
             sSeason = sSeason.replace(sName,'').replace('مسلسل','').split('الحلقة')[0].replace("مترجم","").replace("مترجمة","").replace(" الحادي عشر","11").replace(" الثاني عشر","12").replace(" الثالث عشر","13").replace(" الرابع عشر","14").replace(" الخامس عشر","15").replace(" السادس عشر","16").replace(" السابع عشر","17").replace(" الثامن عشر","18").replace(" التاسع عشر","19").replace(" العشرون","20").replace(" الحادي و العشرون","21").replace(" الثاني و العشرون","22").replace(" الثالث و العشرون","23").replace(" الرابع والعشرون","24").replace(" الخامس و العشرون","25").replace(" السادس والعشرون","26").replace(" السابع والعشرون","27").replace(" الثامن والعشرون","28").replace(" التاسع والعشرون","29").replace(" الثلاثون","30").replace(" الحادي و الثلاثون","31").replace(" الثاني والثلاثون","32").replace("الموسم الخامس","5").replace(" الاول","1").replace(" الثاني","2").replace(" الثانى","2").replace(" الثالث","3").replace(" الرابع","4").replace(" الخامس","5").replace(" السادس","6").replace(" السابع","7").replace(" الثامن","8").replace(" التاسع","9").replace(" العاشر","10").replace("الموسم","").strip()
-            if sSeason =='' :
+            isSeason,sSeason = cParser.parse(sSeason, '\d+')
+            sSeason=str(sSeason).replace("['","").replace("']","")
+            if not isSeason:
               sSeason='1'
             oGuiElement = cGuiElement('Season'+' '+sSeason, SITE_IDENTIFIER, 'showEpisodes')
             oGuiElement.setTVShowTitle(sName)
