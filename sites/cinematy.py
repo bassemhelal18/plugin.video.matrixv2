@@ -246,11 +246,10 @@ def showHosters():
                   for sUrl4  in aResult:
                     if 'megamax' in sUrl4 or 'm3lomatik' in sUrl4 :
                       sHtmlContent2 = cMegamax().GetUrls(sUrl4)
-                      sPattern = "(https.*?),(.*?p)"
-                      isMatch, aResult = cParser.parse(str(sHtmlContent2), sPattern)
-                      if isMatch: 
-                       for sUrl,sQuality in aResult:
-                        sUrl = sUrl.strip()
+                      for item in sHtmlContent2:
+                        sUrl = item.split(',')[0].split('=')[1]
+                        sQuality = item.split(',')[1].split('=')[1]
+                        
                         
                         sName = cParser.urlparse(sUrl)
                         if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen

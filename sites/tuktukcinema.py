@@ -197,10 +197,9 @@ def showHosters():
        for shost in aResult :
         if 'megamax' in shost or 'tuktukcimamulti' in shost:
             sHtmlContent2 = cMegamax().GetUrls(shost)
-            sPattern = "(https.*?),(.*?p)"
-            isMatch, aResult = cParser.parse(str(sHtmlContent2), sPattern)
-            if isMatch: 
-                for shost,sQuality in aResult:
+            for item in sHtmlContent2:
+                    shost = item.split(',')[0].split('=')[1]
+                    sQuality = item.split(',')[1].split('=')[1]
                     
                     sName = cParser.urlparse(shost)
                     if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen

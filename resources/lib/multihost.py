@@ -73,7 +73,7 @@ class cMegamax:
                 if sHosterUrl.startswith('//'):
                     sHosterUrl = 'https:' + sHosterUrl
         
-                    self.list.append(sHosterUrl+' ,'+sQual)
+                    self.list.append(f'url={sHosterUrl}, qual={sQual}')
                     
                     
                     
