@@ -27,15 +27,15 @@ if cConfig().getSetting('global_search_' + SITE_IDENTIFIER) == 'false':
     logger.info('-> [SitePlugin]: globalSearch for %s is deactivated.' % SITE_NAME)
 
 # Domain Abfrage
-DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'cimawbas.mycima.cc')
+DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'w27.my-cima.net')
 URL_MAIN = 'https://' + DOMAIN + '/'
 
 
-URL_MOVIES_English = URL_MAIN + 'category.php?cat=all-english-movies'
-URL_MOVIES_Arabic = URL_MAIN + 'category.php?cat=cimawbas-aflam-3arby'
-URL_SERIES_English = URL_MAIN + 'category.php?cat=english-series-1'
-URL_SERIES_Arabic = URL_MAIN + 'category.php?cat=1-cimawbas-mosalsalat-3araby'
-URL_MOVIES_Kids = URL_MAIN + 'category.php?cat=the-anime-movies'
+URL_MOVIES_English = URL_MAIN + 'categories-mycima.php?cat=wecima-english-movies-mycima-3'
+URL_MOVIES_Arabic = URL_MAIN + 'categories-mycima.php?cat=aflam-3rby-mycima-wecima'
+URL_SERIES_English = URL_MAIN + 'categories-mycima.php?cat=english-series-mycima-wecima-1'
+URL_SERIES_Arabic = URL_MAIN + 'categories-mycima.php?cat=arabic-series-mycima-3'
+URL_MOVIES_Kids = URL_MAIN + 'categories-mycima.php?cat=anime-movies'
 URL_SEARCH = URL_MAIN + 'search.php?keywords=%s&video-id='
 
 #ToDo Serien auch auf reinen Filmseiten, prüfen ob Filterung möglich
@@ -71,7 +71,7 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     if cConfig().getSetting('global_search_' + SITE_IDENTIFIER) == 'true':
         oRequest.cacheTime = 60 * 60 * 6  # 6 Stunden
     sHtmlContent = oRequest.request()
-    pattern = '<div class="thumbnail">.+?<a href="([^<]+)" title="([^<]+)">.+?data-echo="([^<]+)" class'
+    pattern = '<li class="col-xs-6 col-sm-4 col-md-3">.*?<a href="(.*?)" title="(.*?)".*?<img src="(.*?)" alt'
     isMatch, aResult = cParser.parse(sHtmlContent, pattern)
     if not isMatch:
         if not sGui: oGui.showInfo()
@@ -88,7 +88,7 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
                isTvshow, aResult = cParser.parse(sName,'series')
                if not isTvshow:
                 isTvshow, aResult = cParser.parse(sName,'episodes')
-        sName = sName.replace('مترجمة','').replace('الجزء','الموسم').replace('مترجم','').replace('فيلم','').replace(' HD','').replace('مشاهدة','').replace('مسلسل','').replace('اون','').replace('أون','').replace('لاين','').replace('يوتيوب','').split('الموسم')[0].split('الحلقة')[0].replace('سلسل','').replace("كول سيما","").replace("جميع مواسم","").replace("كامل","").strip()
+        sName = sName.replace('مترجمة','').replace('الجزء','الموسم').replace('مترجم','').replace('ماي سيما','').replace('فيلم','').replace(' HD','').replace('مشاهدة','').replace('مسلسل','').replace('اون','').replace('أون','').replace('لاين','').replace('يوتيوب','').split('الموسم')[0].split('الحلقة')[0].replace('سلسل','').replace("كول سيما","").replace("جميع مواسم","").replace("كامل","").strip()
         sYear=''
         m = re.search('([0-9]{4})', sName)
         if m:
@@ -128,12 +128,12 @@ def showSeasons():
     oRequest = cRequestHandler(sUrl)
     sHtmlContent = oRequest.request()
 
-    sPattern = '<title>(.*?)</title>'  # start element
+    sPattern = "openCity.+?'(.*?)'.*?>(.+?)</button>"  # start element
     isMatch, aResult = cParser.parse(sHtmlContent, sPattern)
     if  isMatch:
        total = len(aResult)
     
-       for sSeason in aResult:
+       for fakeseason,sSeason in aResult:
         
         sSeason = sSeason.replace(sName,'').replace('الجزء','الموسم').replace('مترجمة','').replace('كامل','').replace('مترجم','').replace('فيلم','').replace('مشاهدة','').replace('مسلسل','').replace('اون','').replace('أون','').replace('لاين','').split('الحلقة')[0].replace("الموسم العاشر","10").replace("الموسم الحادي عشر","11").replace("الموسم الثاني عشر","12").replace("الموسم الثالث عشر","13").replace("الموسم الرابع عشر","14").replace("الموسم الخامس عشر","15").replace("الموسم السادس عشر","16").replace("الموسم السابع عشر","17").replace("الموسم الثامن عشر","18").replace("الموسم التاسع عشر","19").replace("الموسم العشرون","20").replace("الموسم الحادي و العشرون","21").replace("الموسم الثاني و العشرون","22").replace("الموسم الثالث و العشرون","23").replace("الموسم الرابع والعشرون","24").replace("الموسم الخامس و العشرون","25").replace("الموسم السادس والعشرون","26").replace("الموسم السابع و العشرون","27").replace("الموسم الثامن والعشرون","28").replace("الموسم التاسع والعشرون","29").replace("الموسم الثلاثون","30").replace("الموسم الحادي و الثلاثون","31").replace("الموسم الثاني والثلاثون","32").replace("الموسم الثالث و الثلاثون","33").replace("الموسم الأول","1").replace("الموسم الاول","1").replace("الموسم الثاني","2").replace("الموسم الثالث","3").replace("الموسم الثالث","3").replace("الموسم الرابع","4").replace("الموسم الخامس","5").replace("الموسم السادس","6").replace("الموسم السابع","7").replace("الموسم الثامن","8").replace("الموسم التاسع","9").replace('موسم','').strip()
         
@@ -154,6 +154,7 @@ def showSeasons():
         oGuiElement.setMediaType('season')
         params.setParam('sThumbnail', sThumbnail)
         params.setParam('sUrl', sUrl)
+        params.setParam('fakeseason', fakeseason)
         if sYear:
          params.setParam('sYear', sYear)
         cGui().addFolder(oGuiElement, params, True, total)
@@ -170,12 +171,12 @@ def showEpisodes():
     sHtmlContent = oRequestHandler.request()
     sSeason = params.getValue('season')
     sShowName = params.getValue('TVShowTitle')
-    
-    sStart = '<div class="AiredEPS" align="center">'
+    fakeseason = params.getValue('fakeseason')
+    sStart = f'id="{fakeseason}"'
     sEnd = '</div>'
     sHtmlContent1 = cParser.abParse(sHtmlContent, sStart, sEnd)
     
-    sPattern = '<a href="(.*?)" style.*?">(.*?)</a>'  # start element
+    sPattern = 'href="(.*?)".*?.>(.*?)</a>'
     isMatch, aResult = cParser.parse(sHtmlContent1, sPattern)
     if isMatch:
        total = len(aResult)
@@ -199,18 +200,9 @@ def showEpisodes():
 def showHosters():
     hosters = []
     sUrl = ParameterHandler().getValue('sUrl')
-    sUrl = sUrl.replace('watch.php','see.php')
+    sUrl = sUrl.replace('watch.php','play.php')
     oRequest = cRequestHandler(sUrl)
     sHtmlContent = oRequest.request()
-    
-    sPattern =  '<a id="play-video" class="video-play-button" href="(.+?)"' 
-    murl,aResult = cParser.parseSingleResult(sHtmlContent,sPattern)
-    if murl:
-     oRequestHandler = cRequestHandler(murl)
-     oRequestHandler.addHeaderEntry('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0')
-     oRequestHandler.addHeaderEntry('referer', URL_MAIN)
-     sHtmlContent = oRequestHandler.request()
-    
     
     sPattern = "<iframe src='(.*?)'"
     isMatch,aResult = cParser.parse(sHtmlContent, sPattern)
@@ -228,7 +220,7 @@ def showHosters():
         hoster = {'link': shost, 'name': sName, 'displayedName':sName} # Qualität Anzeige aus Release Eintrag
         hosters.append(hoster)
     
-    sUrl2 = sUrl.replace('see.php','downloads.php')
+    sUrl2 = sUrl.replace('play.php','downloads.php')
     oRequest = cRequestHandler(sUrl2)
     sHtmlContent2 = oRequest.request()
     sPattern = '<a rel="nofollow" href="(.*?)" target="_blank">'
@@ -236,7 +228,7 @@ def showHosters():
     if isMatch:
        for shost in aResult :
         sName = cParser.urlparse(shost)
-        
+        sName =  sName.split('.')[-2]
         if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
         if 'youtube' in shost:
             continue
