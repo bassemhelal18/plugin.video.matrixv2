@@ -254,7 +254,7 @@ def showHosters():
                         sName = cParser.urlparse(sUrl)
                         if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
                         if 'ma2d'  in sUrl:
-                            sUrl = sUrl + "$$" + URL_MAIN
+                            sUrl = sUrl + "$$" + sUrl.split('/e/')[0]+'/'
                         if 'youtube' in sUrl:
                            continue
                         elif sUrl.startswith('//'):
