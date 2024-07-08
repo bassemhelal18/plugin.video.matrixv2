@@ -291,9 +291,9 @@ def showHosters():
                shost = 'https:' + shost
         hoster = {'link': shost, 'name': sName, 'displayedName':sName+' '+sQuality, 'quality': sQuality}
         hosters.append(hoster)
-     else:
+    else:
         sPattern = 'data-link="(.+?)" class'
-        aResult = cParser.parse(sHtmlContent4, sPattern)
+        isMatch,aResult = cParser.parse(sHtmlContent4, sPattern)
         if isMatch:
           for shost in aResult :
              sName = cParser.urlparse(shost)
