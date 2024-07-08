@@ -200,9 +200,10 @@ def showHosters():
             if isMatch:
              for sUrl in aResult:
               if 'cimanow' in sUrl:
-                  continue
+                  sUrl = sUrl +'$$'+URL_MAIN
               sName = cParser.urlparse(sUrl)
-              if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
+              sName =  sName.split('.')[-2]
+              if cConfig().isBlockedHoster(sName)[0]: continue 
               if 'youtube' in sUrl:
                 continue
               elif sUrl.startswith('//'):
@@ -256,10 +257,10 @@ def showHosters():
 
 
 def getHosterUrl(sUrl=False):
-    if 'cimanow'in sUrl:
+    if 'verifypeer'in sUrl:
         sUrl = sUrl.replace(' ','%20')
         return [{'streamUrl': sUrl, 'resolved': True}]
-    if 'vk.com'in sUrl:
+    if 'vk.com' or '$$' in sUrl:
         return [{'streamUrl': sUrl, 'resolved': False}]
     else:
         Request = cRequestHandler(sUrl, caching=False)
