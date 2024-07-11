@@ -250,7 +250,7 @@ def showHosters():
     return hosters
 
 def getHosterUrl(sUrl=False):
-    if 'vk.com'in sUrl:
+    if 'vk.com' or 'uploady'in sUrl:
         return [{'streamUrl': sUrl, 'resolved': False}]
     else:
      Request = cRequestHandler(sUrl, caching=False)
