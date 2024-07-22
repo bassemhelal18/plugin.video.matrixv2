@@ -199,7 +199,7 @@ def showHosters():
             isMatch, aResult = cParser().parse(sHtmlContent2,sPattern)
             if isMatch:
              for sUrl in aResult:
-              if 'cimanow' in sUrl:
+              if 'cimanowtv' in sUrl:
                   sUrl = sUrl +'$$'+URL_MAIN
               sName = cParser.urlparse(sUrl)
               sName =  sName.split('.')[-2]
@@ -260,14 +260,8 @@ def getHosterUrl(sUrl=False):
     if 'verifypeer'in sUrl:
         sUrl = sUrl.replace(' ','%20')
         return [{'streamUrl': sUrl, 'resolved': True}]
-    if 'vk.com' or '$$' in sUrl:
-        return [{'streamUrl': sUrl, 'resolved': False}]
-    else:
-        Request = cRequestHandler(sUrl, caching=False)
-        Request.addHeaderEntry('Referer',URL_MAIN)
-        Request.request()
-        sUrl = Request.getRealUrl()  # hole reale sURL
-        return [{'streamUrl': sUrl, 'resolved': False}]
+    
+    return [{'streamUrl': sUrl, 'resolved': False}]
 
 def showSearch():
     sSearchText = cGui().showKeyBoard()

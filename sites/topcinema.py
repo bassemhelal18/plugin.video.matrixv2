@@ -237,12 +237,7 @@ def showHosters():
     return hosters
 
 def getHosterUrl(sUrl=False):
-    if '$$' in sUrl:
-       return [{'streamUrl': sUrl, 'resolved': False}]
-    Request = cRequestHandler(sUrl, caching=False)
-    Request.addHeaderEntry('Referer',URL_MAIN)
-    Request.request()
-    sUrl = Request.getRealUrl()  # hole reale sURL
+    
     return [{'streamUrl': sUrl, 'resolved': False}]
     
 

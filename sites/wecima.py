@@ -276,7 +276,7 @@ def showHosters():
         if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
         if 'youtube' in shost:
             continue
-        if 'goveed' in shost:
+        if 'goveed' or '/run/' in shost:
             shost = shost+'$$'+URL_MAIN
         elif shost.startswith('//'):
                shost = 'https:' + shost
@@ -311,12 +311,7 @@ def showHosters():
     return hosters
 
 def getHosterUrl(sUrl=False):
-    if '$$' in sUrl:
-       return [{'streamUrl': sUrl, 'resolved': False}]
-    Request = cRequestHandler(sUrl, caching=False)
-    Request.addHeaderEntry('Referer',URL_MAIN)
-    Request.request()
-    sUrl = Request.getRealUrl()  # hole reale sURL
+    
     return [{'streamUrl': sUrl, 'resolved': False}]
     
 

@@ -250,14 +250,8 @@ def showHosters():
     return hosters
 
 def getHosterUrl(sUrl=False):
-    if 'vk.com' or 'uploady'in sUrl:
-        return [{'streamUrl': sUrl, 'resolved': False}]
-    else:
-     Request = cRequestHandler(sUrl, caching=False)
-     Request.addHeaderEntry('Referer',URL_MAIN)
-     Request.request()
-     sUrl = Request.getRealUrl()  # hole reale sURL
-     return [{'streamUrl': sUrl, 'resolved': False}]
+    
+    return [{'streamUrl': sUrl, 'resolved': False}]
     
 
 def showSearch():

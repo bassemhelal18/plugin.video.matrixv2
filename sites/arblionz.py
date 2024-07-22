@@ -250,13 +250,9 @@ def showHosters():
     return hosters
 
 def getHosterUrl(sUrl=False):
-    if '$$' in sUrl:
-       return [{'streamUrl': sUrl, 'resolved': False}]
-    Request = cRequestHandler(sUrl, caching=False)
-    Request.addHeaderEntry('Referer',URL_MAIN)
-    Request.request()
-    sUrl = Request.getRealUrl()  # hole reale sURL
+    
     return [{'streamUrl': sUrl, 'resolved': False}]
+    
     
 
 def showSearch():
@@ -269,20 +265,3 @@ def showSearch():
 def _search(oGui, sSearchText):
     showEntries(URL_SEARCH % cParser.quotePlus(sSearchText), oGui, sSearchText)
 
-def prase_function(data):
-    if 'adilbo' in data:
-     t_script = re.findall('<script.*?;.*?\'(.*?);', data, re.S)
-     t_int = re.findall('/g.....(.*?)\)', data, re.S)
-     if t_script and t_int:
-         script = t_script[2].replace("'",'')
-         script = script.replace("+",'')
-         script = script.replace("\n",'')
-         sc = script.split('.')
-         page = ''
-         for elm in sc:
-             c_elm = base64.b64decode(elm+'==').decode()
-             t_ch = re.findall('\d+', c_elm, re.S)
-             if t_ch:
-                nb = int(t_ch[0])+int(t_int[1])
-                page = page + chr(nb)
-    return page
