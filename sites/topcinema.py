@@ -184,32 +184,34 @@ def showHosters():
     if isMatch:
      for dataid ,dataserver in aResult:
             
-            urlframe= '{}wp-content/themes/movies2023/Ajaxat/Single/Server.php'.format(URL_MAIN)
-            Handler = cRequestHandler(urlframe)
-            Handler.addHeaderEntry('origin',URL_MAIN)
-            Handler.addHeaderEntry('referer',URL_MAIN)
-            Handler.addHeaderEntry('Sec-Fetch-Mode','cors')
-            Handler.addHeaderEntry('X-Requested-With','XMLHttpRequest')
-            Handler.addHeaderEntry('Sec-Fetch-Dest','empty')
-            Handler.addHeaderEntry('Sec-Fetch-Site','same-origin')
-            Handler.addParameters('id', dataid)
-            Handler.addParameters('i', dataserver)
-            sHtmlContent2 =Handler.request()
+        urlframe= '{}wp-content/themes/movies2023/Ajaxat/Single/Server.php'.format(URL_MAIN)
+        Handler = cRequestHandler(urlframe)
+        Handler.addHeaderEntry('origin',URL_MAIN)
+        Handler.addHeaderEntry('referer',URL_MAIN)
+        Handler.addHeaderEntry('Sec-Fetch-Mode','cors')
+        Handler.addHeaderEntry('X-Requested-With','XMLHttpRequest')
+        Handler.addHeaderEntry('Sec-Fetch-Dest','empty')
+        Handler.addHeaderEntry('Sec-Fetch-Site','same-origin')
+        Handler.addParameters('id', dataid)
+        Handler.addParameters('i', dataserver)
+        sHtmlContent2 =Handler.request()
             
-            sPattern =  '<iframe.+?src="([^"]+)"'
-            isMatch, aResult = cParser().parse(sHtmlContent2,sPattern)
-            if isMatch:
-             for sUrl in aResult:
-              sName = cParser.urlparse(sUrl)
-              if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
-              if 'youtube' in sUrl:
-                continue
-              if 'trgsfjll.sbs' or 'vidhidepro' in sUrl:
-                sUrl = sUrl + "$$" + URL_MAIN
-              elif sUrl.startswith('//'):
-                sUrl = 'https:' + sUrl
-              hoster = {'link': sUrl, 'name': sName, 'displayedName':sName} # Qualität Anzeige aus Release Eintrag
-              hosters.append(hoster)
+        sPattern =  '<iframe.+?src="([^"]+)"'
+        isMatch, aResult = cParser().parse(sHtmlContent2,sPattern)
+        if isMatch:
+            for sUrl in aResult:
+                sName = cParser.urlparse(sUrl)
+                if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
+                if 'youtube' in sUrl:
+                  continue
+                if 'trgsfjll.sbs' in sUrl:
+                  sUrl = sUrl + "$$" + URL_MAIN
+                if 'vidhidepro' in sUrl:
+                  sUrl = sUrl + "$$" + URL_MAIN
+                elif sUrl.startswith('//'):
+                    sUrl = 'https:' + sUrl
+                hoster = {'link': sUrl, 'name': sName, 'displayedName':sName} # Qualität Anzeige aus Release Eintrag
+                hosters.append(hoster)
     
     oRequestHandler = cRequestHandler(sUrl2)
     sHtmlContent = oRequestHandler.request() 
@@ -226,10 +228,13 @@ def showHosters():
              # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
             if 'youtube' in sUrl:
                 continue
+            if 'trgsfjll.sbs' in sUrl:
+                 sUrl = sUrl + "$$" + URL_MAIN
+            if 'vidhidepro' in sUrl:
+                sUrl = sUrl + "$$" + URL_MAIN
             elif sUrl.startswith('//'):
                  sUrl = 'https:' + sUrl
-            if 'trgsfjll.sbs' or 'vidhidepro' in sUrl:
-                sUrl = sUrl + "$$" + URL_MAIN
+            
             hoster = {'link': sUrl, 'name': sName, 'displayedName':sName+' '+sQuality, 'quality': sQuality} # Qualität Anzeige aus Release Eintrag
             hosters.append(hoster)
     if hosters:
