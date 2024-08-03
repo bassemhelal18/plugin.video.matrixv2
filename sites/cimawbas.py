@@ -32,7 +32,7 @@ URL_MAIN = 'https://' + DOMAIN + '/'
 
 
 URL_MOVIES_English = URL_MAIN + 'categories-mycima.php?cat=wecima-english-movies-mycima-3'
-URL_MOVIES_Arabic = URL_MAIN + 'categories-mycima.php?cat=aflam-3rby-mycima-wecima'
+URL_MOVIES_Arabic = URL_MAIN + 'categories-mycima.php?cat=aflam-3rby-mycima-wecima-3'
 URL_SERIES_English = URL_MAIN + 'categories-mycima.php?cat=english-series-mycima-wecima-1'
 URL_SERIES_Arabic = URL_MAIN + 'categories-mycima.php?cat=arabic-series-mycima-3'
 URL_MOVIES_Kids = URL_MAIN + 'categories-mycima.php?cat=anime-movies'
