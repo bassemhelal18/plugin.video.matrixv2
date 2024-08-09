@@ -197,6 +197,8 @@ def showHosters():
         if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
         if 'youtube' in shost:
             continue
+        if 'filegram' in sUrl:
+            sUrl = sUrl + "$$" + URL_MAIN
         elif shost.startswith('//'):
                shost = 'https:' + shost
         hoster = {'link': shost, 'name': sName, 'displayedName':sName} # Qualität Anzeige aus Release Eintrag
@@ -224,6 +226,8 @@ def showHosters():
           if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
           if 'youtube' in shost:
             continue
+          if 'filegram' in sUrl:
+            sUrl = sUrl + "$$" + URL_MAIN
           elif shost.startswith('//'):
                shost = 'https:' + sUrl
           hoster = {'link': sUrl, 'name': sName, 'displayedName':sName+' '+sQuality, 'quality': sQuality} # Qualität Anzeige aus Release Eintrag

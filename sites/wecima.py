@@ -295,9 +295,7 @@ def showHosters():
         if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
         if 'top15top'in shost:
            sName='Wecima'
-           surl = 'https://'+shost.split('/')[2]+'/'
-           sid = shost.split('/')[3]
-           shost=surl+sid
+           shost = shost +'|Referer='+URL_MAIN
         if 'youtube' in shost:
             continue
         elif shost.startswith('//'):
@@ -311,7 +309,9 @@ def showHosters():
     return hosters
 
 def getHosterUrl(sUrl=False):
-    
+    if '|Referer'in sUrl:
+        sUrl = sUrl.replace(' ','%20')
+        return [{'streamUrl': sUrl, 'resolved': True}]
     return [{'streamUrl': sUrl, 'resolved': False}]
     
 
