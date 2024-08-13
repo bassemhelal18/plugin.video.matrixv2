@@ -252,6 +252,7 @@ def showHosters():
                         
                         
                         sName = cParser.urlparse(sUrl)
+                        sName =  sName.split('.')[-2]
                         if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
                         if 'ma2d'  in sUrl:
                             sUrl = sUrl + "$$" + sUrl.split('/e/')[0]+'/'

@@ -242,6 +242,7 @@ def showHosters():
                         sQuality = item.split(',')[1].split('=')[1]
                         
                         sName = cParser.urlparse(sUrl)
+                        sName =  sName.split('.')[-2]
                         if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
                         if 'youtube' in sUrl:
                            continue
