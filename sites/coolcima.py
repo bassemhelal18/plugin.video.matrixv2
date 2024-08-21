@@ -129,13 +129,17 @@ def showSeasons():
     sStart = '<div class="tabCon" id="seasons">'
     sEnd = '<div class="tabCon"'
     sHtmlContent1 = cParser.abParse(sHtmlContent, sStart, sEnd)
-    sPattern = '<div class="block-post">\s*<a href="([^"]+)".+?data-img="([^"]+)".+?</li>\s*<li>(.+?)</li>'  # start element
+    sPattern = '<div class="block-post">\s*<a href="([^"]+)".+?data-img="([^"]+)".+?</li>.*?<li class="title">(.*?)<em>'  # start element
     isMatch, aResult = cParser.parse(sHtmlContent1, sPattern)
     if  isMatch:
      total = len(aResult)
     
      for sUrl,sThumbnail,sSeason in aResult:
         sSeason = sSeason.replace(sName,'').replace('مترجمة','').replace('كامل','').replace('مترجم','').replace('فيلم','').replace('مشاهدة','').replace('مسلسل','').replace('اون','').replace('أون','').replace('لاين','').replace("الموسم العاشر","10").replace("الموسم الحادي عشر","11").replace("الموسم الثاني عشر","12").replace("الموسم الثالث عشر","13").replace("الموسم الرابع عشر","14").replace("الموسم الخامس عشر","15").replace("الموسم السادس عشر","16").replace("الموسم السابع عشر","17").replace("الموسم الثامن عشر","18").replace("الموسم التاسع عشر","19").replace("الموسم العشرون","20").replace("الموسم الحادي و العشرون","21").replace("الموسم الثاني و العشرون","22").replace("الموسم الثالث و العشرون","23").replace("الموسم الرابع والعشرون","24").replace("الموسم الخامس و العشرون","25").replace("الموسم السادس والعشرون","26").replace("الموسم السابع و العشرون","27").replace("الموسم الثامن والعشرون","28").replace("الموسم التاسع والعشرون","29").replace("الموسم الثلاثون","30").replace("الموسم الحادي و الثلاثون","31").replace("الموسم الثاني والثلاثون","32").replace("الموسم الثالث و الثلاثون","33").replace("الموسم الأول","1").replace("الموسم الاول","1").replace("الموسم الثاني","2").replace("الموسم الثالث","3").replace("الموسم الثالث","3").replace("الموسم الرابع","4").replace("الموسم الخامس","5").replace("الموسم السادس","6").replace("الموسم السابع","7").replace("الموسم الثامن","8").replace("الموسم التاسع","9").replace('موسم','').strip()
+        m = re.search('([0-9]{4})', sSeason)
+        if m:
+            sYear = str(m.group(0))
+            sSeason = sSeason.replace(sYear,'')
         isSeason,sSeason = cParser.parse(sSeason, '\d+')
         if not isSeason:
          sSeason='1'
