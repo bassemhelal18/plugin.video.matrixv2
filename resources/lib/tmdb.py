@@ -231,10 +231,7 @@ class cTMDB:
                         _meta['writer'] += ' / '
                     _meta['writer'] += '%s: %s' % (crew['job'], crew['name'])
         if 'guest_stars' in meta and meta['guest_stars']:
-            licast = []
-            for c in meta['guest_stars']:
-                licast.append((c['name'], c['character'], self.poster + str(c['profile_path'])))
-            _meta['cast'] = licast
+            _meta['cast'] = meta['guest_stars']
         return _meta
 
     def _format(self, meta, name):
