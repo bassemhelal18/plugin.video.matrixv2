@@ -31,11 +31,11 @@ DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'w27.my-cim
 URL_MAIN = 'https://' + DOMAIN + '/'
 
 
-URL_MOVIES_English = URL_MAIN + 'categories-mycima.php?cat=wecima-english-movies-mycima-3'
-URL_MOVIES_Arabic = URL_MAIN + 'categories-mycima.php?cat=aflam-3rby-mycima-wecima-3'
-URL_SERIES_English = URL_MAIN + 'categories-mycima.php?cat=english-series-mycima-wecima-1'
-URL_SERIES_Arabic = URL_MAIN + 'categories-mycima.php?cat=arabic-series-mycima-3'
-URL_MOVIES_Kids = URL_MAIN + 'categories-mycima.php?cat=anime-movies'
+URL_MOVIES_English = URL_MAIN + 'categories-wecima-mycima-8.php?cat=wecima-english-movies-mycima-3'
+URL_MOVIES_Arabic = URL_MAIN + 'categories-wecima-mycima-8.php?cat=aflam-3rby-mycima-wecima-5'
+URL_SERIES_English = URL_MAIN + 'categories-wecima-mycima-8.php?cat=english-series-mycima-wecima-1'
+URL_SERIES_Arabic = URL_MAIN + 'categories-wecima-mycima-8.php?cat=arabic-series-mycima-3'
+URL_MOVIES_Kids = URL_MAIN + 'categories-wecima-mycima-8.php?cat=anime-movies'
 URL_SEARCH = URL_MAIN + 'search.php?keywords=%s&video-id='
 
 #ToDo Serien auch auf reinen Filmseiten, prüfen ob Filterung möglich
