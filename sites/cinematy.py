@@ -255,7 +255,10 @@ def showHosters():
                         sName =  sName.split('.')[-2]
                         if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
                         if 'ma2d'  in sUrl:
-                            sUrl = sUrl + "$$" + sUrl.split('/e/')[0]+'/'
+                            sRefer = sUrl.split('/e/')[0]+'/'
+                            sUrl = sUrl + "$$" + sRefer
+                        if 'vidhidevip'  in sUrl:
+                            sUrl = sUrl + "$$" + sRefer
                         if 'youtube' in sUrl:
                            continue
                         elif sUrl.startswith('//'):
