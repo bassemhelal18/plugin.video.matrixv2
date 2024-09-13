@@ -4,6 +4,7 @@
 # 24.01.23 - Heptamer: Korrektur getpriorities (nun werden alle Hoster gelesen und sortiert)
 
 import json
+from resources.lib import kodi
 from resources.lib.tmdb import cTMDB
 import xbmc
 import xbmcgui 
@@ -134,6 +135,28 @@ class cHosterGui:
                           'fanart': data.get('backdrop_url')})
         list_item.setProperty('IsPlayable', 'true')
         if cGui().pluginHandle > 0:
+            kodiver = kodi.get_kodi_version().major
+            if kodiver > 16 and ('.mpd' in data['link'] ):
+                if kodiver < 19:
+                   list_item.setProperty('inputstreamaddon', 'inputstream.adaptive')
+                else:
+                   list_item.setProperty('inputstream', 'inputstream.adaptive')
+                if '.mpd' in data['link']:
+                  if kodiver < 21:
+                    list_item.setProperty('inputstream.adaptive.manifest_type', 'mpd')
+                  list_item.setMimeType('application/dash+xml')
+                else:
+                    if kodiver < 21:
+                       list_item.setProperty('inputstream.adaptive.manifest_type', 'hls')
+                    list_item.setMimeType('application/vnd.apple.mpegurl')
+                list_item.setContentLookup(False)
+                if '|' in data['link']:
+                   data['link'], strhdr = data['link'].split('|')
+                   list_item.setProperty('inputstream.adaptive.stream_headers', strhdr)
+                   if kodiver > 19:
+                      list_item.setProperty('inputstream.adaptive.manifest_headers', strhdr)
+                   list_item.setPath(data['link'])
+            
             xbmcplugin.setResolvedUrl(cGui().pluginHandle, True, list_item)
         else:
             xbmc.Player().play(data['link'], list_item)
