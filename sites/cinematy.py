@@ -244,7 +244,8 @@ def showHosters():
                  isMatch, aResult = cParser().parse(sHtmlContent2, sPattern)
                  if isMatch:
                   for sUrl4  in aResult:
-                    if 'megamax' in sUrl4 or 'm3lomatik' in sUrl4 :
+                    megamax = next((x for x in ['megamax', 'm3lomatik', 'ciinematy'] if x in sUrl4), None)
+                    if megamax:
                       sHtmlContent2 = cMegamax().GetUrls(sUrl4)
                       for item in sHtmlContent2:
                         sUrl = item.split(',')[0].split('=')[1]
