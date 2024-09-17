@@ -170,7 +170,7 @@ def showEpisodes():
     oRequestHandler = cRequestHandler(sUrl)
     sHtmlContent = oRequestHandler.request()
     sSeason = params.getValue('season')
-    sShowName = params.getValue('TVShowTitle')
+    sShowName = params.getValue('sName')
     fakeseason = params.getValue('fakeseason')
     sStart = f'id="{fakeseason}"'
     sEnd = '</div>'

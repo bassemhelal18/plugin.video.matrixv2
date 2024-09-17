@@ -148,7 +148,7 @@ def showEpisodes():
     sThumbnail = params.getValue('sThumbnail')
     sHtmlContent = cRequestHandler(sUrl).request()
     sSeason = params.getValue('season')
-    sShowName = params.getValue('TVShowTitle')
+    sShowName = params.getValue('sName')
     if 'adilbo' in sHtmlContent:
        sHtmlContent = prase_function(sHtmlContent)
        sHtmlContent =str(sHtmlContent.encode('latin-1'),'utf-8')

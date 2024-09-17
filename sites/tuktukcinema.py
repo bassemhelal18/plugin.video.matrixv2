@@ -152,7 +152,7 @@ def showEpisodes():
     sHtmlContent = oRequest.request()
     sThumbnail = params.getValue('sThumbnail')
     sSeason = params.getValue('season')
-    sShowName = params.getValue('TVShowTitle')
+    sShowName = params.getValue('sName')
     sStart = '<section class="allepcont getMoreByScroll">'
     sEnd = '<section class="otherser"'
     sHtmlContent = cParser.abParse(sHtmlContent, sStart, sEnd)

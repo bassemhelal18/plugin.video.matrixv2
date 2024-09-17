@@ -188,7 +188,7 @@ def showEpisodes():
     sHtmlContent = oRequestHandler.request()
 
     sSeason = params.getValue('season')
-    sShowName = params.getValue('TVShowTitle')
+    sShowName = params.getValue('sName')
     
     
     sStart = '<div class="tabCon episodes" id="episodes">'

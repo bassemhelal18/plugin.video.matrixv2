@@ -171,7 +171,7 @@ def showEpisodes():
     sThumbnail = params.getValue('sThumbnail')
     sSeason = params.getValue('season')
     
-    sShowName = params.getValue('TVShowTitle')
+    sShowName = params.getValue('sName')
     dataid = params.getValue('dataid')
     dataseason = params.getValue('dataseason')
     

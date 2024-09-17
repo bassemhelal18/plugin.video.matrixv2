@@ -205,7 +205,7 @@ def showEpisodes():
     sHtmlContent = oRequestHandler.request()
 
     sSeason = params.getValue('season')
-    sShowName = params.getValue('TVShowTitle')
+    sShowName = params.getValue('sName')
     
     
     pattern = '<a class="hoverable activable.+?href="([^<]+)"><div class="Thumb"><span><i class="fa fa-play"></i></span></div><episodeArea><episodeTitle>([^<]+)</episodeTitle></episodeArea></a>'  # start element

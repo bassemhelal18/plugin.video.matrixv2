@@ -155,7 +155,7 @@ def showEpisodes():
     sHtmlContent = oRequestHandler.request()
 
     sSeason = params.getValue('season')
-    sShowName = params.getValue('TVShowTitle')
+    sShowName = params.getValue('sName')
     
     
     pattern = '<a href="(.+?)">.+?</span>(.+?)</a></div>'  # start element

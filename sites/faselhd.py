@@ -160,7 +160,7 @@ def showEpisodes():
     sThumbnail = params.getValue('sThumbnail')
     sHtmlContent = cRequestHandler(sUrl).request()
     sSeason = params.getValue('season')
-    sShowName = params.getValue('TVShowTitle')
+    sShowName = params.getValue('sName')
     
     sStart = '<div class="epAll" id="epAll">'
     sEnd = '<div class="postShare">'

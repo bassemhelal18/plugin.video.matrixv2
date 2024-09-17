@@ -167,7 +167,7 @@ def showEpisodes():
     oRequest=cRequestHandler(sUrl)
     sHtmlContent = oRequest.request()
     sSeason = params.getValue('season')
-    sShowName = params.getValue('TVShowTitle')
+    sShowName = params.getValue('sName')
     
     
     sStart = 'class="header-link text-white">الحلقات</span>'

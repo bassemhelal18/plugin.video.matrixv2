@@ -158,7 +158,7 @@ def showEpisodes():
     sHtmlContent = oRequest.request()
     sThumbnail = params.getValue('sThumbnail')
     sSeason = params.getValue('season')
-    sShowName = params.getValue('TVShowTitle')
+    sShowName = params.getValue('sName')
     
     pattern = 'href="([^"]+)" class="epss.+?</span>.+?>(.+?)</span>'  # start element
     isMatch, aResult = cParser.parse(sHtmlContent, pattern)
