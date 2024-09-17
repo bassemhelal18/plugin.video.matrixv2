@@ -317,17 +317,16 @@ class cGuiElement:
             else:
                 meta = oMetaget.get_meta(self._mediaType, self.getTitle(), advanced=cConfig().getSetting('advanced'))
         elif self._mediaType == 'season':
-            meta = {}
+            meta = oMetaget.get_meta_seasons(tmdbID, str(season), advanced=cConfig().getSetting('advanced'))
         elif self._mediaType == 'episode':
-            meta = oMetaget.get_meta_episodes(self._mediaType, TVShowTitle, tmdbID, str(season), str(episode))
+            meta = oMetaget.get_meta_episodes(self._mediaType, TVShowTitle, tmdbID, str(season), str(episode), advanced=cConfig().getSetting('advanced'))
         else:
             return False
 
         if not meta:
             return False
 
-        if self._mediaType == 'season':
-            meta = meta[0]
+        
 
         if mode == 'replace':
             self.setItemValues(meta)

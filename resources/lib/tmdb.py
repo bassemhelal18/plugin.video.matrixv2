@@ -197,6 +197,33 @@ class cTMDB:
         else:
             return {}
 
+    def get_meta_seasons(self, tmdb_id='', season='', advanced='false'):
+        meta = {}
+        if tmdb_id and season:
+            url = '%stv/%s/season/%s?api_key=%s&language=%s' % (self.URL, tmdb_id, season, self.api_key, self.lang)
+            Data = cRequestHandler(url, ignoreErrors=True).request()
+            if Data:
+                meta = json.loads(Data)
+        if 'id' in meta:
+            _meta = {}
+            if 'name' in meta and meta['name']:
+                _meta['name'] = meta['name']
+            if 'poster_path' in meta and meta['poster_path']:
+                _meta['cover_url'] = self.poster + str(meta['poster_path'])
+            if 'air_date' in meta and meta['air_date']:
+                _meta['premiered'] = meta['air_date']
+            if 'episodes' in meta and meta['episodes']:
+                _meta['number_of_episodes'] = len(meta['episodes'])
+                _meta['episodes'] = meta['episodes']
+            if 'season_number' in meta and meta['season_number']:
+                _meta['season'] = meta['season_number']
+            if 'overview' in meta:
+                _meta['plot'] = meta['overview']
+
+            return _meta
+        else:
+            return {}
+
     def _format_episodes(self, meta, name):
         _meta = {}
         if 'air_date' in meta and meta['air_date']:
