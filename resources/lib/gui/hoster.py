@@ -35,7 +35,7 @@ class cHosterGui:
         fileName = params.getValue('MovieTitle')
         
         if params.getValue('mediaType')=='episode':
-         value = cTMDB().get_meta_episodes( params.getValue('mediaType'), name=params.getValue('TVShowTitle'), tmdb_id=params.getValue('tmdbID'), season=params.getValue('season'),episode=params.getValue('episode'), advanced='true')
+         value = cTMDB().get_meta_episodes( params.getValue('mediaType'), name=params.getValue('sName'), tmdb_id=params.getValue('tmdbID'), season=params.getValue('season'),episode=params.getValue('episode'), advanced='true')
         else:
          value = cTMDB().get_meta( params.getValue('mediaType'), name=fileName, tmdb_id=params.getValue('tmdbID'), advanced='true')
 
@@ -69,7 +69,7 @@ class cHosterGui:
             return False
         # resolver response
         if link is not False:
-            data = {'title': fileName, 'season': params.getValue('season'), 'episode': params.getValue('episode'), 'showTitle': params.getValue('TVShowTitle'), 'thumb': params.getValue('thumb'), 'link': link,'mediatype': params.getValue('mediaType'),'tmdb_id':params.getValue('tmdbID')}
+            data = {'title': fileName, 'season': params.getValue('season'), 'episode': params.getValue('episode'), 'showTitle': params.getValue('sName'), 'thumb': params.getValue('thumb'), 'link': link,'mediatype': params.getValue('mediaType'),'tmdb_id':params.getValue('tmdbID')}
             if value:
              data.update(value)
             return data
