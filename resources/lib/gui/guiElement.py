@@ -319,7 +319,7 @@ class cGuiElement:
         elif self._mediaType == 'season':
             meta = oMetaget.get_meta_seasons(tmdbID, str(season), advanced=cConfig().getSetting('advanced'))
         elif self._mediaType == 'episode':
-            meta = oMetaget.get_meta_episodes(self._mediaType, TVShowTitle, tmdbID, str(season), str(episode), advanced=cConfig().getSetting('advanced'))
+            meta = oMetaget.get_meta_episodes(self._mediaType, self.__stvShowTitle, tmdbID, str(season), str(episode), advanced=cConfig().getSetting('advanced'))
         else:
             return False
 
