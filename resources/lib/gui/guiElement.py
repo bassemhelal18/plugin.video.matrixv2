@@ -335,7 +335,7 @@ class cGuiElement:
             if 'backdrop_url' in meta:
                 self.setFanart(meta['backdrop_url'])
             if 'title' in meta and episode:
-                self.setTitle(str(episode) + '. ' + meta['title'])
+                self.setTitle(meta['title'])
 
         else:
             meta.update(self.__aItemValues)
