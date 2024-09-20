@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Python 3
 
-from matrixv2 import run
+from matrixv2 import parseUrl
 from os.path import join
 from sys import path
 import platform
@@ -24,7 +24,7 @@ log(LOGMESSAGE + ' -> [default]: Start MatrixV2 Log, Version %s ' % common.addon
 log(LOGMESSAGE + ' -> [default]: Python-Version: %s' % platform.python_version(), LOGNOTICE)
 
 try:
-    run()
+    parseUrl()
 except Exception as e:
     if str(e) == 'UserAborted':
         log(LOGMESSAGE + ' -> [default]: User aborted list creation', LOGNOTICE)
