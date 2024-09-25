@@ -84,6 +84,12 @@ class cHosterGui:
                 self.dialog.close()
             except:
                 pass
+        if data.get('mediatype')=='episode':
+           show = cTMDB().search_tvshow_id(str(data.get('tmdb_id')))
+           if show['name']:
+              showen=show['name']
+           else:
+               showen = str(data.get('showTitle', ""))
         if data.get('mediatype')=='movie':
             data.pop('showTitle')
             data.pop('episode')
@@ -101,7 +107,7 @@ class cHosterGui:
         info_tag=ListItemInfoTag(list_item,'video')
         info={
             'mediatype':str(data.get('mediatype', "")),
-            'tvshowtitle':str(data.get('showTitle', "").strip()),
+            'tvshowtitle':str(showen).strip(),
             'title' : str(data.get('title', "")),
             'originaltitle':str(data.get('originaltitle', "")),
             'plot':str(data.get('plot', "")),
