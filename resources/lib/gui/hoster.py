@@ -84,6 +84,7 @@ class cHosterGui:
                 self.dialog.close()
             except:
                 pass
+        showen=''
         if data.get('mediatype')=='episode':
            show = cTMDB().search_tvshow_id(str(data.get('tmdb_id')))
            if show['name']:
