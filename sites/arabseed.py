@@ -176,7 +176,7 @@ def showEpisodes():
     dataseason = params.getValue('dataseason')
     
     if dataid:
-     urlseason = URL_MAIN + '/wp-content/themes/Elshaikh2021/Ajaxat/Single/Episodes.php'
+     urlseason = URL_MAIN + 'wp-content/themes/Elshaikh2021/Ajaxat/Single/Episodes.php'
      Handler = cRequestHandler(urlseason)
      Handler.addParameters('post_id', dataid)
      Handler.addParameters('season', dataseason)
