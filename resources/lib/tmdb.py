@@ -4,7 +4,7 @@
 import json
 import re
 
-from resources.lib.handler.requestHandler import cRequestHandler
+from requestHandler import cRequestHandler
 from resources.lib.config import cConfig
 from urllib.parse import quote_plus
 from resources.lib.tools import logger
@@ -206,7 +206,6 @@ class cTMDB:
                 meta = json.loads(Data)
         if 'id' in meta:
             _meta = {}
-            _meta['tmdb_id']=tmdb_id
             if 'name' in meta and meta['name']:
                 _meta['name'] = meta['name']
             if 'poster_path' in meta and meta['poster_path']:
@@ -227,8 +226,6 @@ class cTMDB:
 
     def _format_episodes(self, meta, name):
         _meta = {}
-        if 'show_id' in meta and meta['show_id']:
-            _meta['tmdb_id'] = meta['show_id']
         if 'air_date' in meta and meta['air_date']:
             _meta['aired'] = meta['air_date']
         if 'episode_number' in meta and meta['episode_number']:
@@ -267,8 +264,8 @@ class cTMDB:
     def _format(self, meta, name):
         _meta = {}
         _meta['genre'] = ''
-        if 'tmdb_id' in meta:
-            _meta['tmdb_id'] = meta['tmdb_id']
+        if 'id' in meta:
+            _meta['tmdb_id'] = meta['id']
         if 'imdb_id' in meta:
             _meta['imdb_id'] = meta['imdb_id']
         if 'backdrop_path' in meta and meta['backdrop_path']:

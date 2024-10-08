@@ -2,11 +2,15 @@
 # Python 3
 #
 # 24.01.23 - Heptamer: Korrektur getpriorities (nun werden alle Hoster gelesen und sortiert)
+
+import json
 from resources.lib import kodi
+from resources.lib.tmdb import cTMDB
 import xbmc
 import xbmcgui 
 import xbmcplugin
 import resolveurl as resolver
+from infotagger.listitem import ListItemInfoTag
 from resources.lib.handler.ParameterHandler import ParameterHandler
 from resources.lib.gui.guiElement import cGuiElement
 from resources.lib.gui.gui import cGui
@@ -29,6 +33,12 @@ class cHosterGui:
         # get data
         mediaUrl = params.getValue('sMediaUrl')
         fileName = params.getValue('MovieTitle')
+        
+        if params.getValue('mediaType')=='episode':
+         value = cTMDB().get_meta_episodes( params.getValue('mediaType'), name=params.getValue('sName'), tmdb_id=params.getValue('tmdbID'), season=params.getValue('season'),episode=params.getValue('episode'), advanced='true')
+        else:
+         value = cTMDB().get_meta( params.getValue('mediaType'), name=fileName, tmdb_id=params.getValue('tmdbID'), advanced='true')
+
         try:
             try:
                 import resolveurl as resolver
@@ -60,6 +70,8 @@ class cHosterGui:
         # resolver response
         if link is not False:
             data = {'title': fileName, 'season': params.getValue('season'), 'episode': params.getValue('episode'), 'showTitle': params.getValue('sName'), 'thumb': params.getValue('thumb'), 'link': link,'mediatype': params.getValue('mediaType'),'tmdb_id':params.getValue('tmdbID')}
+            if value:
+             data.update(value)
             return data
         return False
 
@@ -72,11 +84,62 @@ class cHosterGui:
                 self.dialog.close()
             except:
                 pass
+        showen=''
+        if data.get('mediatype')=='episode':
+           show = cTMDB().search_tvshow_id(str(data.get('tmdb_id')))
+           if show['name']:
+              showen=show['name']
+           else:
+               showen = str(data.get('showTitle', ""))
+        if data.get('mediatype')=='movie':
+            data.pop('showTitle')
+            data.pop('episode')
+            data.pop('season')
+            trakt={}
+            trakt['tmdb']=str(data.get('tmdb_id', ""))
+            trakt['imdb']=str(data.get('imbd_id', ""))
+            slug = '{0} {1}'.format(str(data.get('title', "")),int(data.get('year', 0)))
+            slug = slug.replace(' ','-').strip().lower()
+            trakt['slug']=slug
+            xbmcgui.Window(10000).setProperty('script.trakt.ids', json.dumps(trakt))
+
         logger.info('-> [hoster]: play file link: ' + str(data['link']))
-        oGui = cGui()
-        oGuiElement = cGuiElement()
-        list_item = oGui.createListItem(oGuiElement)
         list_item = xbmcgui.ListItem(path=data['link'])
+        info_tag=ListItemInfoTag(list_item,'video')
+        info={
+            'mediatype':str(data.get('mediatype', "")),
+            'tvshowtitle':str(showen).strip(),
+            'title' : str(data.get('title', "")),
+            'originaltitle':str(data.get('originaltitle', "")),
+            'plot':str(data.get('plot', "")),
+            'imdbnumber':str(data.get('imdb_id', "")),
+            'plotoutline':str(data.get('tagline', "")),
+            'year':int(data.get('year', 0)),
+            'rating':float(data.get('rating', 0.0)),
+            'mpaa':str(data.get('mpaa', "")),
+            'duration':int(data.get('duration', 0)),
+            'playcount':int(data.get('playcount', 0)),
+            'trailer':str(data.get('trailer', "")),
+            'tagline':str(data.get('tagline', "")),
+            'studio':list(data.get('studio', '').split("/")),
+            'writer':list(data.get('writer', '').split("/")),
+            'director':list(data.get('director', '').split("/")),
+            'genre':''.join(data.get('genre', [""])).split('/'),
+            'premiered':str(data.get('premiered', "")),
+            'dateadded':str(data.get('date'))
+        }
+        if data.get('mediatype')!='movie':
+         info.update({'season':int(data.get('season')),
+                      'episode':int(data.get('episode'))})
+        tmdb = {'tmdb':'{0}'.format(data.get('tmdb_id', "")),'imdb':'{0}'.format(data.get('imbd_id', ""))}
+        info_tag.set_unique_ids(tmdb)
+        info_tag.set_resume_point({'ResumeTime': data.get('resumetime', 0.0),
+                                   'TotalTime': data.get('totaltime', 0.0)})
+        info_tag.set_info(info)
+        list_item.setArt({'poster': data.get('cover_url'),
+                           'thumb': data.get('cover_url'),
+                           'icon': data.get('cover_url'),
+                          'fanart': data.get('backdrop_url')})
         list_item.setProperty('IsPlayable', 'true')
         if cGui().pluginHandle > 0:
             kodiver = kodi.get_kodi_version().major

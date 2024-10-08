@@ -2,11 +2,11 @@
 # Python 3
 
 import sys
-from resources.lib.tmdb import cTMDB
 from resources.lib.tools import logger
 import xbmc
 import xbmcgui 
 import xbmcplugin
+from infotagger.listitem import ListItemInfoTag
 from resources.lib import common
 from resources.lib.config import cConfig
 from resources.lib.gui.contextElement import cContextElement
@@ -80,22 +80,6 @@ class cGui:
         itemValues = oGuiElement.getItemValues()
         itemTitle = oGuiElement.getTitle()
         infoString = ''
-        showen = ''
-        title =''
-        if itemValues.get('mediatype')in ['tvshow', 'season', 'episode']:
-           show = cTMDB().search_tvshow_id(str(itemValues.get('tmdb_id')))
-           if 'name' in show and show['name']:
-              showen=show['name']
-           else:
-               showen = str(itemValues.get('tvshowtitle', ""))
-               
-        if itemValues.get('mediatype')=='movie':
-            show = cTMDB().search_movie_id(str(itemValues.get('tmdb_id')))
-            if 'title' in show and show['title']:
-              title=show['title']
-            else:
-               title = str(itemValues.get('title', ""))
-            
         if self.globalSearch: # Reihenfolge der zu anzeigenden GUI Elemente
             infoString += ' %s' % oGuiElement.getSiteName()
         if oGuiElement._sLanguage != '':
@@ -121,8 +105,8 @@ class cGui:
        
         
         videoInfoTag.setMediaType(str(itemValues.get('mediatype', '')))
-        videoInfoTag.setTvShowTitle(str(showen))
-        videoInfoTag.setTitle(title if itemValues.get('mediatype')=='movie' else str(itemValues.get('title', "")))
+        videoInfoTag.setTvShowTitle(str(itemValues.get('tvshowtitle', '').strip()))
+        videoInfoTag.setTitle(str(itemValues.get('title', "")))
         videoInfoTag.setOriginalTitle(str(itemValues.get('originaltitle', "")))
         videoInfoTag.setUniqueIDs(itemValues.get('tmdb_id', ""),'tmdb')
         videoInfoTag.setPlot(str(itemValues.get('plot', "")))
@@ -141,8 +125,9 @@ class cGui:
         videoInfoTag.setWriters(list(itemValues.get('writer', '').split("/")))
         videoInfoTag.setDirectors(list(itemValues.get('director', '').split("/")))
         videoInfoTag.setGenres(''.join(itemValues.get('genre', [""])).split('/'))
-        videoInfoTag.setSeason(int(itemValues.get('season', -1)))
-        videoInfoTag.setEpisode(int(itemValues.get('episode',-1)))
+        if itemValues.get('mediatype')!='movie':
+         videoInfoTag.setSeason(int(itemValues.get('season', 0)))
+         videoInfoTag.setEpisode(int(itemValues.get('episode', 0)))
         videoInfoTag.setResumePoint(float(itemValues.get('resumetime', 0.0)), float(itemValues.get('totaltime', 0.0)))
         
         listitem.setProperty('fanart_image', oGuiElement.getFanart())
