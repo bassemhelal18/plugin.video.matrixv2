@@ -12,7 +12,7 @@ from resources.lib.tools import logger, cParser
 from resources.lib.gui.guiElement import cGuiElement
 from resources.lib.config import cConfig
 from resources.lib.gui.gui import cGui
-
+from six.moves import urllib_parse, urllib_error
 SITE_IDENTIFIER = 'topcinema'
 SITE_NAME = 'Topcinema'
 SITE_ICON = 'topcinema.png'
@@ -24,7 +24,7 @@ if cConfig().getSetting('global_search_' + SITE_IDENTIFIER) == 'false':
     logger.info('-> [SitePlugin]: globalSearch for %s is deactivated.' % SITE_NAME)
 
 # Domain Abfrage
-DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'web5.topcinema.top')
+DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'web2.topcinema.cam')
 URL_MAIN = 'https://' + DOMAIN + '/'
 
 
@@ -175,9 +175,9 @@ def showEpisodes():
 def showHosters():
     hosters = []
     sUrl = ParameterHandler().getValue('sUrl')
-    sUrl = sUrl+'watch/'
-    sHtmlContent = cRequestHandler(sUrl).request()
-    sUrl2 = sUrl.replace('/watch','/download')
+    sUrl3 = sUrl+'watch/'
+    sHtmlContent = cRequestHandler(sUrl3).request()
+    sUrl2 = sUrl3.replace('/watch','/download')
     
     pattern = 'data-id="(.+?)" data-server="([^"]+)' 
     isMatch, aResult = cParser().parse(sHtmlContent, pattern)
@@ -186,8 +186,8 @@ def showHosters():
             
         urlframe= '{}wp-content/themes/movies2023/Ajaxat/Single/Server.php'.format(URL_MAIN)
         Handler = cRequestHandler(urlframe)
-        Handler.addHeaderEntry('origin',URL_MAIN)
-        Handler.addHeaderEntry('referer',URL_MAIN)
+        Handler.addHeaderEntry('Origin',URL_MAIN[:-1])
+        Handler.addHeaderEntry('Referer',urllib_parse.quote(sUrl3, '/:=&?'))
         Handler.addHeaderEntry('Sec-Fetch-Mode','cors')
         Handler.addHeaderEntry('X-Requested-With','XMLHttpRequest')
         Handler.addHeaderEntry('Sec-Fetch-Dest','empty')
@@ -195,7 +195,7 @@ def showHosters():
         Handler.addParameters('id', dataid)
         Handler.addParameters('i', dataserver)
         sHtmlContent2 =Handler.request()
-            
+        
         sPattern =  '<iframe.+?src="([^"]+)"'
         isMatch, aResult = cParser().parse(sHtmlContent2,sPattern)
         if isMatch:
