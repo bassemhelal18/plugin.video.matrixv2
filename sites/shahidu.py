@@ -24,7 +24,7 @@ if cConfig().getSetting('global_search_' + SITE_IDENTIFIER) == 'false':
     logger.info('-> [SitePlugin]: globalSearch for %s is deactivated.' % SITE_NAME)
 
 # Domain Abfrage
-DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'shahid4u.diy')
+DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'shiid4u.cam')
 URL_MAIN = 'https://' + DOMAIN + '/'
 
 
