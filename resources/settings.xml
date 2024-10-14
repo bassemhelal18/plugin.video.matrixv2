@@ -751,7 +751,7 @@
 					<level>0</level>
 					<default>True</default>
 					<dependencies>
-						<dependency type="enable" operator="!is" setting="plugin_egydead">False</dependency>
+						<dependency type="enable" operator="!is" setting="plugin_dramacafe">False</dependency>
 					</dependencies>
 					<control type="toggle"/>
 				</setting>
