@@ -257,7 +257,7 @@ def showHosters():
     sHtmlContent0 = cParser.abParse(sHtmlContent4, sStart, sEnd)
     if '<h3>مشاهدة 720</h3>' in sHtmlContent0:
      sPattern = 'link="(.+?)"'
-     isMatch,aResult = cParser.parse(sHtmlContent2, sPattern)
+     isMatch,aResult = cParser.parse(sHtmlContent0, sPattern)
      if isMatch:
        for shost in aResult :
         sName = cParser.urlparse(shost)
@@ -277,7 +277,7 @@ def showHosters():
     sHtmlContent1 = cParser.abParse(sHtmlContent4, sStart, sEnd)
     if '<h3>مشاهدة 480</h3>' in sHtmlContent1:
      sPattern = 'link="(.+?)"'
-     isMatch,aResult = cParser.parse(sHtmlContent2, sPattern)
+     isMatch,aResult = cParser.parse(sHtmlContent1, sPattern)
      if isMatch:
        for shost in aResult :
         sName = cParser.urlparse(shost)
