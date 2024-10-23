@@ -206,7 +206,7 @@ def showHosters():
                   continue
                 if 'trgsfjll.sbs' in sUrl:
                   sUrl = sUrl + "$$" + URL_MAIN
-                if 'vidhidepro' in sUrl:
+                if 'vidhide' in sUrl:
                   sUrl = sUrl + "$$" + URL_MAIN
                 elif sUrl.startswith('//'):
                     sUrl = 'https:' + sUrl
@@ -230,7 +230,7 @@ def showHosters():
                 continue
             if 'trgsfjll.sbs' in sUrl:
                  sUrl = sUrl + "$$" + URL_MAIN
-            if 'vidhidepro' in sUrl:
+            if 'vidhide' in sUrl:
                 sUrl = sUrl + "$$" + URL_MAIN
             elif sUrl.startswith('//'):
                  sUrl = 'https:' + sUrl
