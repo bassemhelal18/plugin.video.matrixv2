@@ -195,6 +195,7 @@ def showHosters():
     isMatch,aResult = cParser.parse(sHtmlContent4, sPattern)
     if isMatch:
        for shost in aResult :
+        shost = decode(shost)
         if 'megamax' in shost or 'tuktukcimamulti' in shost:
             sHtmlContent2 = cMegamax().GetUrls(shost)
             for item in sHtmlContent2:
@@ -228,7 +229,7 @@ def showHosters():
     isMatch,aResult = cParser.parse(sHtmlContent4, sPattern)
     if isMatch:
        for shost in aResult :
-        
+        shost = decode(shost)
         sName = cParser.urlparse(shost)
         if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
         if 'youtube' in shost:
@@ -258,4 +259,13 @@ def _search(oGui, sSearchText):
     showEntries(URL_SEARCH % cParser.quotePlus(sSearchText), oGui, sSearchText)
 
 
+def decode(string):
+    try:
+        import base64
+        string1 = string.split("0REL0Y&")[0]
+        string2 = string1[::-1]
+        decoded_string = base64.b64decode(string2).decode('utf-8')
+        return decoded_string
     
+    except:
+        return string
