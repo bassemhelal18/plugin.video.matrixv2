@@ -13,6 +13,7 @@ from resources.lib.tools import logger, cParser
 from resources.lib.gui.guiElement import cGuiElement
 from resources.lib.config import cConfig
 from resources.lib.gui.gui import cGui
+from resources.lib import common
 
 SITE_IDENTIFIER = 'tuktukcinema'
 SITE_NAME = 'Tuktukcinema'
@@ -188,6 +189,7 @@ def showHosters():
         
         headers={'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
                   'Accept-Language': 'en-US,en;q=0.9,ar;q=0.8,en-GB;q=0.7',
+                  'User-Agent' : common.RAND_UA,
                   'Referer':slink.split('watch/')[0]}
         sHtmlContent4 = get(slink,headers=headers).text
         
