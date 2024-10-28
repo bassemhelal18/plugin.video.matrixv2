@@ -741,39 +741,39 @@
 					</control>
 				</setting>
 			</group>
-			<group id="plugin_dramacafe" label="30709">
-				<setting id="plugin_dramacafe" type="boolean" label="30050" help="">
+			<group id="plugin_uhdmovies" label="30709">
+				<setting id="plugin_uhdmovies" type="boolean" label="30050" help="">
 					<level>0</level>
                     <default>True</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="global_search_dramacafe" type="boolean" label="30052">
+				<setting id="global_search_uhdmovies" type="boolean" label="30052">
 					<level>0</level>
 					<default>True</default>
 					<dependencies>
-						<dependency type="enable" operator="!is" setting="plugin_dramacafe">False</dependency>
+						<dependency type="enable" operator="!is" setting="plugin_uhdmovies">False</dependency>
 					</dependencies>
 					<control type="toggle"/>
 				</setting>
 				<!-- Domain Überprüfung mit automatischer und manueller Anpassung -->
-				<setting id="plugin_dramacafe_checkDomain" type="boolean" label="30277">
+				<setting id="plugin_uhdmovies_checkDomain" type="boolean" label="30277">
 					<level>3</level>
 					<default>True</default>
 					<dependencies>
-						<dependency type="enable" operator="!is" setting="plugin_dramacafe">false</dependency>
-						<dependency type="visible" operator="!is" setting="plugin_dramacafe">false</dependency>
+						<dependency type="enable" operator="!is" setting="plugin_uhdmovies">false</dependency>
+						<dependency type="visible" operator="!is" setting="plugin_uhdmovies">false</dependency>
 					</dependencies>
 					<control type="toggle"/>
 				</setting>
-				<setting id="plugin_dramacafe.domain" type="string" label="30278" help="">
+				<setting id="plugin_uhdmovies.domain" type="string" label="30278" help="">
 					<level>3</level>
 					<default/>
 					<constraints>
 						<allowempty>true</allowempty>
 					</constraints>
 					<dependencies>
-						<dependency type="enable" operator="!is" setting="plugin_dramacafe">false</dependency>
-						<dependency type="visible" operator="!is" setting="plugin_dramacafe">false</dependency>
+						<dependency type="enable" operator="!is" setting="plugin_uhdmovies">false</dependency>
+						<dependency type="visible" operator="!is" setting="plugin_uhdmovies">false</dependency>
 					</dependencies>
 					<control type="edit" format="string">
 						<heading>30278</heading>
