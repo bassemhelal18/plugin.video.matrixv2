@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import base64
+
 import os
 import re
 import requests
@@ -13,8 +13,7 @@ from resources.lib.gui.guiElement import cGuiElement
 from resources.lib.config import cConfig
 from resources.lib.gui.gui import cGui
 from bs4 import BeautifulSoup
-import random
-import string
+
 
 SITE_IDENTIFIER = 'uhdmovies'
 SITE_NAME = 'UHDMovies'
@@ -113,7 +112,7 @@ def showSeasons():
     sName = params.getValue('sName')
     oRequest = cRequestHandler(sUrl)
     sHtmlContent = oRequest.request()
-    logger.info(str(sHtmlContent))
+    
     isMatch, aResult = cParser.parse(sHtmlContent, '''<strong>Season (.*?)<''')
     if  isMatch:
       total = len(aResult)
@@ -148,7 +147,7 @@ def showEpisodes():
     episodelist=[]
     
     
-    sStart = f'<strong>{sSeasonprase}<'
+    sStart = f'<strong>{sSeasonprase}'
     sEnd = '<div class="mks_separator" style="border-bottom: 3px solid;"></div>'
     sHtmlContent0 = cParser.abParse(sHtmlContent, sStart, sEnd)
     
@@ -164,7 +163,7 @@ def showEpisodes():
         sEpisode = sEpisode.replace('Episode','').strip()
         if sEpisode not in episodelist:
          episodelist.append(sEpisode)
-         dd = re.findall(f'''<span style="color: #000000;">(.*?)<.*?href="(.*?)".*?<span class='mb-text'>Episode {sEpisode}<''',sHtmlContent0)
+         dd = re.findall(f'''</div><p style="text-align: center;">.*?<span style="color: #.*?;">(.*?)<.*?href="(.*?)".*?<span class='mb-text'>Episode {sEpisode}<''',sHtmlContent0)
          
          oGuiElement = cGuiElement('Episode ' + sEpisode, SITE_IDENTIFIER, 'showHosters')
          oGuiElement.setTVShowTitle(sShowName)
@@ -173,6 +172,7 @@ def showEpisodes():
          oGuiElement.setMediaType('episode')
          params.setParam('html', dd)
          cGui().addFolder(oGuiElement, params, False, total)
+        
     else:
         
         pattern = '''Choose Episode Number to Download.*?href="(.*?)".*?<span class='mb-text'>(.*?)<'''  # start element
@@ -195,6 +195,7 @@ def showEpisodes():
           cGui().addFolder(oGuiElement, params, False, total)
     cGui().setView('episodes')
     cGui().setEndOfDirectory()
+    del episodelist[:]
 
 
 def showHosters():
@@ -207,12 +208,12 @@ def showHosters():
     
     if sType == 'movie':
      sHtmlContent = cRequestHandler(sUrl).request()
-     pattern = '<p style="text-align: center;">.*?<span style="color: #000000;">.*?<strong>(.*?)<br />.*?href="(.*?)"'
+     pattern = '<p style="text-align: center;">.*?<span style="color: #000000;">(.*?)<br />.*?href="(.*?)"'
      isMatch, aResult = cParser.parse(sHtmlContent, pattern)
      if not isMatch: return
     else:
       
-      pattern = "'(.*?)', '(.*?)'"
+      pattern = """'(.+?)', '(https.*?)'"""
       isMatch, aResult = cParser.parse(shtml2, pattern)
       if not isMatch: return
     for sName,slink in aResult:
@@ -235,14 +236,12 @@ def showHosters():
         file_id = get_zfile(final_url)
         res = get_mkv(file_id)
         if res is None:
-          res = get_video_proxy(file_id)
+          res = get_mkv2(file_id)
           if res is None:
             res = None
-          else:
-            res = fetch_data_v(res.split('?url=')[1])
-        
-       
-        hoster = {'link': res, 'name': sName, 'displayedName':sName, 'resolveable': True} # Qualität Anzeige aus Release Eintrag
+        if res is None:
+            continue
+        hoster = {'link': quote(res,'/:=&?'), 'name': sName, 'displayedName':sName, 'resolveable': True} # Qualität Anzeige aus Release Eintrag
         hosters.append(hoster)
     
 
@@ -412,89 +411,48 @@ def get_mkv(id):
 
   driveleech = requests.get(f"https://driveleech.org/zfile/{id}", headers=headers, allow_redirects=True)
   
-  
   soup = BeautifulSoup(driveleech.text, 'html.parser')
   links = soup.find_all('a', href=True)
-  print(links)
+  
   for link in links:
       href_link = link['href']
       if href_link.endswith(".mkv"):
-          print("Extracted Href Link ending in .mkv")
+          
         
           url_safe = quote(href_link.split('/')[-1], safe='')
-          print("URL with spaces replaced by URL safe characters:")
-          print(href_link.replace(href_link.split('/')[-1], url_safe))
+          
           return href_link.replace(href_link.split('/')[-1], url_safe)
 
-
-def get_video_proxy(id):
+def get_mkv2(id):
   headers = {
       "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
       "Accept-Language": "en-GB,en;q=0.8",
       "Cache-Control": "max-age=0",
       "Connection": "keep-alive",
-      "Content-Type": "application/x-www-form-urlencoded",
-      "Host": "driveleech.org",
-      "Origin": "https://driveleech.org",
-      "Referer": "https://driveleech.org/",
+      "Content-Type": "text/html; charset=UTF-8",
       "sec-ch-ua": '"Chromium";v="122", "Not(A:Brand";v="24", "Brave";v="122"',
       "sec-ch-ua-mobile": "?0",
       "sec-ch-ua-platform": '"Windows"',
       "Sec-Fetch-Dest": "document",
       "Sec-Fetch-Mode": "navigate",
-      "Sec-Fetch-Site": "same-origin",
+      "Sec-Fetch-Site": "none",
       "Sec-Fetch-User": "?1",
-      "Sec-GPC": "1",
       "Upgrade-Insecure-Requests": "1",
       "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
   }
 
-  driveleech = requests.get(f"https://driveleech.org/file/{id}", headers=headers, allow_redirects=True)
+  driveleech = requests.get(f"https://driveleech.org/wfile/{id}", headers=headers, allow_redirects=True)
+  
+  pattern = '<a href="(/w.*?)" class="btn btn-outline-info"'
+  isMatch, aResult = cParser.parse(driveleech.text, pattern)
+  if not isMatch: return
+  for link in aResult:
+      driveleech = requests.get(f"https://driveleech.org{link}", headers=headers)
+      soup = BeautifulSoup(driveleech.text, 'html.parser')
+      links = soup.find_all('a', href=True)
+      
+      for link in links:
+       href_link = link['href']
+       if href_link.endswith(".mkv"):
+           return href_link 
 
-
-  soup = BeautifulSoup(driveleech.text, 'html.parser')
-  links = soup.find_all('a', href=True)
-  print(links)
-  for link in links:
-      href_link = link['href']
-      if href_link.startswith("https://video-proxy.xyz/"):
-          print("Extracted video-proxy url")
-
-
-          return href_link
-
-
-def generate_boundary():
-    return ''.join(random.choices(string.ascii_letters + string.digits, k=16))
-
-def fetch_data_v(key):
-    url = "https://video-proxy.xyz/api"
-
-    # Generate a random boundary string
-    boundary = generate_boundary()
-
-    headers = {
-        "accept": "*/*",
-        "accept-language": "en-GB,en;q=0.6",
-        "content-type": f"multipart/form-data; boundary=----WebKitFormBoundary{boundary}",
-        "sec-ch-ua": "\"Chromium\";v=\"122\", \"Not(A:Brand\";v=\"24\", \"Brave\";v=\"122\"",
-        "sec-ch-ua-mobile": "?1",
-        "sec-ch-ua-platform": "\"Android\"",
-        "sec-fetch-dest": "empty",
-        "sec-fetch-mode": "cors",
-        "sec-fetch-site": "same-origin",
-        "sec-gpc": "1",
-        "x-token": "video-proxy.xyz",
-        "Referer": f"https://video-proxy.xyz/?url={key}",
-        "Referrer-Policy": "strict-origin-when-cross-origin"
-    }
-    body = {
-        "keys": key
-    }
-
-    response = requests.post(url, headers=headers, data=body)
-
-    if response.status_code == 200:
-        return response.json()
-    else:
-        return None
