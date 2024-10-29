@@ -76,9 +76,10 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     itemList =[]
     total = len(aResult)
     for sUrl, sThumbnail, sName, sYear in aResult:
+        sName = sName.split('الموسم')[0]
         if sSearchText and not cParser.search(sSearchText, sName):
             continue
-        sName = sName.split('الموسم')[0]
+        
         
         if sName not in itemList:
             itemList.append(sName)

@@ -71,8 +71,6 @@ def showEntries(entryUrl=False, sGui=False, sSearchText=False):
     itemList =[]
     total = len(aResult)
     for sUrl, sName,sThumbnail  in aResult:
-        if sSearchText and not cParser.search(sSearchText, sName):
-            continue
         if "سيرفر"  in sName:
                 continue
         sName = sName.replace('مترجمة','').replace('مترجم','').replace('فيلم','').replace('مشاهدة','').replace('4K','').replace('مسلسل','').replace('اون','').replace('أون','').replace('لاين','').split('الموسم')[0].split('الحلقة')[0].replace('سلسل','').strip()
@@ -81,6 +79,9 @@ def showEntries(entryUrl=False, sGui=False, sSearchText=False):
         if m:
             sYear = str(m.group(0))
             sName = sName.replace(sYear,'')
+        if sSearchText and not cParser.search(sSearchText, sName):
+            continue
+        
         if sName not in itemList:
             itemList.append(sName)
             
@@ -263,5 +264,5 @@ def showSearch():
 
 
 def _search(oGui, sSearchText):
-    showEntries(URL_SEARCH % cParser.quotePlus(sSearchText), oGui, sSearchText)
+    showEntries(URL_SEARCH % sSearchText, oGui, sSearchText)
 

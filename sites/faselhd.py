@@ -74,14 +74,15 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     itemList =[]
     total = len(aResult)
     for sUrl,sThumbnail, sName  in aResult:
-        if sSearchText and not cParser.search(sSearchText, sName):
-            continue
         sName = sName.replace('مترجمة','').replace('مترجم','').replace('فيلم','').replace('مسلسل','').split('الموسم')[0].split('الحلقة')[0].replace('سلسل','')
         sYear=''
         m = re.search('([0-9]{4})', sName)
         if m:
             sYear = str(m.group(0))
             sName = sName.replace(sYear,'')
+        if sSearchText and not cParser.search(sSearchText, sName):
+            continue
+        
         if sName not in itemList:
             itemList.append(sName)
             

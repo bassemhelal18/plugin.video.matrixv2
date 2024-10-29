@@ -71,6 +71,7 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     itemList =[]
     total = len(aResult)
     for sUrl, sName, sYear, sThumbnail  in aResult:
+        sName = sName.strip()
         if sSearchText and not cParser.search(sSearchText, sName):
             continue
         if '-' in sYear:
@@ -385,26 +386,7 @@ def showSearch():
 
 
 def _search(oGui, sSearchText):
-    showEntries(URL_SEARCH % cParser.quotePlus(sSearchText), oGui, sSearchText)
-
-def prase_function(data):
-    if 'adilbo' in data:
-     t_script = re.findall('var adilbo.*?;.*?\'(.*?);', data, re.S)
-     t_int = re.findall('/g.....(.*?)\)', data, re.S)
-     if t_script and t_int:
-         script = t_script[0].replace("'",'')
-         script = script.replace("+",'')
-         script = script.replace("\n",'')
-         sc = script.split('.')
-         page = ''
-         for elm in sc:
-             c_elm = base64.b64decode(elm+'==').decode()
-             t_ch = re.findall('\d+', c_elm, re.S)
-             if t_ch:
-                nb = int(t_ch[0])+int(t_int[1])
-                page = page + chr(nb)
-    return page
-
+    showEntries(URL_SEARCH % sSearchText, oGui, sSearchText)
 
 def get_mkv(id):
   headers = {

@@ -83,14 +83,15 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
         isTvshow, aResult = cParser.parse(sName,'الحلقة')
         if not isTvshow:
            isTvshow, aResult = cParser.parse(sName,'مسلسل')
-        if sSearchText and not cParser.search(sSearchText, sName):
-            continue
         sName = sName.replace('مترجمة','').replace('مترجم','').replace('فيلم','').replace('مسلسل','').split('الموسم')[0].split('الحلقة')[0]
         sYear=''
         m = re.search('([0-9]{4})', sName)
         if m:
             sYear = str(m.group(0))
             sName = sName.replace(sYear,'')
+        if sSearchText and not cParser.search(sSearchText, sName):
+            continue
+        
         if sName not in itemList:
             itemList.append(sName)
             oGuiElement = cGuiElement(sName, SITE_IDENTIFIER, 'showSeasons' if isTvshow else 'showHosters')

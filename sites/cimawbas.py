@@ -79,8 +79,6 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     itemList =[]
     total = len(aResult)
     for sUrl, sName,sThumbnail  in aResult:
-        if sSearchText and not cParser.search(sSearchText, sName):
-            continue
         isTvshow, aResult = cParser.parse(sName, 'مسلسل')
         if not isTvshow:
             isTvshow, aResult = cParser.parse(sName,'حلقة')
@@ -94,6 +92,10 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
         if m:
             sYear = str(m.group(0))
             sName = sName.replace(sYear,'').strip()
+        if sSearchText and not cParser.search(sSearchText, sName):
+            continue
+        
+        
         if sName not in itemList:
             itemList.append(sName)
             
