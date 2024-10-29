@@ -184,7 +184,7 @@ def showEpisodes():
          sEpisode = sEpisode.replace('Episode','').strip()
          if sEpisode not in episodelist:
           episodelist.append(sEpisode)
-          dd = re.findall(f'''</div><p style="text-align: center;"><span style="color: #000000;"><strong>(.*?)<.*?href="(.*?)".*?<span class='mb-text'>Episode {sEpisode}<''',sHtmlContent)
+          dd = re.findall(f'''</div><p style="text-align: center;">.*?<span style="color: #.*?;">(.*?)<.*?href="(.*?)".*?<span class='mb-text'>Episode {sEpisode}<''',sHtmlContent)
           
           oGuiElement = cGuiElement('Episode ' + sEpisode, SITE_IDENTIFIER, 'showHosters')
           oGuiElement.setTVShowTitle(sShowName)
