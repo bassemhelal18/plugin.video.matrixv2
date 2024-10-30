@@ -235,16 +235,15 @@ def showHosters():
         final_url = parse_redirect_page(response)
         file_id = get_zfile(final_url)
         res = get_mkv(file_id)
-        if res is None:
-          res = get_mkv2(file_id)
-          if res is None:
-            res = None
-        if res is None:
-            continue
-        hoster = {'link': quote(res,'/:=&?'), 'name': sName, 'displayedName':sName, 'resolveable': True} # Qualität Anzeige aus Release Eintrag
-        hosters.append(hoster)
-    
-
+        if res is not None:
+          hoster = {'link': quote(res,'/:=&?'), 'name': sName, 'displayedName':sName, 'resolveable': True} # Qualität Anzeige aus Release Eintrag
+          hosters.append(hoster)
+        
+        res = get_mkv2(file_id)
+        if res is not None:
+            hoster = {'link': quote(res,'/:=&?'), 'name': sName, 'displayedName':sName, 'resolveable': True}
+            hosters.append(hoster)
+        
     if hosters:
            hosters.append('getHosterUrl')
     return hosters
@@ -417,11 +416,7 @@ def get_mkv(id):
   for link in links:
       href_link = link['href']
       if href_link.endswith(".mkv"):
-          
-        
-          url_safe = quote(href_link.split('/')[-1], safe='')
-          
-          return href_link.replace(href_link.split('/')[-1], url_safe)
+        return href_link
 
 def get_mkv2(id):
   headers = {
@@ -455,4 +450,5 @@ def get_mkv2(id):
        href_link = link['href']
        if href_link.endswith(".mkv"):
            return href_link 
+
 
