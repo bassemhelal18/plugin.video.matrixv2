@@ -161,17 +161,13 @@ def showEpisodes():
      for sUrl, sEpisode in aResult:
         
         sEpisode = sEpisode.replace('Episode','').strip()
-        if sEpisode not in episodelist:
-         episodelist.append(sEpisode)
-         dd = re.findall(f'''</div><p style="text-align: center;">.*?<span style="color: #.*?;">(.*?)<.*?href="(.*?)".*?<span class='mb-text'>Episode {sEpisode}<''',sHtmlContent0)
-         
-         oGuiElement = cGuiElement('Episode ' + sEpisode, SITE_IDENTIFIER, 'showHosters')
-         oGuiElement.setTVShowTitle(sShowName)
-         oGuiElement.setSeason(sSeason)
-         oGuiElement.setEpisode(sEpisode)
-         oGuiElement.setMediaType('episode')
-         params.setParam('html', dd)
-         cGui().addFolder(oGuiElement, params, False, total)
+        oGuiElement = cGuiElement('Episode ' + sEpisode, SITE_IDENTIFIER, 'showHosters')
+        oGuiElement.setTVShowTitle(sShowName)
+        oGuiElement.setSeason(sSeason)
+        oGuiElement.setEpisode(sEpisode)
+        oGuiElement.setMediaType('episode')
+        params.setParam('sUrl', sUrl)
+        cGui().addFolder(oGuiElement, params, False, total)
         
     else:
         
@@ -182,42 +178,60 @@ def showEpisodes():
         for sUrl, sEpisode in aResult:
         
          sEpisode = sEpisode.replace('Episode','').strip()
-         if sEpisode not in episodelist:
-          episodelist.append(sEpisode)
-          dd = re.findall(f'''</div><p style="text-align: center;">.*?<span style="color: #.*?;">(.*?)<.*?href="(.*?)".*?<span class='mb-text'>Episode {sEpisode}<''',sHtmlContent)
-          
-          oGuiElement = cGuiElement('Episode ' + sEpisode, SITE_IDENTIFIER, 'showHosters')
-          oGuiElement.setTVShowTitle(sShowName)
-          oGuiElement.setSeason(sSeason)
-          oGuiElement.setEpisode(sEpisode)
-          oGuiElement.setMediaType('episode')
-          params.setParam('html', dd)
-          cGui().addFolder(oGuiElement, params, False, total)
+         
+         oGuiElement = cGuiElement('Episode ' + sEpisode, SITE_IDENTIFIER, 'showHosters')
+         oGuiElement.setTVShowTitle(sShowName)
+         oGuiElement.setSeason(sSeason)
+         oGuiElement.setEpisode(sEpisode)
+         oGuiElement.setMediaType('episode')
+         params.setParam('sUrl', sUrl)
+         cGui().addFolder(oGuiElement, params, False, total)
     cGui().setView('episodes')
     cGui().setEndOfDirectory()
-    del episodelist[:]
+    
 
 
 def showHosters():
-    hosters = []
-    
     params = ParameterHandler()
     sUrl = params.getValue('sUrl')
     sType = params.getValue('mediaType')
-    shtml2 = params.getValue('html')
+    sName = params.getValue('sName')
+    hosters = []
     
     if sType == 'movie':
      sHtmlContent = cRequestHandler(sUrl).request()
      pattern = '<p style="text-align: center;">.*?<span style="color: #000000;">(.*?)<br />.*?href="(.*?)"'
      isMatch, aResult = cParser.parse(sHtmlContent, pattern)
      if not isMatch: return
+     for sName,slink in aResult:
+       _wp_http = slink.split('?sid=')[1]
+       action_url, _wp_http2, token = make_post_request(_wp_http)
+       resp = get_pepe_url(action_url, _wp_http2, token)
+       matches = get_match(resp)
+       pepe_url = matches[0]
+       cookies = {
+            "__eoi": "ID=4a86dd07e2cfa744:T=1710970060:RT=1710970060:S=AA-AfjbVJgiJ3UbrHbBiGQPwwxlA",
+            "__qca": "P0-1796148875-1710970059080"}
+
+
+       if '?go=' in pepe_url:
+        key = str(pepe_url.split('?go=')[1])
+        cookies[key] = _wp_http2
+    
+       response = make_get_request(pepe_url, cookies, action_url)
+       final_url = parse_redirect_page(response)
+       file_id = get_zfile(final_url)
+       res = get_mkv(file_id)
+       if res is not None:
+           hoster = {'link':  res, 'name': sName, 'displayedName':sName, 'resolveable': True} # Qualität Anzeige aus Release Eintrag
+           hosters.append(hoster)
+       res = get_mkv2(file_id)
+       if res is not None:
+           hoster = {'link':res, 'name': sName, 'displayedName':sName, 'resolveable': True}
+           hosters.append(hoster)
     else:
-      
-      pattern = """'(.+?)', '(https.*?)'"""
-      isMatch, aResult = cParser.parse(shtml2, pattern)
-      if not isMatch: return
-    for sName,slink in aResult:
         
+        slink=sUrl 
         _wp_http = slink.split('?sid=')[1]
         action_url, _wp_http2, token = make_post_request(_wp_http)
         resp = get_pepe_url(action_url, _wp_http2, token)
@@ -229,49 +243,35 @@ def showHosters():
 
 
         if '?go=' in pepe_url:
-           key = str(pepe_url.split('?go=')[1])
-           cookies[key] = _wp_http2
+         key = str(pepe_url.split('?go=')[1])
+         cookies[key] = _wp_http2
+    
         response = make_get_request(pepe_url, cookies, action_url)
         final_url = parse_redirect_page(response)
         file_id = get_zfile(final_url)
         res = get_mkv(file_id)
+        logger.info(res)
         if res is not None:
-          hoster = {'link': quote(res,'/:=&?'), 'name': sName, 'displayedName':sName, 'resolveable': True} # Qualität Anzeige aus Release Eintrag
-          hosters.append(hoster)
+           hoster = {'link':  res, 'name': sName, 'displayedName':sName, 'resolveable': True} # Qualität Anzeige aus Release Eintrag
+           hosters.append(hoster)
         
         res = get_mkv2(file_id)
+        logger.info(res)
         if res is not None:
-            hoster = {'link': quote(res,'/:=&?'), 'name': sName, 'displayedName':sName, 'resolveable': True}
-            hosters.append(hoster)
-        
+           hoster = {'link':res, 'name': sName, 'displayedName':sName, 'resolveable': True}
+           hosters.append(hoster)    
     if hosters:
-           hosters.append('getHosterUrl')
-    return hosters
+        hosters.append('getHosterUrl')
+    return hosters    
+
         
     
 def make_post_request(_wp_http):
         url = "https://tech.unblockedgames.world/"
-        payload = {"_wp_http": _wp_http}
-        headers = {
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
-            "Accept-Language": "en-GB,en;q=0.8",
-            "Cache-Control": "max-age=0",
-            "Connection": "keep-alive",
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Host": "tech.unblockedgames.world",
-            "Origin": "null",
-            "sec-ch-ua": '"Chromium";v="122", "Not(A:Brand";v="24", "Brave";v="122"',
-            "sec-ch-ua-mobile": "?0",
-            "sec-ch-ua-platform": '"Windows"',
-            "Sec-Fetch-Dest": "document",
-            "Sec-Fetch-Mode": "navigate",
-            "Sec-Fetch-Site": "same-origin",
-            "Sec-GPC": "1",
-            "Upgrade-Insecure-Requests": "1",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-        }
-        response = requests.post(url, data=payload, headers=headers)
-        soup = BeautifulSoup(response.content, 'html.parser')
+        Request=cRequestHandler(url)
+        Request.addParameters("_wp_http", _wp_http)
+        response = Request.request()
+        soup = BeautifulSoup(response ,'html.parser')
         form = soup.find('form', id='landing')
         action_url = form['action']
         _wp_http2 = form.find('input', {'name': '_wp_http2'})['value']
@@ -280,29 +280,14 @@ def make_post_request(_wp_http):
 
 def get_pepe_url(action_url, _wp_http2, token):
         url = action_url
-        payload = {"_wp_http2": _wp_http2, "token": token}
-        headers = {
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
-            "Accept-Language": "en-GB,en;q=0.8",
-            "Cache-Control": "max-age=0",
-            "Connection": "keep-alive",
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Host": "tech.unblockedgames.world",
-            "Origin": "https://tech.unblockedgames.world",
-            "Referer": "https://tech.unblockedgames.world/",
-            "sec-ch-ua": '"Chromium";v="122", "Not(A:Brand";v="24", "Brave";v="122"',
-            "sec-ch-ua-mobile": "?0",
-            "sec-ch-ua-platform": '"Windows"',
-            "Sec-Fetch-Dest": "document",
-            "Sec-Fetch-Mode": "navigate",
-            "Sec-Fetch-Site": "same-origin",
-            "Sec-Fetch-User": "?1",
-            "Sec-GPC": "1",
-            "Upgrade-Insecure-Requests": "1",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-        }
-        response = requests.post(url, data=payload, headers=headers)
-        return response.text    
+        Request=cRequestHandler(url)
+        Request.addParameters("_wp_http2", _wp_http2)
+        Request.addParameters("token", token)
+        Request.addHeaderEntry("Referer", "https://tech.unblockedgames.world/")
+        Request.addHeaderEntry("Origin", "https://tech.unblockedgames.world")
+        response = Request.request()
+        
+        return response   
 
 def get_match(resp):
         pattern = r'https://tech\.unblockedgames\.world/\?go=[^"]+'
@@ -338,30 +323,13 @@ def parse_redirect_page(html):
             return None
 
 def get_zfile(url):
-  headers = {
-      "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
-      "Accept-Language": "en-GB,en;q=0.8",
-      "Cache-Control": "max-age=0",
-      "Connection": "keep-alive",
-      "Content-Type": "application/x-www-form-urlencoded",
-      "Host": "driveleech.org",
-      "Origin": "https://driveleech.org",
-      "Referer": "https://driveleech.org/",
-      "sec-ch-ua": '"Chromium";v="122", "Not(A:Brand";v="24", "Brave";v="122"',
-      "sec-ch-ua-mobile": "?0",
-      "sec-ch-ua-platform": '"Windows"',
-      "Sec-Fetch-Dest": "document",
-      "Sec-Fetch-Mode": "navigate",
-      "Sec-Fetch-Site": "same-origin",
-      "Sec-Fetch-User": "?1",
-      "Sec-GPC": "1",
-      "Upgrade-Insecure-Requests": "1",
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-  }
+  Request=cRequestHandler(url)
+  Request.addHeaderEntry("Referer", "https://driveleech.org/")
+  Request.addHeaderEntry("Origin", "https://driveleech.org")
+  response = Request.request()
   
-  driveleech = requests.get(url, headers=headers, allow_redirects=True)
   pattern = r'/file/([a-zA-Z0-9]+)'
-  matches = re.search(pattern, driveleech.text)
+  matches = re.search(pattern, response)
 
   if matches:
       file_id = matches.group(1)
@@ -373,6 +341,7 @@ def get_zfile(url):
 
 
 def getHosterUrl(sUrl=False):
+    
     return [{'streamUrl': sUrl, 'resolved': True}]
     
 
@@ -387,68 +356,46 @@ def _search(oGui, sSearchText):
     showEntries(URL_SEARCH % sSearchText, oGui, sSearchText)
 
 def get_mkv(id):
-  headers = {
-      "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
-      "Accept-Language": "en-GB,en;q=0.8",
-      "Cache-Control": "max-age=0",
-      "Connection": "keep-alive",
-      "Content-Type": "application/x-www-form-urlencoded",
-      "Host": "driveleech.org",
-      "Origin": "https://driveleech.org",
-      "Referer": "https://driveleech.org/",
-      "sec-ch-ua": '"Chromium";v="122", "Not(A:Brand";v="24", "Brave";v="122"',
-      "sec-ch-ua-mobile": "?0",
-      "sec-ch-ua-platform": '"Windows"',
-      "Sec-Fetch-Dest": "document",
-      "Sec-Fetch-Mode": "navigate",
-      "Sec-Fetch-Site": "same-origin",
-      "Sec-Fetch-User": "?1",
-      "Sec-GPC": "1",
-      "Upgrade-Insecure-Requests": "1",
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-  }
-
-  driveleech = requests.get(f"https://driveleech.org/zfile/{id}", headers=headers, allow_redirects=True)
+  Request=cRequestHandler(f"https://driveleech.org/zfile/{id}")
+  Request.addHeaderEntry("Referer", "https://driveleech.org/")
+  Request.addHeaderEntry("Origin", "https://driveleech.org")
+  response = Request.request()
   
-  soup = BeautifulSoup(driveleech.text, 'html.parser')
-  links = soup.find_all('a', href=True)
-  
-  for link in links:
-      href_link = link['href']
+  pattern = 'class="text-center">.*?<a href="(.*?.mkv)'
+  isMatch, aResult = cParser.parse(response, pattern)
+  if not isMatch:
+    pattern = 'iframe id.*?src="(.*?).mkv"'
+    isMatch, aResult = cParser.parse(response, pattern)
+    if not isMatch: return
+  for link in aResult:
+      href_link = link.strip()
       if href_link.endswith(".mkv"):
-        return href_link
+          url_safe = quote(href_link.split('/')[-1], safe='')
+          return href_link.replace(href_link.split('/')[-1], url_safe)
+        
 
 def get_mkv2(id):
-  headers = {
-      "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
-      "Accept-Language": "en-GB,en;q=0.8",
-      "Cache-Control": "max-age=0",
-      "Connection": "keep-alive",
-      "Content-Type": "text/html; charset=UTF-8",
-      "sec-ch-ua": '"Chromium";v="122", "Not(A:Brand";v="24", "Brave";v="122"',
-      "sec-ch-ua-mobile": "?0",
-      "sec-ch-ua-platform": '"Windows"',
-      "Sec-Fetch-Dest": "document",
-      "Sec-Fetch-Mode": "navigate",
-      "Sec-Fetch-Site": "none",
-      "Sec-Fetch-User": "?1",
-      "Upgrade-Insecure-Requests": "1",
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-  }
-
-  driveleech = requests.get(f"https://driveleech.org/wfile/{id}", headers=headers, allow_redirects=True)
+  Request=cRequestHandler(f"https://driveleech.org/wfile/{id}")
+  Request.addHeaderEntry("Referer", "https://driveleech.org/")
+  Request.addHeaderEntry("Origin", "https://driveleech.org")
+  response = Request.request()
   
   pattern = '<a href="(/w.*?)" class="btn btn-outline-info"'
-  isMatch, aResult = cParser.parse(driveleech.text, pattern)
+  isMatch, aResult = cParser.parse(response, pattern)
   if not isMatch: return
   for link in aResult:
-      driveleech = requests.get(f"https://driveleech.org{link}", headers=headers)
-      soup = BeautifulSoup(driveleech.text, 'html.parser')
-      links = soup.find_all('a', href=True)
+      Request=cRequestHandler(f"https://driveleech.org{link}")
+      Request.addHeaderEntry("Referer", "https://driveleech.org/")
+      Request.addHeaderEntry("Origin", "https://driveleech.org")
+      response = Request.request()
+      
+      soup = BeautifulSoup(response, 'html.parser')
+      links = soup.find_all('a',href =True)
       
       for link in links:
        href_link = link['href']
+       href_link = href_link.strip()
        if href_link.endswith(".mkv"):
-           return href_link 
-
+         url_safe = quote(href_link.split('/')[-1], safe='')
+         return href_link.replace(href_link.split('/')[-1], url_safe)
 
