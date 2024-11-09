@@ -83,6 +83,8 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
               isTvshow, aResult = cParser.parse(unquote(sUrl),'episode')
               if not isTvshow:
                isTvshow, aResult = cParser.parse(unquote(sUrl),'series')
+               if not isTvshow:
+                isTvshow, aResult = cParser.parse(unquote(sUrl),'-s0')
             oGuiElement = cGuiElement(sName, SITE_IDENTIFIER, 'showSeasons' if isTvshow else 'showHosters')
             oGuiElement.setThumbnail(sThumbnail)
             oGuiElement.setMediaType('tvshow' if isTvshow else 'movie')
