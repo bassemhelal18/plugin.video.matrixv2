@@ -62,8 +62,7 @@ def parseUrl():
             updateManager.devUpdates()
             return
         elif sFunction == 'pluginInfo':
-            from resources.lib.tools import cPluginInfo
-            cPluginInfo().pluginInfo()
+            cPluginHandler().pluginInfo()
             return
         elif sFunction == 'changelog':
             from resources.lib import tools
