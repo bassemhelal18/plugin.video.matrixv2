@@ -301,14 +301,14 @@ class cHosterGui:
                 if pref_quali != '5' and any('quality' in hoster[1] and int(hoster[1]['quality']) == int(pref_quali) for hoster in ranking):
                     ranking = sorted(ranking, key=lambda hoster: int('quality' in hoster[1] and hoster[1]['quality']) == int(pref_quali), reverse=True)
                 else:
-                # Sortiere Hoster nach Priorität
+                # Wenn Hosterliste prüfen an ist, sortiere Hoster nach Prio Qualität
                     ranking = sorted(ranking, key=lambda hoster: 'quality' in hoster[1] and int(hoster[1]['quality']), reverse=True)
             except:
                 pass
         # After sorting Quality, we sort for Hoster-Priority :) -Hep 24.01.23
         # ranking = sorted(ranking, key=lambda ranking: ranking[0])
-        
-        # Sprache als Prio hinzugefügt DWH 07.02.23 THX Cubikon
+
+        # Hoster Sprache über sLang im Siteplugin Prio nach sLang Code Reihenfolge (Deutsch, Englisch, Englisch mit untertitel
         if ranking:
             if  "languageCode" in ranking[0][1]:
                 ranking = sorted(ranking, key=lambda ranking: (ranking[1]["languageCode"],ranking[0]))
@@ -354,8 +354,8 @@ class cHosterGui:
 
             self.dialog.update(60, cConfig().getLocalizedString(30143))
             # Für Sitplugin einfach.to mit in automatische Abspielliste aufnehmen (Da Links bei der Überprüfung der Verfügbarkeit gekickt werden)
-            # if (playMode != 'jd') and (playMode != 'jd2') and (playMode != 'pyload') and (cConfig().getSetting('presortHoster') == 'true') and (playMode != 'myjd'):
-            if (siteName != 'einfach') and (playMode != 'jd') and (playMode != 'jd2') and (playMode != 'pyload') and (cConfig().getSetting('presortHoster') == 'true') and (playMode != 'myjd'):
+            if (playMode != 'jd') and (playMode != 'jd2') and (playMode != 'pyload') and (cConfig().getSetting('presortHoster') == 'true') and (playMode != 'myjd'):
+            #if (siteName != 'einfach') and (playMode != 'jd') and (playMode != 'jd2') and (playMode != 'pyload') and (cConfig().getSetting('presortHoster') == 'true') and (playMode != 'myjd'):
                 siteResult = self.__getPriorities(siteResult)
             if not siteResult:
                 self.dialog.close()
@@ -536,7 +536,7 @@ class cHosterGui:
         logger.info('-> [hoster]: autoEnqueue successful')
         return True
 
-    
+
 class Hoster:
     def __init__(self, name, link):
         self.name = name

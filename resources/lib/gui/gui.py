@@ -2,11 +2,9 @@
 # Python 3
 
 import sys
-from resources.lib.tools import logger
 import xbmc
 import xbmcgui 
 import xbmcplugin
-from infotagger.listitem import ListItemInfoTag
 from resources.lib import common
 from resources.lib.config import cConfig
 from resources.lib.gui.contextElement import cContextElement
@@ -72,11 +70,14 @@ class cGui:
         xbmcplugin.addDirectoryItem(self.pluginHandle, sUrl, listitem, bIsFolder, iTotal)
 
     def addNextPage(self, site, function, params=''):
-        guiElement = cGuiElement('>>>', site, function)
+        guiElement = cGuiElement(cConfig().getLocalizedString(30279), site, function)
+        self.addFolder(guiElement, params)
+
+    def searchNextPage(self, sTitle, site, function, params=''):
+        guiElement = cGuiElement(sTitle, site, function)
         self.addFolder(guiElement, params)
 
     def createListItem(self, oGuiElement):
-        
         itemValues = oGuiElement.getItemValues()
         itemTitle = oGuiElement.getTitle()
         infoString = ''
@@ -137,6 +138,7 @@ class cGui:
             for sPropertyKey in aProperties.keys():
                 listitem.setProperty(sPropertyKey, aProperties[sPropertyKey])
         return listitem
+
     def __createContextMenu(self, oGuiElement, listitem, bIsFolder, sUrl):
         contextmenus = []
         if len(oGuiElement.getContextItems()) > 0:
@@ -220,7 +222,7 @@ class cGui:
 
     def setView(self, content='movies'):
         # set the listing to a certain content, makes special views available
-       
+        # sets view to the viewID which is selected in xStream settings
         # see http://mirrors.xbmc.org/docs/python-docs/stable/xbmcplugin.html#-setContent
         # (seasons is also supported but not listed)
         content = content.lower()
@@ -264,6 +266,10 @@ class cGui:
             if 'episode' in itemValues and itemValues['episode'] and float(itemValues['episode']) > 0:
                 params.setParam('mediaType', 'episode')
         sParams = params.getParameterAsUri()
+        try:
+            if params.getValue('sUrl').startswith("plugin://"):
+                return  params.getValue('sUrl')
+        except: pass
         if len(oGuiElement.getFunction()) == 0:
             sUrl = "%s?site=%s&title=%s&%s" % (self.pluginPath, oGuiElement.getSiteName(), quote_plus(oGuiElement.getTitle()), sParams)
         else:
@@ -274,9 +280,9 @@ class cGui:
         return sUrl
 
     @staticmethod
-    def showKeyBoard(sDefaultText=""):
+    def showKeyBoard(sDefaultText="", sHeading=""):
         # Create the keyboard object and display it modal
-        oKeyboard = xbmc.Keyboard(sDefaultText)
+        oKeyboard = xbmc.Keyboard(sDefaultText, sHeading)
         oKeyboard.doModal()
         # If key board is confirmed and there was text entered return the text
         if oKeyboard.isConfirmed():

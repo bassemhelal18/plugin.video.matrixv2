@@ -33,5 +33,9 @@ except Exception as e:
         import xbmcgui
         log(traceback.format_exc(), LOGNOTICE)
         value = (str(e.__class__.__name__) + ' : ' + str(e), str(traceback.format_exc().splitlines()[-3].split('addons')[-1]))
+
         from resources.lib.config import cConfig
         dialog = xbmcgui.Dialog().ok(cConfig().getLocalizedString(257), str(value)) # Error
+
+
+

@@ -7,7 +7,6 @@ import re
 from requestHandler import cRequestHandler
 from resources.lib.config import cConfig
 from urllib.parse import quote_plus
-from resources.lib.tools import logger
 from xbmcaddon import Addon
 
 class cTMDB:

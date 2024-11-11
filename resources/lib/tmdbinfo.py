@@ -4,7 +4,6 @@
 import xbmc
 import time
 import xbmcgui
-from infotagger.listitem import ListItemInfoTag
 from resources.lib.config import cConfig
 from resources.lib.tmdb import cTMDB
 from datetime import date, datetime

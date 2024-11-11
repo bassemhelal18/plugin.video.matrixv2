@@ -10,6 +10,7 @@ import xbmcgui
 import time
 
 from xbmcaddon import Addon
+from resources.lib.common import starter2
 from xbmcgui import Dialog
 from resources.lib.config import cConfig
 from resources.lib import tools
@@ -140,6 +141,7 @@ try:
 except Exception:
     pass
 
+starter2()
 
 # Changelog Popup in den "settings.xml" ein bzw. aus schaltbar
 if xbmcaddon.Addon().getSetting('popup.update.notification') == 'true': 

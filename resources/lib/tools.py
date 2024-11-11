@@ -6,16 +6,13 @@ import xbmcgui
 import xbmcaddon
 import hashlib
 import re
-import platform
 import os
-import sys
 
 from resources.lib.handler.ParameterHandler import ParameterHandler
 from resources.lib import common
 from resources.lib import pyaes
 from resources.lib.config import cConfig
 from xbmcaddon import Addon
-from xbmcgui import Dialog
 from xbmcvfs import translatePath
 from urllib.parse import quote, unquote, quote_plus, unquote_plus, urlparse
 from html.entities import name2codepoint
@@ -44,87 +41,16 @@ def platform():
     elif xbmc.getCondVisibility('system.platform.xbox'):
         return 'XBOX'
     elif xbmc.getCondVisibility('System.HasAddon(service.coreelec.settings)'):
-        return "CoreElec"
+        return 'CoreElec'
     elif xbmc.getCondVisibility('System.HasAddon(service.libreelec.settings)'):
-        return "LibreElec"
+        return 'LibreElec'
     elif xbmc.getCondVisibility('System.HasAddon(service.osmc.settings)'):
-        return "OSMC"        
-
-
-class cPluginInfo:
-
-    def __init__(self):
-        self.addon = common.addon
-        self.rootFolder = common.addonPath
-        self.settingsFile = os.path.join(self.rootFolder, 'resources', 'settings.xml')
-        self.profilePath = common.profilePath
-        self.pluginDBFile = os.path.join(self.profilePath, 'pluginDB')
-        self.defaultFolder = os.path.join(self.rootFolder, 'sites')
-
-
-    def __getFileNamesFromFolder(self, sFolder):  # Hole Namen vom Dateiname.py
-        aNameList = []
-        items = os.listdir(sFolder)
-        for sItemName in items:
-            if sItemName.endswith('.py'):
-                sItemName = os.path.basename(sItemName[:-3])
-                aNameList.append(sItemName)
-        return aNameList
-
-
-    def __getPluginData(self, fileName, defaultFolder): # Hole Plugin Daten aus dem Siteplugin
-        pluginData = {}
-        if not defaultFolder in sys.path: sys.path.append(defaultFolder)
-        try:
-            plugin = __import__(fileName, globals(), locals())
-            pluginData['name'] = plugin.SITE_NAME
-        except Exception as e:
-            return False
-        try:
-            pluginData['identifier'] = plugin.SITE_IDENTIFIER
-        except Exception:
-            pass
-        try:
-            pluginData['domain'] = plugin.DOMAIN
-        except Exception:
-            pass
-        try:
-            pluginData['globalsearch'] = plugin.SITE_GLOBAL_SEARCH
-        except Exception:
-            pluginData['globalsearch'] = True
-            pass
-        return pluginData
-
-
-# Plugin Support Informationen
-    def pluginInfo(self):
-        BUILD = (xbmc.getInfoLabel('System.BuildVersion')[:4])
-        BUILDCODE = xbmc.getInfoLabel('System.BuildVersionCode')
-        SYS_FORM = cConfig().getLocalizedString(30266)
-        PLUGIN_NAME = Addon().getAddonInfo('name')
-        PLUGIN_ID = Addon().getAddonInfo('id')
-        PLUGIN_VERSION = Addon().getAddonInfo('version')
-        RESOLVER_NAME = Addon('script.module.resolveurl').getAddonInfo('name')
-        RESOLVER_ID = Addon('script.module.resolveurl').getAddonInfo('id')
-        RESOLVER_VERSION = Addon('script.module.resolveurl').getAddonInfo('version')
-        PLATFORM = '   {0}'.format(platform().title())
-
-        # Support Informationen anzeigen
-        Dialog().textviewer(cConfig().getLocalizedString(30265),
-                            '[B]Geräte - Informationen:[/B]\n'
-                            + 'Kodi Version:  ' + BUILD + ' (Code Version: ' + BUILDCODE + ') ' + '\n'
-                            + SYS_FORM + PLATFORM + '\n'
-                            + '\n'
-                            + '[B]Plugin - Informationen:[/B]\n'
-                            + PLUGIN_NAME + ' Version:  ' + PLUGIN_ID + ' - ' + PLUGIN_VERSION + '\n'
-                            + RESOLVER_NAME + ' Version:  ' + RESOLVER_ID + ' - ' + RESOLVER_VERSION + '\n'
-                            
-                            )
+        return 'OSMC'
 
 
 # zeigt nach Update den Changelog als Popup an
 def changelog():
-    CHANGELOG_PATH = translatePath(os.path.join('special://home/addons/plugin.video.matrixv2/', 'changelog.txt'))
+    CHANGELOG_PATH = translatePath(os.path.join('special://home/addons/' + Addon().getAddonInfo('id') + '/', 'changelog.txt'))
     version = xbmcaddon.Addon().getAddonInfo('version')
     if xbmcaddon.Addon().getSetting('changelog_version') == version or not os.path.isfile(CHANGELOG_PATH):
         return
@@ -171,7 +97,7 @@ class cParser:
     def parseSingleResult(sHtmlContent, pattern):
         aMatches = None
         if sHtmlContent:
-            aMatches = re.compile(pattern).findall(sHtmlContent)
+            aMatches = re.findall(pattern, sHtmlContent, flags=re.S | re.M)
             if len(aMatches) == 1:
                 aMatches[0] = cParser.replaceSpecialCharacters(aMatches[0])
                 return True, aMatches[0]

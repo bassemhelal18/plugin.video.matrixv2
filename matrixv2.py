@@ -8,16 +8,16 @@ import xbmcaddon
 import os
 import zlib
 import base64
-
 from xbmcaddon import Addon
+from xbmcvfs import translatePath
 from resources.lib.handler.ParameterHandler import ParameterHandler
 from resources.lib.handler.requestHandler import cRequestHandler
 from resources.lib.handler.pluginHandler import cPluginHandler
-from xbmc import LOGINFO as LOGNOTICE, LOGERROR, LOGWARNING, log
+from xbmc import LOGINFO as LOGNOTICE, LOGERROR, log
 from resources.lib.gui.guiElement import cGuiElement
 from resources.lib.gui.gui import cGui
 from resources.lib.config import cConfig
-from resources.lib.tools import logger
+from resources.lib.tools import logger, cParser
 
 PATH = xbmcaddon.Addon().getAddonInfo('path')
 ART = os.path.join(PATH, 'resources', 'art')
@@ -78,9 +78,9 @@ def parseUrl():
             if sLink:
                 xbmc.executebuiltin('PlayMedia(' + sLink + ')')
             else:
-                log(LOGMESSAGE + ' -> [MatrixV2]: Could not play remote url %s ' % sLink, LOGNOTICE)
+                log(LOGMESSAGE + ' -> [matrixv2]: Could not play remote url %s ' % sLink, LOGNOTICE)
         except resolver.resolver.ResolverError as e:
-            log(LOGMESSAGE + ' -> [MatrixV2]: ResolverError: %s' % e, LOGERROR)
+            log(LOGMESSAGE + ' -> [matrixv2]: ResolverError: %s' % e, LOGERROR)
         return
     else:
         sFunction = 'load'
@@ -104,7 +104,7 @@ def parseUrl():
         else:
             cHosterGui().stream(playMode, sSiteName, sFunction, url)
         return
-    log(LOGMESSAGE + " -> [MatrixV2]: Call function '%s' from '%s'" % (sFunction, sSiteName), LOGNOTICE)
+    log(LOGMESSAGE + " -> [matrixv2]: Call function '%s' from '%s'" % (sFunction, sSiteName), LOGNOTICE)
     # If the hoster gui is called, run the function on it and return
     if sSiteName == 'cHosterGui':
         showHosterGui(sFunction)
@@ -154,7 +154,7 @@ def showMainMenu(sFunction):
     oPluginHandler = cPluginHandler()
     aPlugins = oPluginHandler.getAvailablePlugins()
     if not aPlugins:
-        log(LOGMESSAGE + ' -> [MatrixV2]: No activated Plugins found', LOGNOTICE)
+        log(LOGMESSAGE + ' -> [matrixv2]: No activated Plugins found', LOGNOTICE)
         # Open the settings dialog to choose a plugin that could be enabled
         oGui.openSettings()
         oGui.updateDirectory()
@@ -246,7 +246,7 @@ def searchGlobal(sSearchText=False):
     oGui.globalSearch = True
     oGui._collectMode = True
     if not sSearchText:
-        sSearchText = oGui.showKeyBoard()
+        sSearchText = oGui.showKeyBoard(sHeading=cConfig().getLocalizedString(30280)) # Bitte Suchbegriff eingeben
     if not sSearchText: return True
     aPlugins = []
     aPlugins = cPluginHandler().getAvailablePlugins()
@@ -257,6 +257,8 @@ def searchGlobal(sSearchText=False):
     for count, pluginEntry in enumerate(aPlugins):
         if pluginEntry['globalsearch'] == 'false':
             continue
+        if pluginEntry['globalsearch'] == '': # Wenn die Globale Suche im Siteplugin direkt auf False gesetzt ist "SITE_GLOBAL_SEARCH = False" und in der settings.xml der Eintrag fehlt.
+            continue
         dialog.update((count + 1) * 50 // numPlugins, cConfig().getLocalizedString(30124) + str(pluginEntry['name']) + '...')
         if dialog.iscanceled(): return
         log(LOGMESSAGE + ' -> [MatrixV2]: Searching for %s at %s' % (sSearchText, pluginEntry['id']), LOGNOTICE)
@@ -264,6 +266,7 @@ def searchGlobal(sSearchText=False):
         t = threading.Thread(target=_pluginSearch, args=(pluginEntry, sSearchText, oGui), name=pluginEntry['name'])
         threads += [t]
         t.start()
+
     for count, t in enumerate(threads):
         if dialog.iscanceled(): return
         t.join()
@@ -299,6 +302,10 @@ def searchAlter(params):
     numPlugins = len(aPlugins)
     threads = []
     for count, pluginEntry in enumerate(aPlugins):
+        if pluginEntry['globalsearch'] == 'false':
+            continue
+        if pluginEntry['globalsearch'] == '': # Wenn die Globale Suche im Siteplugin direkt auf False gesetzt ist "SITE_GLOBAL_SEARCH = False" und in der settings.xml der Eintrag fehlt.
+            continue
         if dialog.iscanceled(): return
         dialog.update((count + 1) * 50 // numPlugins, cConfig().getLocalizedString(30124) + str(pluginEntry['name']) + '...')
         log(LOGMESSAGE + ' -> [MatrixV2]: Searching for ' + searchTitle + pluginEntry['id'], LOGNOTICE)

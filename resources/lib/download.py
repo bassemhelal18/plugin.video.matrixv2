@@ -40,7 +40,7 @@ class cDownload:
         sTitle = self.__createTitle(url, sTitle)
         self.__sTitle = self.__createDownloadFilename(sTitle)
         if showDialog:
-            self.__sTitle = cGui().showKeyBoard(self.__sTitle)
+            self.__sTitle = cGui().showKeyBoard(self.__sTitle, sHeading=cConfig().getLocalizedString(30290))
             if self.__sTitle != False and len(self.__sTitle) > 0:
                 sPath = cConfig().getSetting('download-folder')
                 if sPath == '':

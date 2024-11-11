@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Python 3
 
-from resources.lib.tools import cParser, cUtil, logger
+from resources.lib.tools import cParser, cUtil
 from resources.lib.config import cConfig
 from resources.lib.common import addon
 from xbmc import LOGINFO as LOGNOTICE, LOGERROR, LOGWARNING, log, executebuiltin, getCondVisibility, getInfoLabel

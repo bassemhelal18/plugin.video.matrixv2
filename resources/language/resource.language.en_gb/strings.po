@@ -95,6 +95,10 @@ msgctxt "#30024"
 msgid "Accounts"
 msgstr ""
 
+msgctxt "#30025"
+msgid "Evade DNS lock"
+msgstr ""
+
 msgctxt "#30030"
 msgid "ResolveURL Updates"
 msgstr ""
@@ -972,6 +976,17 @@ msgctxt "#30278"
 msgid "Currently used domain"
 msgstr ""
 
+msgctxt "#30279"
+msgid "[I]Show next page  >>>[/I]"
+msgstr ""
+
+msgctxt "#30280"
+msgid "Please enter the search term."
+msgstr ""
+
+msgctxt "#30290"
+msgid "Please enter the file name of the download."
+msgstr ""
 
 msgctxt "#30302"
 msgid "Seasons german"
@@ -1025,6 +1040,69 @@ msgctxt "#30406"
 msgid "Choose Matrixv2 Version"
 msgstr ""
 
+msgctxt "#30415"
+msgid "Update enabled - Branch: "
+msgstr ""
+
+msgctxt "#30416"
+msgid "Update disabled - Branch: "
+msgstr ""
+
+msgctxt "#30417"
+msgid "Matrixv2 DNS Status: Bypass DNS block"
+msgstr ""
+
+msgctxt "#30418"
+msgid "enabled"
+msgstr ""
+
+msgctxt "#30419"
+msgid "disabled"
+msgstr ""
+
+msgctxt "#30420"
+msgid "[B]DNS - Information:[/B]"
+msgstr ""
+
+msgctxt "#30421"
+msgid "[B]Repository - Information:[/B]"
+msgstr ""
+
+msgctxt "#30422"
+msgid "[B]Index pages - Information:[/B]"
+msgstr ""
+
+msgctxt "#30423"
+msgid "Index page"
+msgstr ""
+
+msgctxt "#30424"
+msgid "Domain used for the index page"
+msgstr ""
+
+msgctxt "#30425"
+msgid "Status of the domain used"
+msgstr ""
+
+msgctxt "#30426"
+msgid "Global search of the index page"
+msgstr ""
+
+msgctxt "#30427"
+msgid "Domain works without problems"
+msgstr ""
+
+msgctxt "#30428"
+msgid "Domain is permanently forwarded"
+msgstr ""
+
+msgctxt "#30429"
+msgid "Domain is currently unavailable"
+msgstr ""
+
+msgctxt "#30430"
+msgid "Index page in Matrixv2"
+msgstr ""
 ############### Scaper Language ###############
 
 msgctxt "#30500"

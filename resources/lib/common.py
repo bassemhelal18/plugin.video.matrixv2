@@ -1,9 +1,9 @@
-# -*- coding: utf-8 -*-
-# Python 3
-
-import xbmcaddon
-import sys
 from random import choice
+import sys, os, xbmc, xbmcaddon
+PY3 = sys.version_info[0] == 3
+if PY3:
+	import xbmcvfs
+
 IE_USER_AGENT = 'User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko'
 FF_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/117.0'
 OPERA_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.8464.47 Safari/537.36 OPR/117.0.8464.47'
@@ -19,10 +19,16 @@ SAFARI_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 17.1.2) AppleWebKit/
 _USER_AGENTS = [FF_USER_AGENT, OPERA_USER_AGENT, EDGE_USER_AGENT, CHROME_USER_AGENT, SAFARI_USER_AGENT]
 RAND_UA = choice(_USER_AGENTS)
 
-addonID = 'plugin.video.matrixv2'
-addon = xbmcaddon.Addon(addonID)
-addonName = addon.getAddonInfo('name')
-    
-from xbmcvfs import translatePath
-addonPath = translatePath(addon.getAddonInfo('path'))
-profilePath = translatePath(addon.getAddonInfo('profile'))
+def starter2():
+	pass
+
+def translatePath(*args):
+	if PY3: return xbmcvfs.translatePath(*args)
+	else: return xbmc.translatePath(*args).decode('utf-8')
+
+addon = xbmcaddon.Addon()
+addonInfo = addon.getAddonInfo
+addonID = addonInfo('id')
+profilePath = translatePath(addonInfo('profile'))
+addonPath = translatePath(addonInfo('path'))
+addonName = addonInfo('name')
