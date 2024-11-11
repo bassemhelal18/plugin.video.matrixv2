@@ -77,9 +77,9 @@ def parseUrl():
             if sLink:
                 xbmc.executebuiltin('PlayMedia(' + sLink + ')')
             else:
-                log(LOGMESSAGE + ' -> [matrixv2]: Could not play remote url %s ' % sLink, LOGNOTICE)
+                log(LOGMESSAGE + ' -> [MatrixV2]: Could not play remote url %s ' % sLink, LOGNOTICE)
         except resolver.resolver.ResolverError as e:
-            log(LOGMESSAGE + ' -> [matrixv2]: ResolverError: %s' % e, LOGERROR)
+            log(LOGMESSAGE + ' -> [MatrixV2]: ResolverError: %s' % e, LOGERROR)
         return
     else:
         sFunction = 'load'
@@ -103,7 +103,7 @@ def parseUrl():
         else:
             cHosterGui().stream(playMode, sSiteName, sFunction, url)
         return
-    log(LOGMESSAGE + " -> [matrixv2]: Call function '%s' from '%s'" % (sFunction, sSiteName), LOGNOTICE)
+    log(LOGMESSAGE + " -> [MatrixV2]: Call function '%s' from '%s'" % (sFunction, sSiteName), LOGNOTICE)
     # If the hoster gui is called, run the function on it and return
     if sSiteName == 'cHosterGui':
         showHosterGui(sFunction)
@@ -126,8 +126,7 @@ def parseUrl():
         updateManager.devUpdates()
     # Plugin Infos    
     elif sSiteName == 'pluginInfo':
-        from resources.lib.tools import cPluginInfo
-        cPluginInfo().pluginInfo()
+        cPluginHandler().pluginInfo()
     # Changelog anzeigen    
     elif sSiteName == 'changelog':
         from resources.lib import tools
@@ -153,7 +152,7 @@ def showMainMenu(sFunction):
     oPluginHandler = cPluginHandler()
     aPlugins = oPluginHandler.getAvailablePlugins()
     if not aPlugins:
-        log(LOGMESSAGE + ' -> [matrixv2]: No activated Plugins found', LOGNOTICE)
+        log(LOGMESSAGE + ' -> [MatrixV2]: No activated Plugins found', LOGNOTICE)
         # Open the settings dialog to choose a plugin that could be enabled
         oGui.openSettings()
         oGui.updateDirectory()
@@ -184,6 +183,7 @@ def showMainMenu(sFunction):
     oGui.setEndOfDirectory()
 
 
+
 def settingsGuiElements():
 
     # GUI Plugin Informationen
@@ -195,7 +195,7 @@ def settingsGuiElements():
     PluginInfo = oGuiElement
 
 
-    
+    # GUI xStream Einstellungen
     oGuiElement = cGuiElement()
     oGuiElement.setTitle(cConfig().getLocalizedString(30042))
     oGuiElement.setSiteName('Matrixv2')
