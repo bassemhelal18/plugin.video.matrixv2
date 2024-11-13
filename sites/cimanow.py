@@ -176,7 +176,9 @@ def showEpisodes():
 
 def showHosters():
     hosters = []
-    sUrl = ParameterHandler().getValue('sUrl')
+    sUrl2 = ParameterHandler().getValue('sUrl')
+    from six.moves.urllib.parse import unquote
+    sUrl = unquote(sUrl2)
     if 'watching/' not in sUrl:
         sUrl= sUrl+ 'watching/'
     sHtmlContent = cRequestHandler(sUrl).request()

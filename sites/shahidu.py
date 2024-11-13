@@ -183,7 +183,9 @@ def showEpisodes():
 
 def showHosters():
     hosters = []
-    sUrl = ParameterHandler().getValue('sUrl')
+    sUrl2 = ParameterHandler().getValue('sUrl')
+    from six.moves.urllib.parse import unquote
+    sUrl = unquote(sUrl2)
     if 'download/' not in sUrl:
       sUrl =sUrl.replace('film/','download/')
     sUrl2 = sUrl.replace('/download/','/watch/')

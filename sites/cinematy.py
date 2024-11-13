@@ -215,7 +215,9 @@ def showEpisodes():
 
 def showHosters():
     hosters = []
-    sUrl = ParameterHandler().getValue('sUrl')
+    sUrl2 = ParameterHandler().getValue('sUrl')
+    from six.moves.urllib.parse import unquote
+    sUrl = unquote(sUrl2)
     sUrl2 = sUrl+'watch/'
     
     
