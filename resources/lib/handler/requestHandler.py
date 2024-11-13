@@ -23,7 +23,7 @@ from urllib.request import HTTPHandler, HTTPSHandler, HTTPCookieProcessor, build
 from http.cookiejar import LWPCookieJar, Cookie
 from http.client import HTTPException
 #from xbmc import LOGINFO as LOGNOTICE, LOGERROR, LOGWARNING, LOGDEBUG, log, executebuiltin, getCondVisibility, getInfoLabel ToDo: noch zu löschen
-import resources.lib.DNSlock.urllib3 as urllib
+import resources.lib.DNSlock.urllib3 as urllib3x
 UA = common.RAND_UA
 
 class cRequestHandler:
