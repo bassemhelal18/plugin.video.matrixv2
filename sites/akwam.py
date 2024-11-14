@@ -195,9 +195,7 @@ def showEpisodes():
 
 def showHosters():
     hosters = []
-    sUrl2 = ParameterHandler().getValue('sUrl')
-    from six.moves.urllib.parse import unquote
-    sUrl = unquote(sUrl2)
+    sUrl = ParameterHandler().getValue('sUrl')
     oRequest=cRequestHandler(sUrl)
     sHtmlContent = oRequest.request()
     

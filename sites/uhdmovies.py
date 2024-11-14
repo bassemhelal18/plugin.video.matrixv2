@@ -195,9 +195,7 @@ def showEpisodes():
 
 def showHosters():
     params = ParameterHandler()
-    sUrl2 = params.getValue('sUrl')
-    from six.moves.urllib.parse import unquote
-    sUrl = unquote(sUrl2)
+    sUrl = params.getValue('sUrl')
     sType = params.getValue('mediaType')
     sName = params.getValue('sName')
     hosters = []
