@@ -5,7 +5,7 @@ import base64
 import os
 import re
 import xbmcaddon
-from urllib.parse import unquote
+from urllib.parse import quote, unquote
 from resources.lib.handler.ParameterHandler import ParameterHandler
 from resources.lib.handler.requestHandler import cRequestHandler
 from resources.lib.tools import logger, cParser
@@ -230,8 +230,10 @@ def showHosters():
             elif 'cimanow' in sUrl:
                 sName = 'CimaNow'
                 sUrl = sUrl +'|AUTH=TLS&verifypeer=false&Referer='+URL_MAIN
-                
+                sUrl = quote(sUrl, '/:=&?|')
             hoster = {'link': sUrl, 'name': sName, 'displayedName':sName+' '+sQuality, 'quality': sQuality} # Qualität Anzeige aus Release Eintrag
+            if 'cimanow' in sUrl:
+                hoster.update({ 'resolved': True})
             hosters.append(hoster)
     sStart = '</i>سيرفرات اخري :</span>'
     sEnd = '</section>'
@@ -258,7 +260,6 @@ def showHosters():
 
 def getHosterUrl(sUrl=False):
     if 'verifypeer'in sUrl:
-        sUrl = sUrl.replace(' ','%20')
         return [{'streamUrl': sUrl, 'resolved': True}]
     
     return [{'streamUrl': sUrl, 'resolved': False}]

@@ -215,7 +215,7 @@ def showHosters():
                  sUrl = 'https:' + sUrl
             elif 'fasel' in sUrl:
                 sName = 'FaselHD'
-            hoster = {'link': sUrl, 'name': sName, 'displayedName':sName+' '+sQuality, 'quality': sQuality, 'resolveable': True} # Qualität Anzeige aus Release Eintrag
+            hoster = {'link': sUrl, 'name': sName, 'displayedName':sName+' '+sQuality, 'quality': sQuality, 'resolveable': True, 'resolved': True} # Qualität Anzeige aus Release Eintrag
             hosters.append(hoster)
     if hosters:
         hosters.append('getHosterUrl')
