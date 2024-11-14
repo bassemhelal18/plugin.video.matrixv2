@@ -5,7 +5,7 @@
 import os
 import re
 import xbmcaddon
-from urllib.parse import unquote,quote
+from six.moves.urllib.parse import unquote,quote
 from resources.lib.handler.ParameterHandler import ParameterHandler
 from resources.lib.handler.requestHandler import cRequestHandler
 from resources.lib.tools import logger, cParser
@@ -187,6 +187,9 @@ def showHosters():
     if 'download/' not in sUrl:
       sUrl =sUrl.replace('film/','download/')
     sUrl2 = sUrl.replace('/download/','/watch/')
+    sUrl2 = quote(sUrl2,':/.?')
+    sUrl = quote(sUrl,':/.?')
+    
     sHtmlContent = cRequestHandler(sUrl2).request()
     sPattern = '"url":"([^"]+)",'
     isMatch,aResult = cParser.parse(sHtmlContent, sPattern)
