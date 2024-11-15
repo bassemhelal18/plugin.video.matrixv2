@@ -302,6 +302,8 @@ def showHosters():
         elif shost.startswith('//'):
                shost = 'https:' + shost
         hoster = {'link': shost, 'name': sName, 'displayedName':sName+' '+sQuality, 'quality': sQuality} # Qualität Anzeige aus Release Eintrag
+        if '|Referer'in sUrl:
+           hoster.update({ 'resolved': True})
         hosters.append(hoster)
     
     

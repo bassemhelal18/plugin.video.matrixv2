@@ -187,8 +187,7 @@ def showHosters():
     if 'download/' not in sUrl:
       sUrl =sUrl.replace('film/','download/')
     sUrl2 = sUrl.replace('/download/','/watch/')
-    sUrl2 = quote(sUrl2,':/.?')
-    sUrl = quote(sUrl,':/.?')
+    
     
     sHtmlContent = cRequestHandler(sUrl2).request()
     sPattern = '"url":"([^"]+)",'
