@@ -187,7 +187,8 @@ def showHosters():
     if 'download/' not in sUrl:
       sUrl =sUrl.replace('film/','download/')
     sUrl2 = sUrl.replace('/download/','/watch/')
-    
+    url_safe = quote(sUrl2.split('/')[-1], safe='')
+    sUrl2=  sUrl2.replace(sUrl2.split('/')[-1], url_safe)
     
     sHtmlContent = cRequestHandler(sUrl2).request()
     sPattern = '"url":"([^"]+)",'
@@ -206,7 +207,8 @@ def showHosters():
                shost = 'https:' + shost
         hoster = {'link': shost, 'name': sName, 'displayedName':sName} # Qualität Anzeige aus Release Eintrag
         hosters.append(hoster)
-    
+    url_safe2 = quote(sUrl.split('/')[-1], safe='')
+    sUrl=  sUrl.replace(sUrl.split('/')[-1], url_safe2)
     oRequestHandler = cRequestHandler(sUrl)
     sHtmlContent = oRequestHandler.request()
     oParser = cParser()

@@ -109,6 +109,7 @@ class cRequestHandler:
         self._sUrl = list(self._sUrl)
         self._sUrl[2] = quote(self._sUrl[2])
         self._sUrl = urlunsplit(self._sUrl)
+        self._sUrl = self._sUrl.replace('%25', '%')
         cookieJar = LWPCookieJar(filename=self._cookiePath)
         try:
             cookieJar.load(ignore_discard=self.__bIgnoreDiscard, ignore_expires=self.__bIgnoreExpired)
@@ -376,6 +377,7 @@ class cRequestHandlerwDNS:
         self._sUrl = list(self._sUrl)
         self._sUrl[2] = quote(self._sUrl[2])
         self._sUrl = urlunsplit(self._sUrl)
+        self._sUrl = self._sUrl.replace('%25', '%')
         cookieJar = LWPCookieJar(filename=self._cookiePath)
         try:
             cookieJar.load(ignore_discard=self.__bIgnoreDiscard, ignore_expires=self.__bIgnoreExpired)
