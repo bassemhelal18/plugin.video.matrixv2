@@ -202,7 +202,7 @@ def showHosters():
     
     if sType == 'movie':
      sHtmlContent = cRequestHandler(sUrl).request()
-     pattern = '<p style="text-align: center;">.*?<span style="color: #000000;">(.*?)<br />.*?href="(.*?)"'
+     pattern = '<p style="text-align: center;">.*?<span style="color: #000000;">.*?\)(.*?)</span><br />.*?href="(.*?)"'
      isMatch, aResult = cParser.parse(sHtmlContent, pattern)
      if not isMatch: return
      for sName,slink in aResult:
@@ -225,11 +225,11 @@ def showHosters():
        file_id = get_zfile(final_url)
        res = get_mkv(file_id)
        if res is not None:
-           hoster = {'link':  res, 'name': sName, 'displayedName':sName, 'resolveable': True} # Qualität Anzeige aus Release Eintrag
+           hoster = {'link':  res, 'name': sName, 'displayedName':sName, 'resolveable': True,'resolved': True} # Qualität Anzeige aus Release Eintrag
            hosters.append(hoster)
        res = get_mkv2(file_id)
        if res is not None:
-           hoster = {'link':res, 'name': sName, 'displayedName':sName, 'resolveable': True}
+           hoster = {'link':res, 'name': sName, 'displayedName':sName, 'resolveable': True,'resolved': True}
            hosters.append(hoster)
     else:
         
@@ -254,13 +254,13 @@ def showHosters():
         res = get_mkv(file_id)
         logger.info(res)
         if res is not None:
-           hoster = {'link':  res, 'name': sName, 'displayedName':sName, 'resolveable': True} # Qualität Anzeige aus Release Eintrag
+           hoster = {'link':  res, 'name': sName, 'displayedName':sName, 'resolveable': True,'resolved': True} # Qualität Anzeige aus Release Eintrag
            hosters.append(hoster)
         
         res = get_mkv2(file_id)
-        logger.info(res)
+        
         if res is not None:
-           hoster = {'link':res, 'name': sName, 'displayedName':sName, 'resolveable': True}
+           hoster = {'link':res, 'name': sName, 'displayedName':sName, 'resolveable': True,'resolved': True}
            hosters.append(hoster)    
     if hosters:
         hosters.append('getHosterUrl')
