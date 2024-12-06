@@ -164,17 +164,16 @@ class cHosterGui:
                       list_item.setProperty('inputstream.adaptive.manifest_headers', strhdr)
                    list_item.setPath(data['link'])
             elif ".m3u8" in data['link']:
-		        
+                list_item.setPath(data['link'])
                 if '|' in data['link']:
                    data['link'], strhdr = data['link'].split('|')
                    list_item.setProperty('inputstream.adaptive.stream_headers', strhdr)
                    if kodiver > 19:
                       list_item.setProperty('inputstream.adaptive.manifest_headers', strhdr)
-                list_item.setPath(data['link'])
-                
                 if six.PY2: list_item.setProperty("inputstreamaddon", "inputstream.adaptive")
 		        
                 else: list_item.setProperty("inputstream", "inputstream.adaptive")
+            
             xbmcplugin.setResolvedUrl(cGui().pluginHandle, True, list_item)
         else:
             xbmc.Player().play(data['link'], list_item)
