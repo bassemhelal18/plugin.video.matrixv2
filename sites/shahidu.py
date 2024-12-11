@@ -194,6 +194,7 @@ def showHosters():
      
     if isMatch:
        for shost in aResult :
+        shost = deescape(shost)
         sName = cParser.urlparse(shost)
         sName =  sName.split('.')[-2]
         if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
@@ -280,4 +281,6 @@ def __checkForNextPage(sHtmlContent, sUrl):
             
             return aResult
 
+def deescape(escaped):
+  return escaped.encode().decode('unicode_escape').encode().decode("utf-8", "replace")
     
