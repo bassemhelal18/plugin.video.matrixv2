@@ -200,7 +200,7 @@ def showHosters():
     if isMatch:
        for shost in aResult :
         shost = decode(shost)
-        if 'megamax' in shost or 'tuktukcimamulti' in shost:
+        if 'megamax' in shost or 'tuktukcimamulti' in shost or 'megaxmax' in shost:
             sHtmlContent2 = cMegamax().GetUrls(shost)
             for item in sHtmlContent2:
                     shost = item.split(',')[0].split('=')[1]
