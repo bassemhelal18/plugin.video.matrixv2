@@ -247,6 +247,7 @@ def showHosters():
                   for sUrl4  in aResult:
                     megamax = next((x for x in ['megamax', 'm3lomatik', 'ciinematy'] if x in sUrl4), None)
                     if megamax:
+                      sRefer = sUrl4.split('/e/')[0]+'/'
                       sHtmlContent2 = cMegamax().GetUrls(sUrl4)
                       for item in sHtmlContent2:
                         sUrl = item.split(',')[0].split('=')[1]
@@ -257,9 +258,8 @@ def showHosters():
                         sName =  sName.split('.')[-2]
                         if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
                         if 'ma2d'  in sUrl:
-                            sRefer = sUrl.split('/e/')[0]+'/'
                             sUrl = sUrl + "$$" + sRefer
-                        if 'vidhidevip'  in sUrl:
+                        if 'katomen'  in sUrl:
                             sUrl = sUrl + "$$" + sRefer
                         if 'youtube' in sUrl:
                            continue
