@@ -102,9 +102,22 @@ class cHosterGui:
             slug = slug.replace(' ','-').strip().lower()
             trakt['slug']=slug
             xbmcgui.Window(10000).setProperty('script.trakt.ids', json.dumps(trakt))
-
+        
+        vers = int(xbmc.getInfoLabel("System.BuildVersion").split(".")[0])
         logger.info('-> [hoster]: play file link: ' + str(data['link']))
         list_item = xbmcgui.ListItem(path=data['link'])
+        if '.m3u8' in data['link'] or '.mpd' in data['link']:
+            list_item.setProperty("inputstream", "inputstream.adaptive")
+            if '.mpd' in data['link']:
+                if vers < 21: list_item.setProperty('inputstream.adaptive.manifest_type', 'mpd')
+                list_item.setMimeType('application/dash+xml')
+            else:
+                if vers < 21: list_item.setProperty('inputstream.adaptive.manifest_type', 'hls')
+                list_item.setMimeType("application/vnd.apple.mpegurl")
+            if '|' in data['link']:
+                data['link'], header = data['link'].split('|')
+                list_item.setProperty('inputstream.adaptive.stream_headers', header)
+                if vers > 19: list_item.setProperty('inputstream.adaptive.manifest_headers', header)
         info_tag=ListItemInfoTag(list_item,'video')
         info={
             'mediatype':str(data.get('mediatype', "")),
@@ -142,38 +155,6 @@ class cHosterGui:
                           'fanart': data.get('backdrop_url')})
         list_item.setProperty('IsPlayable', 'true')
         if cGui().pluginHandle > 0:
-            kodiver = kodi.get_kodi_version().major
-            if kodiver > 16 and ('.mpd' in data['link'] ):
-                if kodiver < 19:
-                   list_item.setProperty('inputstreamaddon', 'inputstream.adaptive')
-                else:
-                   list_item.setProperty('inputstream', 'inputstream.adaptive')
-                if '.mpd' in data['link']:
-                  if kodiver < 21:
-                    list_item.setProperty('inputstream.adaptive.manifest_type', 'mpd')
-                  list_item.setMimeType('application/dash+xml')
-                else:
-                    if kodiver < 21:
-                       list_item.setProperty('inputstream.adaptive.manifest_type', 'hls')
-                    list_item.setMimeType('application/vnd.apple.mpegurl')
-                list_item.setContentLookup(False)
-                if '|' in data['link']:
-                   data['link'], strhdr = data['link'].split('|')
-                   list_item.setProperty('inputstream.adaptive.stream_headers', strhdr)
-                   if kodiver > 19:
-                      list_item.setProperty('inputstream.adaptive.manifest_headers', strhdr)
-                   list_item.setPath(data['link'])
-            elif ".m3u8" in data['link']:
-                list_item.setPath(data['link'])
-                if '|' in data['link']:
-                   data['link'], strhdr = data['link'].split('|')
-                   list_item.setProperty('inputstream.adaptive.stream_headers', strhdr)
-                   if kodiver > 19:
-                      list_item.setProperty('inputstream.adaptive.manifest_headers', strhdr)
-                if six.PY2: list_item.setProperty("inputstreamaddon", "inputstream.adaptive")
-		        
-                else: list_item.setProperty("inputstream", "inputstream.adaptive")
-            
             xbmcplugin.setResolvedUrl(cGui().pluginHandle, True, list_item)
         else:
             xbmc.Player().play(data['link'], list_item)
