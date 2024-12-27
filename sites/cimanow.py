@@ -227,6 +227,7 @@ def showHosters():
                 continue
             elif sUrl.startswith('//'):
                  sUrl = 'https:' + sUrl
+            elif 'filespayout' in sUrl: continue
             elif 'cimanow' in sUrl:
                 sName = 'CimaNow'
                 sUrl = sUrl +'|AUTH=TLS&verifypeer=false&Referer='+URL_MAIN

@@ -115,17 +115,18 @@ def showSeasons():
     oRequest = cRequestHandler(sUrl)
     sHtmlContent = oRequest.request()
     
-    isMatch, aResult = cParser.parse(sHtmlContent, '''<strong>Season (.*?)<''')
+    isMatch, aResult = cParser.parse(sHtmlContent, '''((?:<strong>|<b>)((?:Season|SEASON|season).*?)(?:</strong>|</b>))''')
     if  isMatch:
       total = len(aResult)
-      for sSeason in aResult:
+      for seasonprase,sSeason in aResult:
         
-        
+        sSeason = sSeason.lower().replace('season','').strip()
         oGuiElement = cGuiElement('Season'+' ' +sSeason, SITE_IDENTIFIER, 'showEpisodes')
         oGuiElement.setTVShowTitle(sName)
         oGuiElement.setSeason(sSeason)
         oGuiElement.setMediaType('season')
         params.setParam('sUrl', sUrl)
+        params.setParam('sSeasonprase', seasonprase)
         cGui().addFolder(oGuiElement, params, True,total)
     else :
         sSeason = '1'
@@ -141,16 +142,15 @@ def showSeasons():
 def showEpisodes():
     params = ParameterHandler()
     sUrl = params.getValue('sUrl')
-    
     sHtmlContent = cRequestHandler(sUrl).request()
     sSeason = params.getValue('season')
-    sSeasonprase = params.getValue('title')
+    sSeasonprase = params.getValue('sSeasonprase')
     sShowName = params.getValue('sName')
-    episodelist=[]
     
     
-    sStart = f'<strong>{sSeasonprase}'
-    sEnd = '<div class="mks_separator" style="border-bottom: 3px solid;"></div>'
+    
+    sStart = f'{sSeasonprase}<'
+    sEnd = '<p style="text-align: center;"></p><div class="mks_separator" style="border-bottom: 5px solid'
     sHtmlContent0 = cParser.abParse(sHtmlContent, sStart, sEnd)
     
     if sStart in sHtmlContent0:
