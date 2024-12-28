@@ -368,7 +368,7 @@ def get_mkv(id):
   
   pattern = '<meta property="og:title" content=".*?((?:2160p|1080p).*?)\.mkv.*?"/>'
   isMatch, aResult = cParser.parse(response, pattern)
-  if not isMatch: return
+  if not isMatch: return None,None
   for sRes in aResult:
    sRes = sRes
   pattern = 'class="text-center">.*?<a href="(.*?.mkv)'
@@ -382,7 +382,7 @@ def get_mkv(id):
       if href_link.endswith(".mkv"):
           url_safe = quote(href_link.split('/')[-1], safe='')
           return href_link.replace(href_link.split('/')[-1], url_safe),sRes
-  
+      else : return None, None
         
 
 def get_mkv2(id):
@@ -390,9 +390,10 @@ def get_mkv2(id):
   Request.addHeaderEntry("Referer", "https://driveleech.org/")
   Request.addHeaderEntry("Origin", "https://driveleech.org")
   response = Request.request()
+  
   pattern = '<meta property="og:title" content=".*?((?:2160p|1080p).*?)\.mkv.*?"/>'
   isMatch, aResult = cParser.parse(response, pattern)
-  if not isMatch: return
+  if not isMatch: return None,None
   for sRes in aResult:
    sRes = sRes
   pattern = '<a href="(/w.*?)" class="btn btn-outline-info"'
@@ -413,4 +414,5 @@ def get_mkv2(id):
        if href_link.endswith(".mkv"):
          url_safe = quote(href_link.split('/')[-1], safe='')
          return href_link.replace(href_link.split('/')[-1], url_safe),sRes
+       else : return None, None
 
