@@ -13,7 +13,7 @@ from resources.lib.gui.guiElement import cGuiElement
 from resources.lib.config import cConfig
 from resources.lib.gui.gui import cGui
 from bs4 import BeautifulSoup
-
+from six.moves import urllib_parse
 
 SITE_IDENTIFIER = 'uhdmovies'
 SITE_NAME = 'UHDMovies'
@@ -228,11 +228,11 @@ def showHosters():
        file_id = get_zfile(final_url)
        res,sRes = get_mkv(file_id)
        if res is not None:
-           hoster = {'link':  res, 'name': sRes, 'displayedName':sRes, 'resolveable': True,'resolved': True} # Qualität Anzeige aus Release Eintrag
+           hoster = {'link':  urllib_parse.quote(res, '/:=&?'), 'name': sRes, 'displayedName':sRes, 'resolveable': True,'resolved': True} # Qualität Anzeige aus Release Eintrag
            hosters.append(hoster)
        res ,sRes2 = get_mkv2(file_id)
        if res is not None:
-           hoster = {'link':res, 'name': sRes2, 'displayedName':sRes2, 'resolveable': True,'resolved': True}
+           hoster = {'link':urllib_parse.quote(res, '/:=&?'), 'name': sRes2, 'displayedName':sRes2, 'resolveable': True,'resolved': True}
            hosters.append(hoster)
     else:
         
@@ -257,13 +257,13 @@ def showHosters():
         res,sRes = get_mkv(file_id)
         
         if res is not None:
-           hoster = {'link':  res, 'name': sRes, 'displayedName':sRes, 'resolveable': True,'resolved': True} # Qualität Anzeige aus Release Eintrag
+           hoster = {'link':  urllib_parse.quote(res, '/:=&?'), 'name': sRes, 'displayedName':sRes, 'resolveable': True,'resolved': True} # Qualität Anzeige aus Release Eintrag
            hosters.append(hoster)
         
         res,sRes2 = get_mkv2(file_id)
         
         if res is not None:
-           hoster = {'link':res, 'name': sRes2, 'displayedName':sRes2, 'resolveable': True,'resolved': True}
+           hoster = {'link':urllib_parse.quote(res, '/:=&?'), 'name': sRes2, 'displayedName':sRes2, 'resolveable': True,'resolved': True}
            hosters.append(hoster)    
     if hosters:
         hosters.append('getHosterUrl')
