@@ -154,8 +154,10 @@ def showEpisodes():
     sHtmlContent0 = cParser.abParse(sHtmlContent, sStart, sEnd)
     
     if sStart in sHtmlContent0:
-     
-     
+     if 'Choose Episode Number to Download' not in sHtmlContent0:
+      sStart = f'{sSeasonprase}<'
+      sEnd = '<div class="gridlove-author">'
+      sHtmlContent0 = cParser.abParse(sHtmlContent, sStart, sEnd)
      pattern = '''Choose Episode Number to Download.*?href="(.*?)".*?<span class='mb-text'>(.*?)<'''  # start element
      isMatch, aResult = cParser.parse(sHtmlContent0, pattern)
      if not isMatch: return
@@ -374,12 +376,13 @@ def get_mkv(id):
   if not isMatch:
     pattern = 'iframe id.*?src="(.*?).mkv"'
     isMatch, aResult = cParser.parse(response, pattern)
-    if not isMatch: return
+    if not isMatch: return None,None
   for link in aResult:
       href_link = link.strip()
       if href_link.endswith(".mkv"):
           url_safe = quote(href_link.split('/')[-1], safe='')
           return href_link.replace(href_link.split('/')[-1], url_safe),sRes
+  
         
 
 def get_mkv2(id):
@@ -394,7 +397,7 @@ def get_mkv2(id):
    sRes = sRes
   pattern = '<a href="(/w.*?)" class="btn btn-outline-info"'
   isMatch, aResult = cParser.parse(response, pattern)
-  if not isMatch: return
+  if not isMatch: return None,None
   for link in aResult:
       Request=cRequestHandler(f"https://driveleech.org{link}")
       Request.addHeaderEntry("Referer", "https://driveleech.org/")
