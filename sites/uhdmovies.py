@@ -150,7 +150,7 @@ def showEpisodes():
     
     
     sStart = f'{sSeasonprase}<'
-    sEnd = '<p style="text-align: center;"></p><div class="mks_separator" style="border-bottom: 5px solid'
+    sEnd = '<p style="text-align: center;"><div class="mks_separator" style="border-bottom: 5px solid;">'
     sHtmlContent0 = cParser.abParse(sHtmlContent, sStart, sEnd)
     
     if sStart in sHtmlContent0:
@@ -162,14 +162,15 @@ def showEpisodes():
      total = len(aResult)
      for sUrl, sEpisode in aResult:
         
-        sEpisode = sEpisode.replace('Episode','').strip()
-        oGuiElement = cGuiElement('Episode ' + sEpisode, SITE_IDENTIFIER, 'showHosters')
-        oGuiElement.setTVShowTitle(sShowName)
-        oGuiElement.setSeason(sSeason)
-        oGuiElement.setEpisode(sEpisode)
-        oGuiElement.setMediaType('episode')
-        params.setParam('sUrl', sUrl)
-        cGui().addFolder(oGuiElement, params, False, total)
+           sEpisode = sEpisode.replace('Episode','').strip()
+           oGuiElement = cGuiElement('Episode ' + sEpisode, SITE_IDENTIFIER, 'showHosters')
+           oGuiElement.setTVShowTitle(sShowName)
+           oGuiElement.setSeason(sSeason)
+           oGuiElement.setEpisode(sEpisode)
+           oGuiElement.setMediaType('episode')
+           params.setParam('sUrl', sUrl)
+           
+           cGui().addFolder(oGuiElement, params, False, total)
         
     else:
         
@@ -223,13 +224,13 @@ def showHosters():
        response = make_get_request(pepe_url, cookies, action_url)
        final_url = parse_redirect_page(response)
        file_id = get_zfile(final_url)
-       res = get_mkv(file_id)
+       res,sRes = get_mkv(file_id)
        if res is not None:
-           hoster = {'link':  res, 'name': sName, 'displayedName':sName, 'resolveable': True,'resolved': True} # Qualität Anzeige aus Release Eintrag
+           hoster = {'link':  res, 'name': sRes, 'displayedName':sRes, 'resolveable': True,'resolved': True} # Qualität Anzeige aus Release Eintrag
            hosters.append(hoster)
-       res = get_mkv2(file_id)
+       res ,sRes2 = get_mkv2(file_id)
        if res is not None:
-           hoster = {'link':res, 'name': sName, 'displayedName':sName, 'resolveable': True,'resolved': True}
+           hoster = {'link':res, 'name': sRes2, 'displayedName':sRes2, 'resolveable': True,'resolved': True}
            hosters.append(hoster)
     else:
         
@@ -251,16 +252,16 @@ def showHosters():
         response = make_get_request(pepe_url, cookies, action_url)
         final_url = parse_redirect_page(response)
         file_id = get_zfile(final_url)
-        res = get_mkv(file_id)
-        logger.info(res)
+        res,sRes = get_mkv(file_id)
+        
         if res is not None:
-           hoster = {'link':  res, 'name': sName, 'displayedName':sName, 'resolveable': True,'resolved': True} # Qualität Anzeige aus Release Eintrag
+           hoster = {'link':  res, 'name': sRes, 'displayedName':sRes, 'resolveable': True,'resolved': True} # Qualität Anzeige aus Release Eintrag
            hosters.append(hoster)
         
-        res = get_mkv2(file_id)
+        res,sRes2 = get_mkv2(file_id)
         
         if res is not None:
-           hoster = {'link':res, 'name': sName, 'displayedName':sName, 'resolveable': True,'resolved': True}
+           hoster = {'link':res, 'name': sRes2, 'displayedName':sRes2, 'resolveable': True,'resolved': True}
            hosters.append(hoster)    
     if hosters:
         hosters.append('getHosterUrl')
@@ -363,6 +364,11 @@ def get_mkv(id):
   Request.addHeaderEntry("Origin", "https://driveleech.org")
   response = Request.request()
   
+  pattern = '<meta property="og:title" content=".*?((?:2160p|1080p).*?)\.mkv.*?"/>'
+  isMatch, aResult = cParser.parse(response, pattern)
+  if not isMatch: return
+  for sRes in aResult:
+   sRes = sRes
   pattern = 'class="text-center">.*?<a href="(.*?.mkv)'
   isMatch, aResult = cParser.parse(response, pattern)
   if not isMatch:
@@ -373,7 +379,7 @@ def get_mkv(id):
       href_link = link.strip()
       if href_link.endswith(".mkv"):
           url_safe = quote(href_link.split('/')[-1], safe='')
-          return href_link.replace(href_link.split('/')[-1], url_safe)
+          return href_link.replace(href_link.split('/')[-1], url_safe),sRes
         
 
 def get_mkv2(id):
@@ -381,7 +387,11 @@ def get_mkv2(id):
   Request.addHeaderEntry("Referer", "https://driveleech.org/")
   Request.addHeaderEntry("Origin", "https://driveleech.org")
   response = Request.request()
-  
+  pattern = '<meta property="og:title" content=".*?((?:2160p|1080p).*?)\.mkv.*?"/>'
+  isMatch, aResult = cParser.parse(response, pattern)
+  if not isMatch: return
+  for sRes in aResult:
+   sRes = sRes
   pattern = '<a href="(/w.*?)" class="btn btn-outline-info"'
   isMatch, aResult = cParser.parse(response, pattern)
   if not isMatch: return
@@ -399,5 +409,5 @@ def get_mkv2(id):
        href_link = href_link.strip()
        if href_link.endswith(".mkv"):
          url_safe = quote(href_link.split('/')[-1], safe='')
-         return href_link.replace(href_link.split('/')[-1], url_safe)
+         return href_link.replace(href_link.split('/')[-1], url_safe),sRes
 
