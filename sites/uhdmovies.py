@@ -396,23 +396,28 @@ def get_mkv2(id):
   if not isMatch: return None,None
   for sRes in aResult:
    sRes = sRes
-  pattern = '<a href="(/w.*?)" class="btn btn-outline-info"'
+  pattern = 'href="(/w.*?)" class="btn btn-outline-info"'
   isMatch, aResult = cParser.parse(response, pattern)
   if not isMatch: return None,None
   for link in aResult:
+      
       Request=cRequestHandler(f"https://driveleech.org{link}")
       Request.addHeaderEntry("Referer", "https://driveleech.org/")
       Request.addHeaderEntry("Origin", "https://driveleech.org")
       response = Request.request()
       
-      soup = BeautifulSoup(response, 'html.parser')
-      links = soup.find_all('a',href =True)
-      
-      for link in links:
-       href_link = link['href']
-       href_link = href_link.strip()
-       if href_link.endswith(".mkv"):
-         url_safe = quote(href_link.split('/')[-1], safe='')
-         return href_link.replace(href_link.split('/')[-1], url_safe),sRes
-       else : return None, None
+   
+  soup = BeautifulSoup(response, 'html.parser')
+  links = soup.find_all('a',href =True)
+  pattern = '''["'](https.*?.mkv)["']'''
+  isMatch, aResult = cParser.parse(str(links), pattern)
+  if not isMatch: return None,None
+  for link in aResult:
+    
+      href_link = link.strip()
+      if 'https://driveleech.org' in href_link:continue
+  if href_link.endswith(".mkv"):
+        url_safe = quote(href_link.split('/')[-1], safe='')
+        return href_link.replace(href_link.split('/')[-1], url_safe),sRes
+  else : return None, None
 
