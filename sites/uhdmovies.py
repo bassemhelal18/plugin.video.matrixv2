@@ -205,10 +205,11 @@ def showHosters():
     
     if sType == 'movie':
      sHtmlContent = cRequestHandler(sUrl).request()
-     pattern = '<p style="text-align: center;">.*?<span style="color: #000000;">.*?\)(.*?)</span><br />.*?href="(.*?)"'
+     
+     pattern = '<p style="text-align: center;">.*?href="(.*?)"'
      isMatch, aResult = cParser.parse(sHtmlContent, pattern)
      if not isMatch: return
-     for sName,slink in aResult:
+     for slink in aResult:
        _wp_http = slink.split('?sid=')[1]
        action_url, _wp_http2, token = make_post_request(_wp_http)
        resp = get_pepe_url(action_url, _wp_http2, token)
@@ -374,7 +375,7 @@ def get_mkv(id):
   pattern = 'class="text-center">.*?<a href="(.*?.mkv)'
   isMatch, aResult = cParser.parse(response, pattern)
   if not isMatch:
-    pattern = 'iframe id.*?src="(.*?).mkv"'
+    pattern = 'iframe id.*?src="(.*?.mkv)"'
     isMatch, aResult = cParser.parse(response, pattern)
     if not isMatch: return None,None
   for link in aResult:
@@ -396,6 +397,7 @@ def get_mkv2(id):
   if not isMatch: return None,None
   for sRes in aResult:
    sRes = sRes
+  
   pattern = 'href="(/w.*?)" class="btn btn-outline-info"'
   isMatch, aResult = cParser.parse(response, pattern)
   if not isMatch: return None,None
