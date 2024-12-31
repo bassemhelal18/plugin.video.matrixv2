@@ -158,29 +158,46 @@ def showEpisodes():
       sStart = f'{sSeasonprase}<'
       sEnd = '<div class="gridlove-author">'
       sHtmlContent0 = cParser.abParse(sHtmlContent, sStart, sEnd)
-     pattern = '''Choose Episode Number to Download.*?href="(.*?)".*?<span class='mb-text'>(.*?)<'''  # start element
-     isMatch, aResult = cParser.parse(sHtmlContent0, pattern)
+     s = BeautifulSoup(sHtmlContent0, 'html.parser')
+     episode_links = {}
+     for link in s.find_all('a', class_='maxbutton-gdrive-episode'):
+       episode_number = link.find('span', class_='mb-text').text.strip()
+       episode_url = link.get('href')
+    
+       if episode_number not in episode_links:
+           episode_links[episode_number] = []
+       episode_links[episode_number].append(episode_url)
+     pattern = '''['"]Episode (.*?)['"]:.*?'(.*?)']'''  # start element
+     isMatch, aResult = cParser.parse(str(episode_links), pattern)
      if not isMatch: return
      total = len(aResult)
-     for sUrl, sEpisode in aResult:
+     for sEpisode,sUrl in aResult:
         
-           sEpisode = sEpisode.replace('Episode','').strip()
-           oGuiElement = cGuiElement('Episode ' + sEpisode, SITE_IDENTIFIER, 'showHosters')
-           oGuiElement.setTVShowTitle(sShowName)
-           oGuiElement.setSeason(sSeason)
-           oGuiElement.setEpisode(sEpisode)
-           oGuiElement.setMediaType('episode')
-           params.setParam('sUrl', sUrl)
-           
-           cGui().addFolder(oGuiElement, params, False, total)
-        
+         sEpisode = sEpisode.replace('Episode','').strip()
+         
+         oGuiElement = cGuiElement('Episode ' + sEpisode, SITE_IDENTIFIER, 'showHosters')
+         oGuiElement.setTVShowTitle(sShowName)
+         oGuiElement.setSeason(sSeason)
+         oGuiElement.setEpisode(sEpisode)
+         oGuiElement.setMediaType('episode')
+         params.setParam('sUrl', sUrl)
+         cGui().addFolder(oGuiElement, params, False, total)
     else:
         
-        pattern = '''Choose Episode Number to Download.*?href="(.*?)".*?<span class='mb-text'>(.*?)<'''  # start element
-        isMatch, aResult = cParser.parse(sHtmlContent, pattern)
-        if not isMatch: return
-        total = len(aResult)
-        for sUrl, sEpisode in aResult:
+     s = BeautifulSoup(sHtmlContent, 'html.parser')
+     episode_links = {}
+     for link in s.find_all('a', class_='maxbutton-gdrive-episode'):
+       episode_number = link.find('span', class_='mb-text').text.strip()
+       episode_url = link.get('href')
+    
+       if episode_number not in episode_links:
+           episode_links[episode_number] = []
+       episode_links[episode_number].append(episode_url)
+     pattern = '''['"]Episode (.*?)['"]:.*?'(.*?)']'''  # start element
+     isMatch, aResult = cParser.parse(str(episode_links), pattern)
+     if not isMatch: return
+     total = len(aResult)
+     for sEpisode,sUrl in aResult:
         
          sEpisode = sEpisode.replace('Episode','').strip()
          
@@ -237,35 +254,39 @@ def showHosters():
            hosters.append(hoster)
     else:
         
-        slink=sUrl 
-        _wp_http = slink.split('?sid=')[1]
-        action_url, _wp_http2, token = make_post_request(_wp_http)
-        resp = get_pepe_url(action_url, _wp_http2, token)
-        matches = get_match(resp)
-        pepe_url = matches[0]
-        cookies = {
+        pattern = '(http.*?==)'
+        isMatch, aResult = cParser.parse(sUrl, pattern)
+        if not isMatch: return
+        for slink in aResult:
+        
+          _wp_http = slink.split('?sid=')[1]
+          action_url, _wp_http2, token = make_post_request(_wp_http)
+          resp = get_pepe_url(action_url, _wp_http2, token)
+          matches = get_match(resp)
+          pepe_url = matches[0]
+          cookies = {
             "__eoi": "ID=4a86dd07e2cfa744:T=1710970060:RT=1710970060:S=AA-AfjbVJgiJ3UbrHbBiGQPwwxlA",
             "__qca": "P0-1796148875-1710970059080"}
 
 
-        if '?go=' in pepe_url:
-         key = str(pepe_url.split('?go=')[1])
-         cookies[key] = _wp_http2
+          if '?go=' in pepe_url:
+           key = str(pepe_url.split('?go=')[1])
+           cookies[key] = _wp_http2
     
-        response = make_get_request(pepe_url, cookies, action_url)
-        final_url = parse_redirect_page(response)
-        file_id = get_zfile(final_url)
-        res,sRes = get_mkv(file_id)
+          response = make_get_request(pepe_url, cookies, action_url)
+          final_url = parse_redirect_page(response)
+          file_id = get_zfile(final_url)
+          res,sRes = get_mkv(file_id)
         
-        if res is not None:
-           hoster = {'link':  urllib_parse.quote(res, '/:=&?'), 'name': sRes, 'displayedName':sRes, 'resolveable': True,'resolved': True} # Qualität Anzeige aus Release Eintrag
-           hosters.append(hoster)
+          if res is not None:
+             hoster = {'link':  urllib_parse.quote(res, '/:=&?'), 'name': sRes, 'displayedName':sRes, 'resolveable': True,'resolved': True} # Qualität Anzeige aus Release Eintrag
+             hosters.append(hoster)
         
-        res,sRes2 = get_mkv2(file_id)
+          res,sRes2 = get_mkv2(file_id)
         
-        if res is not None:
-           hoster = {'link':urllib_parse.quote(res, '/:=&?'), 'name': sRes2, 'displayedName':sRes2, 'resolveable': True,'resolved': True}
-           hosters.append(hoster)    
+          if res is not None:
+             hoster = {'link':urllib_parse.quote(res, '/:=&?'), 'name': sRes2, 'displayedName':sRes2, 'resolveable': True,'resolved': True}
+             hosters.append(hoster)    
     if hosters:
         hosters.append('getHosterUrl')
     return hosters    
