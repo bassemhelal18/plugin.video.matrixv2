@@ -214,7 +214,9 @@ def WindowsBoxes(sTitle, sFileName, metaType, year=''):
             if action.getId() in (9, 10, 11, 30, 92, 216, 247, 257, 275, 61467, 61448):
                 self.close()
 
-    path = 'special://home/addons/plugin.video.matrixv2'
+    from xbmcaddon import Addon
+    addonId = Addon().getAddonInfo('id')
+    path = 'special://home/addons/%s' % addonId
     wd = XMLDialog('info.xml', path, 'default', '720p')
     wd.doModal()
     del wd
