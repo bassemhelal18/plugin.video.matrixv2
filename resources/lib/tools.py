@@ -266,6 +266,9 @@ class cUtil:
 
     @staticmethod
     def unescape(text): #Todo hier werden Fehler angezeigt
+        try: unichr
+        except NameError: unichr = chr
+        
         def fixup(m):
             text = m.group(0)
             if not text.endswith(';'): text += ';'
