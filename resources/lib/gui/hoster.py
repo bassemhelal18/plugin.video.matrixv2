@@ -117,6 +117,7 @@ class cHosterGui:
             if '|' in data['link']:
                 data['link'], header = data['link'].split('|')
                 list_item.setProperty('inputstream.adaptive.stream_headers', header)
+                list_item.setProperty('inputstream.adaptive.license_key', '|%s' % header)
                 if vers > 19: list_item.setProperty('inputstream.adaptive.manifest_headers', header)
         info_tag=ListItemInfoTag(list_item,'video')
         info={
