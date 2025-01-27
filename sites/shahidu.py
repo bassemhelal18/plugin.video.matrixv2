@@ -67,6 +67,8 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     oRequest = cRequestHandler(sUrl , ignoreErrors=(sGui is not False))
     if cConfig().getSetting('global_search_' + SITE_IDENTIFIER) == 'true':
         oRequest.cacheTime = 60 * 60 * 6  # 6 Stunden
+    iPage = int(params.getValue('page'))
+    oRequest = cRequestHandler(sUrl + '?page=' + str(iPage) if iPage > 0 else sUrl, ignoreErrors=(sGui is not False))
     sHtmlContent = oRequest.request()
     
     sStart = '<div class="container my-3">'
@@ -110,14 +112,17 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
             oGui.addFolder(oGuiElement, params, isTvshow, total)
         
     if not sGui and not sSearchText:
-        sNextPage = __checkForNextPage(sHtmlContent, sUrl2)
-        logger.error('active: ' + sNextPage)
-        if sNextPage:
-         params.setParam('sUrl', sNextPage)
-         params.setParam('trumb', os.path.join(ART, 'Next.png'))
-         oGui.addNextPage(SITE_IDENTIFIER, 'showEntries', params)
-         oGui.setView('tvshows' if isTvshow else 'movies')
-         oGui.setEndOfDirectory()
+        sPageNr = int(params.getValue('page'))
+        if sPageNr == 0:
+            sPageNr = 2
+        else:
+            sPageNr += 1
+        params.setParam('page', int(sPageNr))
+        params.setParam('sUrl', sUrl)
+        params.setParam('trumb', os.path.join(ART, 'Next.png'))
+        oGui.addNextPage(SITE_IDENTIFIER, 'showEntries', params)
+        oGui.setView('tvshows' if isTvshow else 'movies')
+        oGui.setEndOfDirectory()
 
 
 
@@ -258,28 +263,6 @@ def showSearch():
 def _search(oGui, sSearchText):
     showEntries(URL_SEARCH % cParser.quotePlus(sSearchText), oGui, sSearchText)
 
-def __checkForNextPage(sHtmlContent, sUrl):
-    
-    oParser = cParser()
-    sStart = '<ul class="pagination">'
-    sEnd = '<div class="footer">'
-    sHtmlContent0 = oParser.abParse(sHtmlContent, sStart, sEnd)
-    
-    sPattern = '<li class="page-item">.*?<button class="page-link cursor-pointer" type="button" aria-label="Page Button".*?onclick="(.*?)">(.*?)</button>' 
-    oParser = cParser()
-    aResult = oParser.parse(sHtmlContent0, sPattern)
-
-    if aResult[0]:
-        for aEntry in aResult[1]:
-            if 'fa-solid fa-backward' not in aEntry[1]:
-                 continue
-            if '?page=' in sUrl:
-                sUrl = sUrl.split('?page=')[0]
-                aResult = sUrl+'?page='+aEntry[0].replace(')','').replace("updateQuery('page', ","")
-            else:
-                aResult = sUrl+'?page='+aEntry[0].replace(')','').replace("updateQuery('page', ","")
-            
-            return aResult
 
 def deescape(escaped):
   return escaped.encode().decode('unicode_escape').encode().decode("utf-8", "replace")

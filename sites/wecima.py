@@ -110,7 +110,7 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     if not sGui and not sSearchText:
         isMatchNextPage, sNextUrl = cParser.parseSingleResult(sHtmlContent,'<li><a class=\"next.page-numbers\" href=\"(.+?)\">')
         if isMatchNextPage:
-            params.setParam('sUrl', sNextUrl)
+            params.setParam('sUrl', URL_MAIN+sNextUrl)
             params.setParam('trumb', os.path.join(ART, 'Next.png'))
             oGui.addNextPage(SITE_IDENTIFIER, 'showEntries', params)
         

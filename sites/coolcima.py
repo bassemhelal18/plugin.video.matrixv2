@@ -26,14 +26,12 @@ if cConfig().getSetting('global_search_' + SITE_IDENTIFIER) == 'false':
     logger.info('-> [SitePlugin]: globalSearch for %s is deactivated.' % SITE_NAME)
 
 # Domain Abfrage
-DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'cooolman.store')
+DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'coooleg.store')
 URL_MAIN = 'https://' + DOMAIN + '/'
 
 
 URL_MOVIES_English = URL_MAIN + 'category/افلام-اجنبي/'
-URL_MOVIES_Arabic = URL_MAIN + 'category/افلام-عربي/'
 URL_SERIES_English = URL_MAIN + 'category/مسلسلات-اجنبي/'
-URL_SERIES_Arabic = URL_MAIN + 'category/مسلسلات-عربي/'
 URL_MOVIES_Kids = URL_MAIN + 'category/افلام-كرتون/'
 URL_SEARCH = URL_MAIN + '?s=%s'
 
@@ -43,16 +41,10 @@ def load(): # Menu structure of the site plugin
     params = ParameterHandler()
     params.setParam('sUrl', URL_MOVIES_English)
     params.setParam('trumb', os.path.join(ART, 'MoviesEnglish.png'))
-    cGui().addFolder(cGuiElement(cConfig().getLocalizedString(30502), SITE_IDENTIFIER, 'showEntries'), params)  
-    params.setParam('sUrl', URL_MOVIES_Arabic)
-    params.setParam('trumb', os.path.join(ART, 'MoviesArabic.png'))
-    cGui().addFolder(cGuiElement(cConfig().getLocalizedString(30500), SITE_IDENTIFIER, 'showEntries'), params)  
+    cGui().addFolder(cGuiElement(cConfig().getLocalizedString(30502), SITE_IDENTIFIER, 'showEntries'), params)    
     params.setParam('sUrl', URL_SERIES_English)
     params.setParam('trumb', os.path.join(ART, 'TVShowsEnglish.png'))
-    cGui().addFolder(cGuiElement(cConfig().getLocalizedString(30514), SITE_IDENTIFIER, 'showEntries'), params)  
-    params.setParam('sUrl', URL_SERIES_Arabic)
-    params.setParam('trumb', os.path.join(ART, 'TVShowsArabic.png'))
-    cGui().addFolder(cGuiElement(cConfig().getLocalizedString(30511), SITE_IDENTIFIER, 'showEntries'), params)  
+    cGui().addFolder(cGuiElement(cConfig().getLocalizedString(30514), SITE_IDENTIFIER, 'showEntries'), params)    
     params.setParam('sUrl', URL_MOVIES_Kids)
     params.setParam('trumb', os.path.join(ART, 'Kids.png'))
     cGui().addFolder(cGuiElement(cConfig().getLocalizedString(30503), SITE_IDENTIFIER, 'showEntries'), params)
