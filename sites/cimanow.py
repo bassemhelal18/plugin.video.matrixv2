@@ -229,6 +229,7 @@ def showHosters():
             elif 'cimanow' in sUrl:
                 sName = 'CimaNow'
                 sUrl = sUrl +'|AUTH=TLS&verifypeer=false&Referer='+URL_MAIN
+                sUrl = quote(sUrl, '/:=&?|')
             hoster = {'link': sUrl, 'name': sName, 'displayedName':sName+' '+sQuality, 'quality': sQuality} # Qualität Anzeige aus Release Eintrag
             if 'cimanow' in sUrl:
                 hoster.update({ 'resolved': True})
