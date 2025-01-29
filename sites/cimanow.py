@@ -214,15 +214,12 @@ def showHosters():
     
     sStart = '<ul class="tabcontent" id="download">'
     sEnd = '</section>'
-    sHtmlContent = cParser.abParse(sHtmlContent, sStart, sEnd)
-    
-    pattern = '<a href="(.+?)".+?class="fas fa-cloud-download-alt"></i>\s*(.+?)\s*<p'  # start element
-    isMatch, aResult = cParser().parse(sHtmlContent, pattern)
+    sHtmlContent0 = cParser.abParse(sHtmlContent, sStart, sEnd)
+    pattern = '<a href="(.+?)".*?class.*?></i>(.*?)(?:<p>|</a>)'  # start element
+    isMatch, aResult = cParser().parse(sHtmlContent0, pattern)
     if isMatch:
         for sUrl ,sQuality in aResult:
             sName = cParser.urlparse(sUrl)
-            
-             # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
             if 'youtube' in sUrl:
                 continue
             elif sUrl.startswith('//'):
@@ -235,24 +232,6 @@ def showHosters():
             hoster = {'link': sUrl, 'name': sName, 'displayedName':sName+' '+sQuality, 'quality': sQuality} # Qualität Anzeige aus Release Eintrag
             if 'cimanow' in sUrl:
                 hoster.update({ 'resolved': True})
-            hosters.append(hoster)
-    sStart = '</i>سيرفرات اخري :</span>'
-    sEnd = '</section>'
-    sHtmlContent = cParser.abParse(sHtmlContent, sStart, sEnd)
-    pattern = '<a href="(.*?)">\s*<i class="fa fa-download"></i>'  # start element
-    isMatch, aResult = cParser().parse(sHtmlContent, pattern)
-    if isMatch:
-        for sUrl in aResult:
-            sName = cParser.urlparse(sUrl)
-            
-             # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
-            if 'youtube' in sUrl:
-                continue
-            if cConfig().isBlockedHoster(sName)[0]: continue
-            elif sUrl.startswith('//'):
-                 sUrl = 'https:' + sUrl
-            
-            hoster = {'link': sUrl, 'name': sName, 'displayedName':sName} # Qualität Anzeige aus Release Eintrag
             hosters.append(hoster)
     if hosters:
         hosters.append('getHosterUrl')
