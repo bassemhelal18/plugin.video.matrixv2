@@ -408,7 +408,7 @@ def get_mkv(id):
   pattern = 'class="text-center">.*?<a href="(.*?.mkv)'
   isMatch, aResult = cParser.parse(response, pattern)
   if not isMatch:
-    pattern = 'iframe id.*?src="(.*?.mkv)"'
+    pattern = 'iframe id.*?src=".*?link=(.*?.mkv)"'
     isMatch, aResult = cParser.parse(response, pattern)
     if not isMatch: return None,None
   for link in aResult:
