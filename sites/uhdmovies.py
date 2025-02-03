@@ -246,12 +246,14 @@ def showHosters():
        file_id = get_zfile(final_url)
        res,sRes = get_mkv(file_id)
        if res is not None:
-           hoster = {'link':  urllib_parse.quote(res, '/:=&?'), 'name': sRes, 'displayedName':sRes, 'resolveable': True,'resolved': True} # Qualität Anzeige aus Release Eintrag
-           hosters.append(hoster)
+        s = getheader(res)
+        hoster = {'link':  urllib_parse.quote(res, '/:=&?')+s, 'name': sRes, 'displayedName':sRes, 'resolveable': True,'resolved': True} # Qualität Anzeige aus Release Eintrag
+        hosters.append(hoster)
        res ,sRes2 = get_mkv2(file_id)
        if res is not None:
-           hoster = {'link':urllib_parse.quote(res, '/:=&?'), 'name': sRes2, 'displayedName':sRes2, 'resolveable': True,'resolved': True}
-           hosters.append(hoster)
+        s = getheader(res)
+        hoster = {'link':urllib_parse.quote(res, '/:=&?')+s, 'name': sRes2, 'displayedName':sRes2, 'resolveable': True,'resolved': True}
+        hosters.append(hoster)
     else:
         
         pattern = '(http.*?==)'
@@ -277,22 +279,30 @@ def showHosters():
           final_url = parse_redirect_page(response)
           file_id = get_zfile(final_url)
           res,sRes = get_mkv(file_id)
-        
           if res is not None:
-             hoster = {'link':  urllib_parse.quote(res, '/:=&?'), 'name': sRes, 'displayedName':sRes, 'resolveable': True,'resolved': True} # Qualität Anzeige aus Release Eintrag
-             hosters.append(hoster)
+           s = getheader(res)
+           hoster = {'link':  urllib_parse.quote(res, '/:=&?')+s, 'name': sRes, 'displayedName':sRes, 'resolveable': True,'resolved': True} # Qualität Anzeige aus Release Eintrag
+           hosters.append(hoster)
         
           res,sRes2 = get_mkv2(file_id)
-        
           if res is not None:
-             hoster = {'link':urllib_parse.quote(res, '/:=&?'), 'name': sRes2, 'displayedName':sRes2, 'resolveable': True,'resolved': True}
-             hosters.append(hoster)    
+            s = getheader(res)
+            hoster = {'link':urllib_parse.quote(res, '/:=&?')+s, 'name': sRes2, 'displayedName':sRes2, 'resolveable': True,'resolved': True}
+            hosters.append(hoster)    
     if hosters:
         hosters.append('getHosterUrl')
     return hosters    
 
         
+def getheader(url):
+    sRefer = '{}'.format(cParser.urlparse(url))
+    sRefer = sRefer.lower()
+    headers = {'User-Agent': common.RAND_UA,
+               'Referer': 'https://{0}/'.format(sRefer),
+               'Origin': 'https://{0}'.format(sRefer)}
     
+    return '|%s' % '&'.join(['%s=%s' % (key, urllib_parse.quote_plus(headers[key])) for key in headers])    
+
 def make_post_request(_wp_http):
         url = "https://tech.unblockedgames.world/"
         Request=cRequestHandler(url)
@@ -388,11 +398,12 @@ def get_mkv(id):
   Request.addHeaderEntry("Origin", "https://driveleech.org")
   response = Request.request()
   
-  pattern = '<meta property="og:title" content=".*?((?:2160p|1080p).*?)\.mkv.*?"/>'
+  pattern = '<meta property="og:title" content=".*?((?:2160p|1080p|720p).*?)\.mkv.*?"/>'
   isMatch, aResult = cParser.parse(response, pattern)
   if not isMatch: return None,None
   for sRes in aResult:
    sRes = sRes
+  
   pattern = 'class="text-center">.*?<a href="(.*?.mkv)'
   isMatch, aResult = cParser.parse(response, pattern)
   if not isMatch:
@@ -402,8 +413,7 @@ def get_mkv(id):
   for link in aResult:
       href_link = link.strip()
       if href_link.endswith(".mkv"):
-          url_safe = quote(href_link.split('/')[-1], safe='')
-          return href_link.replace(href_link.split('/')[-1], url_safe),sRes
+        return href_link,sRes
       else : return None, None
         
 
@@ -413,7 +423,7 @@ def get_mkv2(id):
   Request.addHeaderEntry("Origin", "https://driveleech.org")
   response = Request.request()
   
-  pattern = '<meta property="og:title" content=".*?((?:2160p|1080p).*?)\.mkv.*?"/>'
+  pattern = '<meta property="og:title" content=".*?((?:2160p|1080p|720p).*?)\.mkv.*?"/>'
   isMatch, aResult = cParser.parse(response, pattern)
   if not isMatch: return None,None
   for sRes in aResult:
@@ -432,15 +442,13 @@ def get_mkv2(id):
    
   soup = BeautifulSoup(response, 'html.parser')
   links = soup.find_all('a',href =True)
-  pattern = '''["'](https.*?.mkv)["']'''
+  pattern = '''download.*?href=["'](https.*?.mkv)["']'''
   isMatch, aResult = cParser.parse(str(links), pattern)
   if not isMatch: return None,None
   for link in aResult:
-    
-      href_link = link.strip()
-      if 'https://driveleech.org' in href_link:continue
-  if href_link.endswith(".mkv"):
-        url_safe = quote(href_link.split('/')[-1], safe='')
-        return href_link.replace(href_link.split('/')[-1], url_safe),sRes
+    href_link = link.strip()
+    if 'https://driveleech.org' in href_link:continue
+    if href_link.endswith(".mkv"):
+        return href_link,sRes
   else : return None, None
 
