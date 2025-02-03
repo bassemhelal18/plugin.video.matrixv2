@@ -6,6 +6,7 @@ import re
 import requests
 import xbmcaddon
 from urllib.parse import quote, unquote
+from resources.lib import common
 from resources.lib.handler.ParameterHandler import ParameterHandler
 from resources.lib.handler.requestHandler import cRequestHandler
 from resources.lib.tools import logger, cParser
