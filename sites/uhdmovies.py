@@ -40,6 +40,9 @@ URL_SEARCH = URL_MAIN + 'search/%s'
 def load(): # Menu structure of the site plugin
     logger.info('Load %s' % SITE_NAME)
     params = ParameterHandler()
+    params.setParam('sUrl', URL_MAIN)
+    params.setParam('trumb', os.path.join(ART, 'Recent.png'))
+    cGui().addFolder(cGuiElement('Recent', SITE_IDENTIFIER, 'showEntries'), params)
     params.setParam('sUrl', URL_MOVIES_English)
     params.setParam('trumb', os.path.join(ART, 'MoviesEnglish.png'))
     cGui().addFolder(cGuiElement(cConfig().getLocalizedString(30502), SITE_IDENTIFIER, 'showEntries'), params)  
