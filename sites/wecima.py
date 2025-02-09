@@ -291,8 +291,6 @@ def showHosters():
        for shost,sQuality  in aResult :
         
         sName = cParser.urlparse(shost)
-        sName =  sName.split('.')[-2]
-        if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
         if 'top15top'in shost:
            sName='Wecima'
            shost = shost +'|Referer='+URL_MAIN
@@ -300,9 +298,8 @@ def showHosters():
             continue
         elif shost.startswith('//'):
                shost = 'https:' + shost
-        hoster = {'link': shost, 'name': sName, 'displayedName':sName+' '+sQuality, 'quality': sQuality} # Qualität Anzeige aus Release Eintrag
-        if '|Referer'in sUrl:
-           hoster.update({ 'resolved': True})
+        hoster = {'link': shost, 'name': sName, 'displayedName':sName+' '+sQuality, 'quality': sQuality, 'resolveable': True, 'resolved': True} # Qualität Anzeige aus Release Eintrag
+        
         hosters.append(hoster)
     
     
