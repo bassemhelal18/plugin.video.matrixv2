@@ -303,7 +303,8 @@ def getheader(url):
     sRefer = sRefer.lower()
     headers = {'User-Agent': common.RAND_UA,
                'Referer': 'https://{0}/'.format(sRefer),
-               'Origin': 'https://{0}'.format(sRefer)}
+               'Origin': 'https://{0}'.format(sRefer),
+               'verifypeer': 'false'}
     
     return '|%s' % '&'.join(['%s=%s' % (key, urllib_parse.quote_plus(headers[key])) for key in headers])    
 

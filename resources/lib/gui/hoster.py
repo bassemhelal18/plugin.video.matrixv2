@@ -87,9 +87,9 @@ class cHosterGui:
         showen=''
         if data.get('mediatype')=='episode':
            show = cTMDB().search_tvshow_id(str(data.get('tmdb_id')))
-           if show['name']:
+           try:
               showen=show['name']
-           else:
+           except:
                showen = str(data.get('showTitle', ""))
         if data.get('mediatype')=='movie':
             data.pop('showTitle')
