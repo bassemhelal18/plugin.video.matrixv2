@@ -31,7 +31,7 @@ URL_MAIN = 'https://' + DOMAIN + '/'
 URL_MOVIES_English = URL_MAIN + 'category/افلام-اجنبي/'
 URL_SERIES_English = URL_MAIN + 'category/مسلسلات-اجنبي/'
 URL_MOVIES_Kids = URL_MAIN + 'category/افلام-انمي/'
-URL_SEARCH = URL_MAIN + '?s=%s'
+URL_SEARCH = URL_MAIN + 'search/?query=%s&type=all'
 
 #ToDo Serien auch auf reinen Filmseiten, prüfen ob Filterung möglich
 def load(): # Menu structure of the site plugin
