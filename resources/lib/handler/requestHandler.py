@@ -16,7 +16,7 @@ import urllib.parse
 from resources.lib.config import cConfig
 from resources.lib.tools import logger
 from resources.lib import common
-
+from six.moves import urllib_parse
 from urllib.parse import quote, urlencode, urlparse, urlunsplit, urlsplit
 from urllib.error import HTTPError, URLError
 from urllib.request import HTTPHandler, HTTPSHandler, HTTPCookieProcessor, build_opener, Request, HTTPRedirectHandler
@@ -105,11 +105,7 @@ class cRequestHandler:
             if sContent:
                 self._Status = '200'
                 return sContent
-        self._sUrl = urlsplit(self._sUrl)
-        self._sUrl = list(self._sUrl)
-        self._sUrl[2] = quote(self._sUrl[2])
-        self._sUrl = urlunsplit(self._sUrl)
-        self._sUrl = self._sUrl.replace('%25', '%')
+        self._sUrl = urllib_parse.quote(self._sUrl, '/:?=&!')
         cookieJar = LWPCookieJar(filename=self._cookiePath)
         try:
             cookieJar.load(ignore_discard=self.__bIgnoreDiscard, ignore_expires=self.__bIgnoreExpired)
