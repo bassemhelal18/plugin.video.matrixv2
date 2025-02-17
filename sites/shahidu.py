@@ -261,7 +261,7 @@ def showSearch():
 
 
 def _search(oGui, sSearchText):
-    showEntries(URL_SEARCH % cParser.quotePlus(sSearchText), oGui, sSearchText)
+    showEntries(URL_SEARCH % sSearchText, oGui, sSearchText)
 
 
 def deescape(escaped):

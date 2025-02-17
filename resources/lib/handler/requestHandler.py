@@ -105,7 +105,7 @@ class cRequestHandler:
             if sContent:
                 self._Status = '200'
                 return sContent
-        self._sUrl = urllib_parse.quote(self._sUrl, '/:?=&!')
+        self._sUrl = urllib_parse.quote(self._sUrl, '%/:?=&!')
         cookieJar = LWPCookieJar(filename=self._cookiePath)
         try:
             cookieJar.load(ignore_discard=self.__bIgnoreDiscard, ignore_expires=self.__bIgnoreExpired)
@@ -369,11 +369,7 @@ class cRequestHandlerwDNS:
             if sContent:
                 self._Status = '200'
                 return sContent
-        self._sUrl = urlsplit(self._sUrl)
-        self._sUrl = list(self._sUrl)
-        self._sUrl[2] = quote(self._sUrl[2])
-        self._sUrl = urlunsplit(self._sUrl)
-        self._sUrl = self._sUrl.replace('%25', '%')
+        self._sUrl = urllib_parse.quote(self._sUrl, '%/:?=&!')
         cookieJar = LWPCookieJar(filename=self._cookiePath)
         try:
             cookieJar.load(ignore_discard=self.__bIgnoreDiscard, ignore_expires=self.__bIgnoreExpired)
