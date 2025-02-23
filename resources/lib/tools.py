@@ -7,7 +7,7 @@ import xbmcaddon
 import hashlib
 import re
 import os
-
+from functools import lru_cache
 from resources.lib.handler.ParameterHandler import ParameterHandler
 from resources.lib import common
 from resources.lib import pyaes
@@ -94,71 +94,83 @@ def textBox(heading, announce):
 
 class cParser:
     @staticmethod
-    def parseSingleResult(sHtmlContent, pattern):
-        aMatches = None
-        if sHtmlContent:
-            aMatches = re.findall(pattern, sHtmlContent, flags=re.S | re.M)
-            if len(aMatches) == 1:
-                aMatches[0] = cParser.replaceSpecialCharacters(aMatches[0])
-                return True, aMatches[0]
-        return False, aMatches
-
+    @lru_cache(maxsize=None)
+    def _get_compiled_pattern(pattern, flags=0):
+        return re.compile(pattern, flags)
+    
     @staticmethod
-    def replaceSpecialCharacters(s):
-        # Umlaute Unicode konvertieren
-        for t in (('\\/', '/'), ('&amp;', '&'), ('\\u00c4', 'Ä'), ('\\u00e4', 'ä'),
-            ('\\u00d6', 'Ö'), ('\\u00f6', 'ö'), ('\\u00dc', 'Ü'), ('\\u00fc', 'ü'),
-            ('\\u00df', 'ß'), ('\\u2013', '-'), ('\\u00b2', '²'), ('\\u00b3', '³'),
-            ('\\u00e9', 'é'), ('\\u2018', '‘'), ('\\u201e', '„'), ('\\u201c', '“'),
-            ('\\u00c9', 'É'), ('\\u2026', '...'), ('\\u202fh', 'h'), ('\\u2019', '’'),
-            ('\\u0308', '̈'), ('\\u00e8', 'è'), ('#038;', ''), ('\\u00f8', 'ø'),
-            ('／', '/'), ('\\u00e1', 'á'), ('&#8211;', '-'), ('&#8220;', '“'), ('&#8222;', '„'),
-            ('&#8217;', '’'), ('&#8230;', '…'), ('\\u00bc', '¼'), ('\\u00bd', '½'), ('\\u00be', '¾'),
-            ('\\u2153', '⅓'), ('\\u002A', '*')):
-            try:
-                s = s.replace(*t)
-            except:
-                pass
-        # Umlaute HTML konvertieren
-        for h in (('\\/', '/'), ('&#x26;', '&'), ('&#039;', "'"), ("&#39;", "'"),
-            ('&#xC4;', 'Ä'), ('&#xE4;', 'ä'), ('&#xD6;', 'Ö'), ('&#xF6;', 'ö'),
-            ('&#xDC;', 'Ü'), ('&#xFC;', 'ü'), ('&#xDF;', 'ß') , ('&#xB2;', '²'),
-            ('&#xDC;', '³'), ('&#xBC;', '¼'), ('&#xBD;', '½'), ('&#xBE;', '¾'),
-            ('&#8531;', '⅓'), ('&#8727;', '*')):
-            try:
-                s = s.replace(*h)
-            except:
-                pass
+    def _replaceSpecialCharacters(s):
         try:
-            re.sub(u'é', 'é', s)
-            re.sub(u'É', 'É', s)
-            # kill all other unicode chars
-            r = re.compile(r'[^\W\d_]', re.U)
-            r.sub('', s)
+            # Umlaute Unicode konvertieren
+            for t in (('\\/', '/'), ('&amp;', '&'), ('\\u00c4', 'Ä'), ('\\u00e4', 'ä'),
+                ('\\u00d6', 'Ö'), ('\\u00f6', 'ö'), ('\\u00dc', 'Ü'), ('\\u00fc', 'ü'),
+                ('\\u00df', 'ß'), ('\\u2013', '-'), ('\\u00b2', '²'), ('\\u00b3', '³'),
+                ('\\u00e9', 'é'), ('\\u2018', '‘'), ('\\u201e', '„'), ('\\u201c', '“'),
+                ('\\u00c9', 'É'), ('\\u2026', '...'), ('\\u202f', 'h'), ('\\u2019', '’'),
+                ('\\u0308', '̈'), ('\\u00e8', 'è'), ('#038;', ''), ('\\u00f8', 'ø'),
+                ('／', '/'), ('\\u00e1', 'á'), ('&#8211;', '-'), ('&#8220;', '“'), ('&#8222;', '„'),
+                ('&#8217;', '’'), ('&#8230;', '…'), ('\\u00bc', '¼'), ('\\u00bd', '½'), ('\\u00be', '¾'),
+                ('\\u2153', '⅓'), ('\\u002A', '*')):
+                s = s.replace(*t)
+
+            # Umlaute HTML konvertieren
+            for h in (('\\/', '/'), ('&#x26;', '&'), ('&#039;', "'"), ("&#39;", "'"),
+                ('&#xC4;', 'Ä'), ('&#xE4;', 'ä'), ('&#xD6;', 'Ö'), ('&#xF6;', 'ö'),
+                ('&#xDC;', 'Ü'), ('&#xFC;', 'ü'), ('&#xDF;', 'ß') , ('&#xB2;', '²'),
+                ('&#xDC;', '³'), ('&#xBC;', '¼'), ('&#xBD;', '½'), ('&#xBE;', '¾'),
+                ('&#8531;', '⅓'), ('&#8727;', '*')):
+                s = s.replace(*h)
         except:
             pass
         return s
 
     @staticmethod
+    def parseSingleResult(sHtmlContent, pattern, ignoreCase=False):
+        aMatches = None
+        
+        if sHtmlContent:
+            if ignoreCase:
+                aMatches = cParser._get_compiled_pattern(pattern, re.S | re.M | re.I).findall(sHtmlContent)
+            else:
+                aMatches = cParser._get_compiled_pattern(pattern, re.S | re.M).findall(sHtmlContent)
+            
+            if len(aMatches) == 1:
+                return True, cParser._replaceSpecialCharacters(aMatches[0])
+        
+        return False, aMatches
+
+    @staticmethod
     def parse(sHtmlContent, pattern, iMinFoundValue=1, ignoreCase=False):
         aMatches = None
+        
         if sHtmlContent:
-            sHtmlContent = cParser.replaceSpecialCharacters(sHtmlContent)
             if ignoreCase:
-                aMatches = re.compile(pattern, re.DOTALL | re.I).findall(sHtmlContent)
+                aMatches = cParser._get_compiled_pattern(pattern, re.DOTALL | re.I).findall(sHtmlContent)
             else:
-                aMatches = re.compile(pattern, re.DOTALL).findall(sHtmlContent)
+                aMatches = cParser._get_compiled_pattern(pattern, re.DOTALL).findall(sHtmlContent)
+            
             if len(aMatches) >= iMinFoundValue:
+                # handle both single strings and tuples of matches
+                if isinstance(aMatches[0], tuple):
+                    # Process each string in tuple
+                    aMatches = [tuple(cParser._replaceSpecialCharacters(x) if isinstance(x, str) else x for x in match) for match in aMatches]
+                else:
+                    # Process single strings
+                    aMatches = [cParser._replaceSpecialCharacters(x) if isinstance(x, str) else x for x in aMatches]
+                
                 return True, aMatches
         return False, aMatches
 
     @staticmethod
     def replace(pattern, sReplaceString, sValue):
-        return re.sub(pattern, sReplaceString, sValue)
+        return cParser._get_compiled_pattern(pattern).sub(sReplaceString, sValue)
 
     @staticmethod
-    def search(sSearch, sValue):
-        return re.search(sSearch, sValue, re.IGNORECASE)
+    def search(pattern, sValue, ignoreCase=True):
+        if ignoreCase:
+            return cParser._get_compiled_pattern(pattern, re.IGNORECASE).search(sValue)
+        else:
+            return cParser._get_compiled_pattern(pattern).search(sValue)
 
     @staticmethod
     def escape(sValue):
@@ -166,8 +178,7 @@ class cParser:
 
     @staticmethod
     def getNumberFromString(sValue):
-        pattern = '\\d+'
-        aMatches = re.findall(pattern, sValue)
+        aMatches = re.compile('\d+').findall(sValue)
         if len(aMatches) > 0:
             return int(aMatches[0])
         return 0
@@ -199,8 +210,7 @@ class cParser:
     @staticmethod
     def B64decode(text):
         import base64
-        b = base64.b64decode(text).decode('utf-8')
-        return b
+        return base64.b64decode(text).decode('utf-8')
     
     @staticmethod
     def abParse(sHtmlContent, start, end=None, startoffset=0):
@@ -261,8 +271,7 @@ class logger:
 class cUtil:
     @staticmethod
     def removeHtmlTags(sValue, sReplace=''):
-        p = re.compile(r'<.*?>')
-        return p.sub(sReplace, sValue)
+        return re.compile(r'<.*?>').sub(sReplace, sValue)
 
     @staticmethod
     def unescape(text): #Todo hier werden Fehler angezeigt
@@ -295,7 +304,7 @@ class cUtil:
                     text = text.decode('utf-8', 'ignore')
                 except Exception:
                     pass
-        return re.sub("&(\\w+;|#x?\\d+;?)", fixup, text.strip())
+        return re.compile('&(\\w+;|#x?\\d+;?)').sub(fixup, text.strip())
 
     @staticmethod
     def cleanse_text(text):
@@ -327,12 +336,9 @@ class cUtil:
         iv = fd[key_size:key_size + iv_size]
         return key, iv
 
-def valid_email(email):
-    # Email Muster
-    pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
-
+def valid_email(email): #ToDo: Funktion in Settings / Konten aktivieren
     # Überprüfen der EMail-Adresse mit dem Muster
-    if re.match(pattern, email):
+    if re.compile(r'^[\w\.-]+@[\w\.-]+\.\w+$').match(email):
         return True
     else:
         return False

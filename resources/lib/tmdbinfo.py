@@ -30,7 +30,7 @@ def WindowsBoxes(sTitle, sFileName, metaType, year=''):
     else:
         meta['releaseDate'] = '-'
     if 'duration' in meta and meta['duration']:
-        duration = meta['duration'] // 60
+        duration = meta['duration']
         durationH = duration // 60
         meta['durationH'] = durationH
         meta['durationM'] = '{:02d}'.format(int(duration - 60 * durationH))

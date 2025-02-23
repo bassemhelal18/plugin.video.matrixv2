@@ -32,7 +32,7 @@ class cTMDB:
         meta = self._call('search/movie', 'query=' + term + '&page=' + str(page))
         if 'errors' not in meta and 'status_code' not in meta and len(meta['results'])>=1:
             if 'total_results' in meta and meta['total_results'] == 0 and year:
-                meta = self.search_movie_name(name, '')
+                meta = self.search_movie_name(name, '', advanced=advanced)
             if 'total_results' in meta and meta['total_results'] != 0:
                 movie = ''
                 if meta['total_results'] == 1:
@@ -86,7 +86,7 @@ class cTMDB:
         meta = self._call('search/tv', 'query=' + term + '&page=' + str(page))
         if 'errors' not in meta and 'status_code' not in meta:
             if 'total_results' in meta and meta['total_results'] == 0 and year:
-                meta = self.search_tvshow_name(name, '')
+                meta = self.search_tvshow_name(name, '', advanced=advanced)
             if 'total_results' in meta and meta['total_results'] != 0:
                 movie = ''
                 if meta['total_results'] == 1:
@@ -296,8 +296,6 @@ class cTMDB:
             duration = int(meta['runtime'])
         elif 'episode_run_time' in meta and meta['episode_run_time']:
             duration = int(meta['episode_run_time'][0])
-        if duration < 300:
-            duration *= 60
         if duration > 1:
             _meta['duration'] = duration
         if 'tagline' in meta and meta['tagline']:
