@@ -36,6 +36,7 @@ URL_MOVIES_Arabic = URL_MAIN + 'category.php?cat=aflam-3rby-mycima-2'
 URL_SERIES_English = URL_MAIN + 'category.php?cat=english-series-mycima-wecima-1'
 URL_SERIES_Arabic = URL_MAIN + 'category.php?cat=arabic-series-mycima-4'
 URL_MOVIES_Kids = URL_MAIN + 'category.php?cat=anime-movies-mycima'
+Ramadan = URL_MAIN + 'category-mycima.php?cat=mosalsalat-ramadan-2025'
 URL_SEARCH = URL_MAIN + 'search.php?keywords=%s&video-id='
 
 #ToDo Serien auch auf reinen Filmseiten, prüfen ob Filterung möglich
@@ -57,6 +58,9 @@ def load(): # Menu structure of the site plugin
     params.setParam('sUrl', URL_MOVIES_Kids)
     params.setParam('trumb', os.path.join(ART, 'Kids.png'))
     cGui().addFolder(cGuiElement(cConfig().getLocalizedString(30503), SITE_IDENTIFIER, 'showEntries'), params)
+    params.setParam('sUrl', Ramadan)
+    params.setParam('trumb', os.path.join(ART, 'Ramadan.png'))
+    cGui().addFolder(cGuiElement(cConfig().getLocalizedString(30501), SITE_IDENTIFIER, 'showEntries'), params)
     params.setParam('trumb', os.path.join(ART, 'search.png'))
     cGui().addFolder(cGuiElement(cConfig().getLocalizedString(30520), SITE_IDENTIFIER, 'showSearch'),params) 
     cGui().setEndOfDirectory()
@@ -117,8 +121,8 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
             params.setParam('trumb', os.path.join(ART, 'Next.png'))
             oGui.addNextPage(SITE_IDENTIFIER, 'showEntries', params)
         
-            oGui.setView('tvshows' if isTvshow else 'movies')
-            oGui.setEndOfDirectory()
+        oGui.setView('tvshows' if isTvshow else 'movies')
+        oGui.setEndOfDirectory()
 
 
 

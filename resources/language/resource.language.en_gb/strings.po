@@ -1110,7 +1110,7 @@ msgid "Movies Arabic"
 msgstr ""
 
 msgctxt "#30501"
-msgid "Current Movies in the cinema"
+msgid "Ramadan"
 msgstr ""
 
 msgctxt "#30502"

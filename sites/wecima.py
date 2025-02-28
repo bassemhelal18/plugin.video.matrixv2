@@ -34,6 +34,7 @@ URL_MOVIES_Arabic = URL_MAIN + 'category/افلام/افلام-عربي-arabic-m
 URL_SERIES_English = URL_MAIN + 'category/%d9%85%d8%b3%d9%84%d8%b3%d9%84%d8%a7%d8%aa/5-series-english-%d9%85%d8%b3%d9%84%d8%b3%d9%84%d8%a7%d8%aa-%d8%a7%d8%ac%d9%86%d8%a8%d9%8a/'
 URL_SERIES_Arabic = URL_MAIN + 'category/%d9%85%d8%b3%d9%84%d8%b3%d9%84%d8%a7%d8%aa/13-%d9%85%d8%b3%d9%84%d8%b3%d9%84%d8%a7%d8%aa-%d8%b9%d8%b1%d8%a8%d9%8a%d9%87-arabic-series/'
 URL_MOVIES_Kids = URL_MAIN + 'category/افلام-كرتون/'
+Ramadan = URL_MAIN + 'category/مسلسلات/مسلسلات-رمضان-2025/'
 URL_SEARCH = URL_MAIN + 'search/%s'
 
 #ToDo Serien auch auf reinen Filmseiten, prüfen ob Filterung möglich
@@ -55,6 +56,9 @@ def load(): # Menu structure of the site plugin
     params.setParam('sUrl', URL_MOVIES_Kids)
     params.setParam('trumb', os.path.join(ART, 'Kids.png'))
     cGui().addFolder(cGuiElement(cConfig().getLocalizedString(30503), SITE_IDENTIFIER, 'showEntries'), params)
+    params.setParam('sUrl', Ramadan)
+    params.setParam('trumb', os.path.join(ART, 'Ramadan.png'))
+    cGui().addFolder(cGuiElement(cConfig().getLocalizedString(30501), SITE_IDENTIFIER, 'showEntries'), params)
     params.setParam('trumb', os.path.join(ART, 'search.png'))
     cGui().addFolder(cGuiElement(cConfig().getLocalizedString(30520), SITE_IDENTIFIER, 'showSearch'),params) 
     cGui().setEndOfDirectory()
@@ -114,8 +118,8 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
             params.setParam('trumb', os.path.join(ART, 'Next.png'))
             oGui.addNextPage(SITE_IDENTIFIER, 'showEntries', params)
         
-            oGui.setView('tvshows' if isTvshow else 'movies')
-            oGui.setEndOfDirectory()
+        oGui.setView('tvshows' if isTvshow else 'movies')
+        oGui.setEndOfDirectory()
 
 
 

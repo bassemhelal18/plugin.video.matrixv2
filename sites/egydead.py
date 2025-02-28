@@ -106,8 +106,8 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
             params.setParam('trumb', os.path.join(ART, 'Next.png'))
             oGui.addNextPage(SITE_IDENTIFIER, 'showEntries', params)
         
-            oGui.setView('tvshows' if isTvshow else 'movies')
-            oGui.setEndOfDirectory()
+        oGui.setView('tvshows' if isTvshow else 'movies')
+        oGui.setEndOfDirectory()
 
 
 

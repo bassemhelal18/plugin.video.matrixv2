@@ -23,7 +23,7 @@ if cConfig().getSetting('global_search_' + SITE_IDENTIFIER) == 'false':
     logger.info('-> [SitePlugin]: globalSearch for %s is deactivated.' % SITE_NAME)
 
 # Domain Abfrage
-DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'shiid4u.cam')
+DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'shid4u.net')
 URL_MAIN = 'https://' + DOMAIN + '/'
 
 
@@ -32,6 +32,7 @@ URL_MOVIES_Arabic = URL_MAIN + 'category/افلام-عربي'
 URL_SERIES_English = URL_MAIN + 'category/مسلسلات-اجنبي'
 URL_SERIES_Arabic = URL_MAIN + 'category/مسلسلات-عربي'
 URL_MOVIES_Kids = URL_MAIN + 'category/افلام-انمي'
+Ramadan = URL_MAIN + 'category/مسلسلات-رمضان-2025'
 URL_SEARCH = URL_MAIN + 'search?s=%s'
 
 #ToDo Serien auch auf reinen Filmseiten, prüfen ob Filterung möglich
@@ -53,6 +54,9 @@ def load(): # Menu structure of the site plugin
     params.setParam('sUrl', URL_MOVIES_Kids)
     params.setParam('trumb', os.path.join(ART, 'Kids.png'))
     cGui().addFolder(cGuiElement(cConfig().getLocalizedString(30503), SITE_IDENTIFIER, 'showEntries'), params)
+    params.setParam('sUrl', Ramadan)
+    params.setParam('trumb', os.path.join(ART, 'Ramadan.png'))
+    cGui().addFolder(cGuiElement(cConfig().getLocalizedString(30501), SITE_IDENTIFIER, 'showEntries'), params)
     params.setParam('trumb', os.path.join(ART, 'search.png'))
     cGui().addFolder(cGuiElement(cConfig().getLocalizedString(30520), SITE_IDENTIFIER, 'showSearch'),params) 
     cGui().setEndOfDirectory()
