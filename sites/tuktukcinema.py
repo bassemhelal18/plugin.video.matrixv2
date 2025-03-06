@@ -30,7 +30,7 @@ DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'eg1.tuktuk
 URL_MAIN = 'https://' + DOMAIN + '/'
 
 
-URL_MOVIES_English = URL_MAIN + 'category/movies-1/افلام-اجنبي/'
+URL_MOVIES_English = URL_MAIN + 'category/movies-2/افلام-اجنبي/'
 URL_SERIES_English = URL_MAIN + 'category/series-9/مسلسلات-اجنبي/'
 URL_MOVIES_Kids = URL_MAIN + 'category/anime-6/افلام-انمي/'
 URL_SEARCH = URL_MAIN + '?s=%s'
@@ -65,7 +65,7 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     sHtmlContent = oRequest.request()
     
     
-    sPattern = '<div class="Block--Item">.*?<a.*?href="(.*?)" title="(.*?)">.*?src="(.*?)" alt'
+    sPattern = 'Block--Item.*?<ahref=(.*?) title="(.*?)">.*?src=(.*?) alt'
     isMatch, aResult = cParser.parse(sHtmlContent, sPattern)
     if not isMatch:
         if not sGui: oGui.showInfo()
@@ -126,11 +126,11 @@ def showSeasons():
     sHtmlContent = oRequest.request()
     
     
-    sStart = '<section class="allseasonss"'
-    sEnd = '<section class="allepcont getMoreByScroll">'
+    sStart = 'class=allseasonss'
+    sEnd = '<sectionclass="allepcont getMoreByScroll">'
     sHtmlContent = cParser.abParse(sHtmlContent, sStart, sEnd)
-    logger.error('active: ' + sHtmlContent)
-    sPattern = 'href="(.+?)".+?<img src=".+?" alt="([^<]+)" data-srccs="([^<]+)"'
+    
+    sPattern = 'href=(.+?) title>.*?alt="(.*?)" data-srccs=(.*?)>'
     isMatch, aResult = cParser.parse(sHtmlContent, sPattern)
     if  isMatch:
        
@@ -156,11 +156,12 @@ def showEpisodes():
     sThumbnail = params.getValue('sThumbnail')
     sSeason = params.getValue('season')
     sShowName = params.getValue('sName')
-    sStart = '<section class="allepcont getMoreByScroll">'
-    sEnd = '<section class="otherser"'
+    
+    sStart = '<sectionclass="allepcont getMoreByScroll">'
+    sEnd = 'sectionclass=otherser'
     sHtmlContent = cParser.abParse(sHtmlContent, sStart, sEnd)
     
-    pattern = '<a href="(.+?)"\s*title.*?class="epnum">.*?<span>الحلقة</span>\s*(.*?)\s*</div>'  # start element
+    pattern = '<ahref=(.+?) title.*?class=epnum>.*?<span>الحلقة</span>\s*(.*?)\s*</div>'  # start element
     isMatch, aResult = cParser.parse(sHtmlContent, pattern)
     if  isMatch: 
       total = len(aResult)
@@ -183,7 +184,7 @@ def showHosters():
     
     sHtmlContent = cRequestHandler(sUrl).request()
     
-    pattern = '<a class="watchAndDownlaod" href="(.+?)">'  # start element
+    pattern = 'watchAndDownlaod href=(.*?) >'  # start element
     isMatch, aResult = cParser.parse(sHtmlContent, pattern)
     if not isMatch: return
     for slink in aResult:
@@ -195,7 +196,7 @@ def showHosters():
                   'Referer':slink.split('watch/')[0]}
         sHtmlContent4 = get(slink,headers=headers).text
         
-    sPattern = 'data-link="(.+?)" class='
+    sPattern = 'data-link="?(.+?)"? '
     isMatch,aResult = cParser.parse(sHtmlContent4, sPattern)
     if isMatch:
        for shost in aResult :
@@ -229,7 +230,7 @@ def showHosters():
          hosters.append(hoster)
     
     
-    sPattern = sPattern = '<a target="_NEW" href="(.+?)" class="download--item">'
+    sPattern = sPattern = 'target="?_NEW"? data-down="?(.+?)"? '
     isMatch,aResult = cParser.parse(sHtmlContent4, sPattern)
     if isMatch:
        for shost in aResult :
