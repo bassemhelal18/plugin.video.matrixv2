@@ -3,7 +3,7 @@
 
 
 import os
-import re
+import re, requests
 import xbmcaddon
 from urllib.parse import unquote,quote
 from resources.lib.handler.ParameterHandler import ParameterHandler
@@ -12,6 +12,8 @@ from resources.lib.tools import logger, cParser, cUtil
 from resources.lib.gui.guiElement import cGuiElement
 from resources.lib.config import cConfig
 from resources.lib.gui.gui import cGui
+from resources.lib import common
+
 
 SITE_IDENTIFIER = 'arabseed'
 SITE_NAME = 'Arabseed'
@@ -224,15 +226,14 @@ def showHosters():
     hosters = []
     sUrl = ParameterHandler().getValue('sUrl')
     sHtmlContent = cRequestHandler(sUrl).request()
-    
-    pattern = '<a href="([^<]+)" class="watchBTn">'  # start element
-    isMatch, aResult = cParser.parse(sHtmlContent, pattern)
-    if not isMatch: return
-    for slink in aResult:
-        oRequest = cRequestHandler(slink,caching=False)
-        oRequest.addHeaderEntry('User-Agent', 'Mozilla/5.0 (iPad; CPU OS 13_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/87.0.4280.77 Mobile/15E148 Safari/604.1')
-        oRequest.addHeaderEntry('referer', URL_MAIN)
-        sHtmlContent4 = oRequest.request()
+    isactionurl, actionurl = cParser.parseSingleResult(sHtmlContent,'<form action="([^"]+)" method="post" class="watch-form">' )
+    if isactionurl:
+       isactionid, actionid = cParser.parseSingleResult(sHtmlContent,'name="wpost" value="([^"]+)' )
+       if isactionid:
+        headers = {'User-Agent': common.RAND_UA,
+                   'Referer': URL_MAIN} 
+        data = {'wpost': actionid}  
+        sHtmlContent4 = requests.post(actionurl,headers=headers,data=data).text
         
     sStart = '<h3>مشاهدة 1080</h3>'
     sEnd = '<div class="containerIframe">'
