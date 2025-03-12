@@ -5,6 +5,7 @@ import base64
 import os
 import re
 import xbmcaddon
+from resources.lib import common
 from urllib.parse import quote, unquote
 from resources.lib.handler.ParameterHandler import ParameterHandler
 from resources.lib.handler.requestHandler import cRequestHandler
@@ -172,7 +173,7 @@ def showEpisodes():
         oGuiElement.setSeason(sSeason)
         oGuiElement.setEpisode(sEpisode)
         oGuiElement.setMediaType('episode')
-        params.setParam('sUrl', sUrl+'watching/')
+        params.setParam('sUrl', sUrl)
         cGui().addFolder(oGuiElement, params, False, total)
     cGui().setView('episodes')
     cGui().setEndOfDirectory()
@@ -181,9 +182,10 @@ def showEpisodes():
 def showHosters():
     hosters = []
     sUrl = ParameterHandler().getValue('sUrl')
-    if 'watching/' not in sUrl:
-        sUrl= sUrl+ 'watching/'
-    sHtmlContent = cRequestHandler(sUrl).request()
+    oRequestHandler = cRequestHandler(sUrl+ 'watching/')
+    oRequestHandler.addHeaderEntry('User-Agent', common.RAND_UA)
+    oRequestHandler.addHeaderEntry('Referer', 'https://rm.freex2line.online/')
+    sHtmlContent = oRequestHandler.request()
     if 'adilbo' in sHtmlContent:
        sHtmlContent = prase_function(sHtmlContent)
        sHtmlContent =str(sHtmlContent.encode('latin-1'),'utf-8')
