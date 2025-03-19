@@ -226,6 +226,14 @@ def showHosters():
     hosters = []
     sUrl = ParameterHandler().getValue('sUrl')
     sHtmlContent = cRequestHandler(sUrl).request()
+    pattern = '<a href="([^<]+)" class="watchBTn">'  # start element
+    isMatch, aResult = cParser.parse(sHtmlContent, pattern)
+    if not isMatch: return
+    for slink in aResult:
+        oRequest = cRequestHandler(slink,caching=False)
+        oRequest.addHeaderEntry('User-Agent', 'Mozilla/5.0 (iPad; CPU OS 13_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/87.0.4280.77 Mobile/15E148 Safari/604.1')
+        oRequest.addHeaderEntry('referer', URL_MAIN)
+        sHtmlContent4 = oRequest.request()
     isactionurl, actionurl = cParser.parseSingleResult(sHtmlContent,'<form action="([^"]+)" method="post" class="watch-form">' )
     if isactionurl:
        isactionid, actionid = cParser.parseSingleResult(sHtmlContent,'name="wpost" value="([^"]+)' )
