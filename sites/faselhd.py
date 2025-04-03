@@ -250,6 +250,6 @@ def prase_function(data):
              c_elm = base64.b64decode(elm+'==').decode()
              t_ch = re.findall('\d+', c_elm, re.S)
              if t_ch:
-                nb = int(t_ch[0])+int(t_int[1])
+                nb = int(t_ch[0])+int(t_int[0])
                 page = page + chr(nb)
     return page
