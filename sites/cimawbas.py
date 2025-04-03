@@ -31,12 +31,12 @@ DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'w36.my-cim
 URL_MAIN = 'https://' + DOMAIN + '/'
 
 
-URL_MOVIES_English = URL_MAIN + 'category.php?cat=wecima-english-movies-mycima-7'
-URL_MOVIES_Arabic = URL_MAIN + 'category.php?cat=aflam-3rby-mycima-2'
-URL_SERIES_English = URL_MAIN + 'category.php?cat=english-series-mycima-wecima-1'
-URL_SERIES_Arabic = URL_MAIN + 'category.php?cat=arabic-series-mycima-4'
-URL_MOVIES_Kids = URL_MAIN + 'category.php?cat=anime-movies-mycima'
-Ramadan = URL_MAIN + 'category-mycima.php?cat=mosalsalat-ramadan-2025'
+URL_MOVIES_English = URL_MAIN + 'category-4cima.php?cat=english-movies-4Cima-7'
+URL_MOVIES_Arabic = URL_MAIN + 'category-4cima.php?cat=aflam-3rby-4Cima-5'
+URL_SERIES_English = URL_MAIN + 'category-4cima.php?cat=english-series-4Cima-1'
+URL_SERIES_Arabic = URL_MAIN + 'category-4cima.php?cat=arabic-series-4Cima-4'
+URL_MOVIES_Kids = URL_MAIN + 'category-4cima.php?cat=anime-movies-4Cima'
+Ramadan = URL_MAIN + 'category-4cima.php?cat=mosalsalat-ramadan-2025'
 URL_SEARCH = URL_MAIN + 'search.php?keywords=%s&video-id='
 
 #ToDo Serien auch auf reinen Filmseiten, prüfen ob Filterung möglich
@@ -90,7 +90,7 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
                isTvshow, aResult = cParser.parse(sName,'series')
                if not isTvshow:
                 isTvshow, aResult = cParser.parse(sName,'episodes')
-        sName = sName.replace('مترجمة','').replace('الجزء','الموسم').replace('مترجم','').replace('ماي سيما','').replace('فيلم','').replace(' HD','').replace('مشاهدة','').replace('مسلسل','').replace('اون','').replace('أون','').replace('لاين','').replace('يوتيوب','').split('الموسم')[0].split('الحلقة')[0].replace('سلسل','').replace("كول سيما","").replace("جميع مواسم","").replace("كامل","").strip()
+        sName = sName.replace('مترجمة','').replace('الجزء','الموسم').replace('مترجم','').replace('ماي سيما','').replace('فور سيما','').replace('فيلم','').replace(' HD','').replace('مشاهدة','').replace('مسلسل','').replace('اون','').replace('أون','').replace('لاين','').replace('يوتيوب','').split('الموسم')[0].split('الحلقة')[0].replace('سلسل','').replace("كول سيما","").replace("جميع مواسم","").replace("كامل","").strip()
         sYear=''
         m = re.search('([0-9]{4})', sName)
         if m:

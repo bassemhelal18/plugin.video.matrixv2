@@ -84,24 +84,6 @@ class cHosterGui:
                 self.dialog.close()
             except:
                 pass
-        showen=''
-        if data.get('mediatype')=='episode':
-           show = cTMDB().search_tvshow_id(str(data.get('tmdb_id')))
-           try:
-              showen=show['name']
-           except:
-               showen = str(data.get('showTitle', ""))
-        if data.get('mediatype')=='movie':
-            data.pop('showTitle')
-            data.pop('episode')
-            data.pop('season')
-            trakt={}
-            trakt['tmdb']=str(data.get('tmdb_id', ""))
-            trakt['imdb']=str(data.get('imbd_id', ""))
-            slug = '{0} {1}'.format(str(data.get('title', "")),int(data.get('year', 0)))
-            slug = slug.replace(' ','-').strip().lower()
-            trakt['slug']=slug
-            xbmcgui.Window(10000).setProperty('script.trakt.ids', json.dumps(trakt))
         
         vers = int(xbmc.getInfoLabel("System.BuildVersion").split(".")[0])
         logger.info('-> [hoster]: play file link: ' + str(data['link']))
@@ -122,7 +104,7 @@ class cHosterGui:
         info_tag=ListItemInfoTag(list_item,'video')
         info={
             'mediatype':str(data.get('mediatype', "")),
-            'tvshowtitle':str(showen).strip(),
+            'tvshowtitle':str(data.get('showTitle', "")),
             'title' : str(data.get('title', "")),
             'originaltitle':str(data.get('originaltitle', "")),
             'plot':str(data.get('plot', "")),

@@ -104,6 +104,11 @@
 					<default>False</default>
 					<control type="toggle"/>
 				</setting>
+				<setting id="volatileHtmlCache" type="boolean" label="30029" help="">
+					<level>0</level>
+					<default>False</default>
+					<control type="toggle"/>
+				</setting>
 				<setting id="cacheTime" type="integer" label="30006" help="">
 					<level>0</level>
 					<default>600</default>

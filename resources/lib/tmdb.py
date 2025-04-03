@@ -161,7 +161,10 @@ class cTMDB:
             url = url.replace('&page=', '')
         oRequestHandler = cRequestHandler(url, ignoreErrors=True)
         name = oRequestHandler.request()
-        data = json.loads(name)
+        try:
+            data = json.loads(name)
+        except Exception:
+            return {}
         if 'status_code' in data and data['status_code'] == 34:
             return {}
         return data
@@ -187,7 +190,12 @@ class cTMDB:
             url = '%stv/%s/season/%s?api_key=%s&language=%s' % (self.URL, tmdb_id, season, self.api_key,self.lang)
             Data = cRequestHandler(url, ignoreErrors=True).request()
             if Data:
-                meta = json.loads(Data)
+                try:
+                    meta = json.loads(Data)
+                    if 'status_code' in meta and meta['status_code'] == 34:
+                        meta = {}
+                except Exception:
+                    meta = {}
         if 'episodes' in meta:
             for e in meta['episodes']:
                 if 'episode_number':
