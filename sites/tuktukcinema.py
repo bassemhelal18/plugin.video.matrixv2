@@ -202,7 +202,9 @@ def showHosters():
        for shost in aResult :
         shost = decode(shost)
         if 'megamax' in shost or 'megatukmax' in shost or 'megaxmax' in shost:
-            sHtmlContent2 = cMegamax().GetUrls(shost)
+            shost,sframe = shost.split('iframe/')
+            shost2 = 'https://megamax.me/iframe/' +sframe
+            sHtmlContent2 = cMegamax().GetUrls(shost2)
             for item in sHtmlContent2:
                     shost = item.split(',')[0].split('=')[1]
                     sQuality = item.split(',')[1].split('=')[1]
