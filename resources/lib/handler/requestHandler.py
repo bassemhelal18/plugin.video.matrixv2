@@ -18,7 +18,7 @@ from resources.lib.config import cConfig
 from resources.lib.tools import logger, cCache
 from resources.lib import common
 from six.moves import urllib_parse
-from urllib.parse import quote, urlencode, urlparse, urlunsplit, urlsplit
+from urllib.parse import quote, urlencode, urlparse, quote_plus
 from urllib.error import HTTPError, URLError
 from urllib.request import HTTPHandler, HTTPSHandler, Request, HTTPCookieProcessor, build_opener, urlopen, HTTPRedirectHandler
 from http.cookiejar import LWPCookieJar, Cookie
@@ -166,12 +166,20 @@ class cRequestHandler:
     @staticmethod
     def __cleanupUrl(url):
         # für Leerzeichen und Umlaute in der sUrl
-        for t in (('²', '&#xB2;'), ('³', '&#xB3;'), ('´', '&#xB4;'), ("'", "&#x27;"),('`', '&#x60;'), ('Ä', '&#xC4;'), ('ä', '&#xE4;'),
-                  ('Ö', '&#xD6;'), ('ö', '&#xF6;'), ('Ü', '&#xDC;'), ('ü', '&#xFC;'), ('ß', '&#xDF;'), ('¼', '&#xBC;'), ('½', '&#xBD;'),
-                  ('¾', '&#xBE;'), ('⅓', '&#8531;'), ('*', '%2a'),
-                  ('⭐', '%E2%AD%90'), ('✨', '%E2%9C%A8'), ('❄', '%e2%9d%84'), ('⛄', '%e2%9b%84')):
-            url = url.replace(*t)
-        return url    
+        #for t in (('²', '&#xB2;'), ('³', '&#xB3;'), ('´', '&#xB4;'), ("'", "&#x27;"),('`', '&#x60;'), ('Ä', '&#xC4;'), ('ä', '&#xE4;'), #ToDo Löschen wenn untere Lösung funktioniert 10.04.25
+        #          ('Ö', '&#xD6;'), ('ö', '&#xF6;'), ('Ü', '&#xDC;'), ('ü', '&#xFC;'), ('ß', '&#xDF;'), ('¼', '&#xBC;'), ('½', '&#xBD;'),
+        #          ('¾', '&#xBE;'), ('⅓', '&#8531;'), ('*', '%2a'),
+        #          ('⭐', '%E2%AD%90'), ('✨', '%E2%9C%A8'), ('❄', '%e2%9d%84'), ('⛄', '%e2%9b%84')):
+        #    url = url.replace(*t)
+        #return url
+        p = urlparse(url)
+        if p.query:
+            query = quote_plus(p.query).replace('%3D', '=').replace('%26', '&')
+            p = p._replace(query=p.query.replace(p.query, query))
+        else:
+            path = quote_plus(p.path).replace('%2F', '/').replace('%26', '&').replace('%3D', '=')
+            p = p._replace(path=p.path.replace(p.path, path))
+        return p.geturl()    
     
     def request(self):    
         self._sUrl = urllib_parse.quote(self._sUrl, '%/:?=&!')
@@ -183,6 +191,13 @@ class cRequestHandler:
             if sContent:
                 self._Status = '200'
                 return sContent
+            else:
+                if self.isMemoryCacheActive:
+                    sContent = self.__readPersistentCache(self.getRequestUri())
+                    if sContent:
+                        self._Status = '200'
+                        self.__writeVolatileCache(self.getRequestUri(), sContent)
+                        return sContent
         if self._bypass_dns and self.bypassDNSlock:
             ### DNS lock bypass
             ip_override = self.__doh_request(self._sUrl)

@@ -280,6 +280,11 @@
 						<heading>30278</heading>
 					</control>
 				</setting>
+				<setting id="plugin_faselhd_status" type="string" label="Dummy" help="">
+					<visible>false</visible>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
 			</group>
 			<group id="plugin_akwam" label="30720">
 				<setting id="plugin_akwam" type="boolean" label="30050" help="">
@@ -318,6 +323,11 @@
 					<control type="edit" format="string">
 						<heading>30278</heading>
 					</control>
+				</setting>
+				<setting id="plugin_akwam_status" type="string" label="Dummy" help="">
+					<visible>false</visible>
+					<default>true</default>
+					<control type="toggle"/>
 				</setting>
 			</group>
 			<group id="plugin_arabseed" label="30701">
@@ -358,6 +368,11 @@
 						<heading>30278</heading>
 					</control>
 				</setting>
+				<setting id="plugin_arabseed_status" type="string" label="Dummy" help="">
+					<visible>false</visible>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
 			</group>
 			<group id="plugin_topcinema" label="30723">
 				<setting id="plugin_topcinema" type="boolean" label="30050" help="">
@@ -396,6 +411,11 @@
 					<control type="edit" format="string">
 						<heading>30278</heading>
 					</control>
+				</setting>
+				<setting id="plugin_topcinema_status" type="string" label="Dummy" help="">
+					<visible>false</visible>
+					<default>true</default>
+					<control type="toggle"/>
 				</setting>
 			</group>
 			<group id="shahidu" label="30705">
@@ -436,6 +456,11 @@
 						<heading>30278</heading>
 					</control>
 				</setting>
+				<setting id="plugin_shahidu_status" type="string" label="Dummy" help="">
+					<visible>false</visible>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
 			</group>
 			<group id="tuktukcinema" label="30702">
 				<setting id="plugin_tuktukcinema" type="boolean" label="30050" help="">
@@ -474,6 +499,11 @@
 					<control type="edit" format="string">
 						<heading>30278</heading>
 					</control>
+				</setting>
+				<setting id="plugin_tuktukcinema_status" type="string" label="Dummy" help="">
+					<visible>false</visible>
+					<default>true</default>
+					<control type="toggle"/>
 				</setting>
 			</group>
 			<group id="plugin_arblionz" label="30703">
@@ -514,6 +544,11 @@
 						<heading>30278</heading>
 					</control>
 				</setting>
+				<setting id="plugin_arblionz_status" type="string" label="Dummy" help="">
+					<visible>false</visible>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
 			</group>
 			<group id="plugin_cimawbas" label="30704">
 				<setting id="plugin_cimawbas" type="boolean" label="30050" help="">
@@ -553,6 +588,11 @@
 						<heading>30278</heading>
 					</control>
 				</setting>
+				<setting id="plugin_cimawbas_status" type="string" label="Dummy" help="">
+					<visible>false</visible>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
 			</group>
 			<group id="plugin_wecima" label="30712">
 				<setting id="plugin_wecima" type="boolean" label="30050" help="">
@@ -591,6 +631,11 @@
 					<control type="edit" format="string">
 						<heading>30278</heading>
 					</control>
+				</setting>
+				<setting id="plugin_wecima_status" type="string" label="Dummy" help="">
+					<visible>false</visible>
+					<default>true</default>
+					<control type="toggle"/>
 				</setting>
 			</group>
 		</category>
@@ -633,6 +678,11 @@
 						<heading>30278</heading>
 					</control>
 				</setting>
+				<setting id="plugin_cimanow_status" type="string" label="Dummy" help="">
+					<visible>false</visible>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
 			</group>
 			<group id="plugin_coolcima" label="30706">
 				<setting id="plugin_coolcima" type="boolean" label="30050" help="">
@@ -671,6 +721,11 @@
 					<control type="edit" format="string">
 						<heading>30278</heading>
 					</control>
+				</setting>
+				<setting id="plugin_coolcima_status" type="string" label="Dummy" help="">
+					<visible>false</visible>
+					<default>true</default>
+					<control type="toggle"/>
 				</setting>
 			</group>
 			<group id="plugin_cinematy" label="30707">
@@ -711,6 +766,11 @@
 						<heading>30278</heading>
 					</control>
 				</setting>
+				<setting id="plugin_cinematy_status" type="string" label="Dummy" help="">
+					<visible>false</visible>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
 			</group>
 			<group id="plugin_egydead" label="30708">
 				<setting id="plugin_egydead" type="boolean" label="30050" help="">
@@ -750,6 +810,11 @@
 						<heading>30278</heading>
 					</control>
 				</setting>
+				<setting id="plugin_egydead_status" type="string" label="Dummy" help="">
+					<visible>false</visible>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
 			</group>
 			<group id="plugin_uhdmovies" label="30709">
 				<setting id="plugin_uhdmovies" type="boolean" label="30050" help="">
@@ -788,6 +853,11 @@
 					<control type="edit" format="string">
 						<heading>30278</heading>
 					</control>
+				</setting>
+				<setting id="plugin_uhdmovies_status" type="string" label="Dummy" help="">
+					<visible>false</visible>
+					<default>true</default>
+					<control type="toggle"/>
 				</setting>
 			</group>	
 		</category>
