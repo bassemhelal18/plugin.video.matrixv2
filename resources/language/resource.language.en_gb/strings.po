@@ -99,6 +99,10 @@ msgctxt "#30025"
 msgid "Evade DNS lock"
 msgstr ""
 
+msgctxt "#30029"
+msgid "RAM Cache"
+msgstr ""
+
 msgctxt "#30030"
 msgid "ResolveURL Updates"
 msgstr ""
