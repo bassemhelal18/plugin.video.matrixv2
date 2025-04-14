@@ -100,7 +100,12 @@ class cHosterGui:
                 data['link'], header = data['link'].split('|')
                 list_item.setProperty('inputstream.adaptive.stream_headers', header)
                 list_item.setProperty('inputstream.adaptive.license_key', '|%s' % header)
-                if vers > 19: list_item.setProperty('inputstream.adaptive.manifest_headers', header)
+                if vers > 21.8:
+                 list_item.setProperty('inputstream.adaptive.common_headers', header)
+                elif vers > 19.8:
+                 list_item.setProperty('inputstream.adaptive.manifest_headers', header)
+                 list_item.setProperty('inputstream.adaptive.stream_params', header)
+                elif vers > 19:list_item.setProperty('inputstream.adaptive.manifest_headers', header)
         info_tag=ListItemInfoTag(list_item,'video')
         info={
             'mediatype':str(data.get('mediatype', "")),
