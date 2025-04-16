@@ -191,13 +191,7 @@ class cRequestHandler:
             if sContent:
                 self._Status = '200'
                 return sContent
-            else:
-                if self.isMemoryCacheActive:
-                    sContent = self.__readPersistentCache(self.getRequestUri())
-                    if sContent:
-                        self._Status = '200'
-                        self.__writeVolatileCache(self.getRequestUri(), sContent)
-                        return sContent
+            
         if self._bypass_dns and self.bypassDNSlock:
             ### DNS lock bypass
             ip_override = self.__doh_request(self._sUrl)

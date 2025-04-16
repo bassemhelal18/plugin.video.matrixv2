@@ -352,7 +352,7 @@ class cCache(object):
     def __init__(self):
         # see https://kodi.wiki/view/Window_IDs
         # use WINDOW_SCREEN_CALIBRATION to store all data
-        self._win = xbmcgui.Window(10011)
+        self._win = xbmcgui.Window(10000)
 
     def __del__(self):
         del self._win
