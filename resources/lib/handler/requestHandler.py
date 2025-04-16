@@ -262,8 +262,8 @@ class cRequestHandler:
                 return 'PAGE NOT ACCESSIBLE'
         except URLError as e:
             if not self.ignoreErrors:
-                xbmcgui.Dialog().ok('Matrixv2', str(e.reason))
-            logger.error(' -> [requestHandler]: URLError ' + str(e.reason) + ' Url: ' + self._sUrl)
+                #xbmcgui.Dialog().ok('Matrixv2', str(e.reason))
+                logger.error(' -> [requestHandler]: URLError ' + str(e.reason) + ' Url: ' + self._sUrl)
             return 'URL ERROR'
         except HTTPException as e:
             if not self.ignoreErrors:
