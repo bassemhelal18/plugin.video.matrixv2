@@ -106,7 +106,7 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
             oGui.addFolder(oGuiElement, params, isTvshow, total)
         
     if not sGui and not sSearchText:
-        isMatchNextPage, sNextUrl = cParser.parseSingleResult(sHtmlContent,'<a class="next page-numbers" href="(.+?)">')
+        isMatchNextPage, sNextUrl = cParser.parseSingleResult(sHtmlContent,'<aclass="next page-numbers" href="(.*?)">')
         if isMatchNextPage:
             params.setParam('sUrl', URL_MAIN[:-1]+sNextUrl)
             params.setParam('trumb', os.path.join(ART, 'Next.png'))
