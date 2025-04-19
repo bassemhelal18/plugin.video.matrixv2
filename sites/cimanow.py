@@ -93,11 +93,11 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
             oGuiElement = cGuiElement(sName, SITE_IDENTIFIER, 'showSeasons' if isTvshow else 'showHosters')
             oGuiElement.setThumbnail(sThumbnail)
             oGuiElement.setMediaType('tvshow' if isTvshow else 'movie')
+            if sYear:
+             oGuiElement.setYear(sYear)
             params.setParam('sUrl', sUrl)
             params.setParam('sName', sName)
             params.setParam('sThumbnail', sThumbnail)
-            params.setParam('sYear', sYear)
-
             oGui.addFolder(oGuiElement, params, isTvshow, total)
         
     if not sGui and not sSearchText:
@@ -105,7 +105,6 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
         sNextUrl=''
         for sUrl, sPage in page:
              sPage = int(sPage)+1
-             logger.error('active: ' + str(sPage))
              if 'page/' in sUrl:
                  sUrl = sUrl.split('page')[0]
              sNextUrl = str(sUrl)+'/page/'+str(sPage)

@@ -111,11 +111,11 @@
 				</setting>
 				<setting id="cacheTime" type="integer" label="30006" help="">
 					<level>0</level>
-					<default>600</default>
+					<default>21600</default>
 					<constraints>
-						<minimum>0</minimum>
-						<step>60</step>
-						<maximum>1800</maximum>
+						<minimum>7200</minimum>
+						<step>600</step>
+						<maximum>21600</maximum>
 					</constraints>
 					<control type="slider" format="integer">
 						<popup>false</popup>

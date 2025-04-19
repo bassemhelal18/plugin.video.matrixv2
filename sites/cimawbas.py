@@ -92,7 +92,7 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
                 isTvshow, aResult = cParser.parse(sName,'episodes')
         sName = sName.replace('مترجمة','').replace('الجزء','الموسم').replace('مترجم','').replace('ماي سيما','').replace('فور سيما','').replace('فيلم','').replace(' HD','').replace('مشاهدة','').replace('مسلسل','').replace('اون','').replace('أون','').replace('لاين','').replace('يوتيوب','').split('الموسم')[0].split('الحلقة')[0].replace('سلسل','').replace("كول سيما","").replace("جميع مواسم","").replace("كامل","").strip()
         sYear=''
-        m = re.search('([0-9]{4})', sName)
+        m = re.search('(\d{4})$', sName)
         if m:
             sYear = str(m.group(0))
             sName = sName.replace(sYear,'').strip()
@@ -102,16 +102,14 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
         
         if sName not in itemList:
             itemList.append(sName)
-            
-            
             oGuiElement = cGuiElement(sName, SITE_IDENTIFIER, 'showSeasons' if isTvshow else 'showHosters')
             oGuiElement.setThumbnail(sThumbnail)
             oGuiElement.setMediaType('tvshow' if isTvshow else 'movie')
+            if sYear:
+             oGuiElement.setYear(sYear)
             params.setParam('sUrl', sUrl)
             params.setParam('sName', sName)
             params.setParam('sThumbnail', sThumbnail)
-            params.setParam('sYear', sYear)
-
             oGui.addFolder(oGuiElement, params, isTvshow, total)
         
     if not sGui and not sSearchText:

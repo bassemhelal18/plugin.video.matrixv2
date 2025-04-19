@@ -110,7 +110,6 @@ class cGuiElement:
         if 'مدبلج' in self.__sTitle:
             self.__sTitle = self.__sTitle.replace("مدبلجة","").replace("مدبلجه","").replace("مدبلج بالمصري","").replace("مدبلج مصري","").replace("مدبلج للعربية","").replace("مدبلج","")
             self.setLanguage('AR')
-        if self._sYear: self.__sTitle = self.__sTitle.strip() + ' (' + self._sYear + ')'
         return self.__sTitle.strip()
 
     def setMediaType(self, mediaType):
