@@ -305,7 +305,7 @@ class cTMDB:
         elif 'episode_run_time' in meta and meta['episode_run_time']:
             duration = int(meta['episode_run_time'][0])
         if duration > 1:
-            _meta['duration'] = duration
+            _meta['duration'] = duration * 60
         if 'tagline' in meta and meta['tagline']:
             _meta['tagline'] = meta['tagline']
         if 'vote_average' in meta and meta['vote_average']:
