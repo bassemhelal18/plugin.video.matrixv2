@@ -158,7 +158,7 @@
 			<group id="matrixv2.updates" label="30096">
 				<setting id="githubUpdateMatrixv2" type="boolean" label="30010" help="">
 					<level>0</level>
-					<default>False</default>
+					<default>True</default>
 					<control type="toggle"/>
 				</setting>
 				<setting id="matrixv2.branch" type="string" label="30406" help="30173">
@@ -197,7 +197,7 @@
 			<group id="resolver.updates" label="30030">
 				<setting id="githubUpdateResolver" type="boolean" label="30015" help="">
 					<level>0</level>
-					<default>False</default>
+					<default>True</default>
 					<control type="toggle"/>
 				</setting>
 				<setting id="resolver.branch" type="string" label="30098" help="30101">
