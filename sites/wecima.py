@@ -85,7 +85,8 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     total = len(aResult)
     for sUrl, sName,sThumbnail,sYear  in aResult:
         sName = sName.replace('مترجمة','').replace('مترجم','').replace('فيلم','').replace('مشاهدة','').replace('مسلسل','').replace('اون','').replace('أون','').replace('كامل','').replace('لاين','').split('الموسم')[0].split('موسم')[0].split('الحلقة')[0].split('حلقة')[0].split('حلقه')[0].replace('سلسل','').strip()
-        m = re.search('(\d{4})$', sName)
+        sYear = ''
+        m = re.search(r'(?<!^)(?<!\d)(19|20)\d{2}\b', sName)
         if m:
             sYear = str(m.group(0))
             sName = sName.replace(sYear,'').replace('()','')

@@ -91,8 +91,8 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
                if not isTvshow:
                 isTvshow, aResult = cParser.parse(sName,'episodes')
         sName = sName.replace('مترجمة','').replace('الجزء','الموسم').replace('مترجم','').replace('ماي سيما','').replace('فور سيما','').replace('فيلم','').replace(' HD','').replace('مشاهدة','').replace('مسلسل','').replace('اون','').replace('أون','').replace('لاين','').replace('يوتيوب','').split('الموسم')[0].split('الحلقة')[0].replace('سلسل','').replace("كول سيما","").replace("جميع مواسم","").replace("كامل","").strip()
-        sYear=''
-        m = re.search('(\d{4})$', sName)
+        sYear = ''
+        m = re.search(r'(?<!^)(?<!\d)(19|20)\d{2}\b', sName)
         if m:
             sYear = str(m.group(0))
             sName = sName.replace(sYear,'').strip()

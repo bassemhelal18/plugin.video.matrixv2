@@ -74,8 +74,8 @@ def showEntries(entryUrl=False, sGui=False, sSearchText=False):
         if "سيرفر" in sName or 'شتراك'in sName:
                 continue
         sName = sName.replace('مترجمة','').replace('مترجم','').replace('فيلم','').replace('مشاهدة','').replace('4K','').replace('مسلسل','').replace('اون','').replace('أون','').replace('لاين','').split('الموسم')[0].split('الحلقة')[0].replace('سلسل','').strip()
-        sYear=''
-        m = re.search('(\d{4})$', sName)
+        sYear = ''
+        m = re.search(r'(?<!^)(?<!\d)(19|20)\d{2}\b', sName)
         if m:
             sYear = str(m.group(0))
             sName = sName.replace(sYear,'')
