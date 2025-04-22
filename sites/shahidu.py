@@ -79,7 +79,7 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     sEnd = '<nav aria-label="Page navigation"'
     sHtmlContent1 = cParser.abParse(sHtmlContent, sStart, sEnd)
     
-    sPattern = 'href="([^"]+)".+?image.*?\((.+?)\);.+?class="title">(.+?)</h[14]>'
+    sPattern = 'href="([^"]+)".+?image.*?\((.+?)\);.+?class="title">(.+?)</'
     isMatch, aResult = cParser.parse(sHtmlContent1, sPattern)
     if not isMatch:
         if not sGui: oGui.showInfo()
