@@ -217,7 +217,7 @@ def showHosters():
     
     oRequestHandler = cRequestHandler(sUrl2)
     sHtmlContent = oRequestHandler.request()
-    sPattern =  'postid-(.*?)"' 
+    sPattern = 'postid-(\d+)'
     isMatch, aResult = cParser().parse(sHtmlContent, sPattern)
     if isMatch:
         for sID  in aResult:

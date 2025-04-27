@@ -318,10 +318,11 @@ def showHosters():
         hosters.append(hoster)
     
     
-    sPattern = 'class="ser-link" href="(.+?)">'
+    sPattern = '<li>(?:.*?<em>(.*?)<\/em>)?.*?<a[^>]+href="([^"]+)"'
     isMatch,aResult = cParser.parse(sHtmlContent, sPattern)
     if isMatch:
-       for shost in aResult :
+       for sQuality,shost in aResult :
+        sQuality = sQuality if sQuality else ''
         sName = cParser.urlparse(shost)
         
         if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
@@ -330,7 +331,7 @@ def showHosters():
         
         elif shost.startswith('//'):
                shost = 'https:' + shost
-        hoster = {'link': shost, 'name': sName, 'displayedName':sName} # Qualität Anzeige aus Release Eintrag
+        hoster = {'link': shost, 'name': sName, 'displayedName':sName+' '+ sQuality, 'quality': sQuality}
         hosters.append(hoster)
     
     

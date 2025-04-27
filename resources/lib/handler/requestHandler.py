@@ -182,7 +182,7 @@ class cRequestHandler:
         return p.geturl()    
     
     def request(self):    
-        self._sUrl = urllib_parse.quote(self._sUrl, '%/:?=&!')
+        self._sUrl = urllib_parse.quote(self._sUrl, '%/:?=&!+')
         if self.caching and self.cacheTime > 0:
             if self.isMemoryCacheActive:
                 sContent = self.__readVolatileCache(self.getRequestUri(), self.cacheTime)

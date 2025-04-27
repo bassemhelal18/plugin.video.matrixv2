@@ -25,14 +25,14 @@ if cConfig().getSetting('global_search_' + SITE_IDENTIFIER) == 'false':
     logger.info('-> [SitePlugin]: globalSearch for %s is deactivated.' % SITE_NAME)
 
 # Domain Abfrage
-DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'wecima.watch')
+DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'wecima.film')
 URL_MAIN = 'https://' + DOMAIN + '/'
 
 
-URL_MOVIES_English = URL_MAIN + 'category/أفلام/10-movies-english-افلام-اجنبي/'
+URL_MOVIES_English = URL_MAIN + 'category/أفلام/10-movies-english-افلام-اجنبي/list/recent/'
 URL_MOVIES_Arabic = URL_MAIN + 'category/افلام/افلام-عربي-arabic-movies/'
 URL_SERIES_English = URL_MAIN + 'category/%d9%85%d8%b3%d9%84%d8%b3%d9%84%d8%a7%d8%aa/5-series-english-%d9%85%d8%b3%d9%84%d8%b3%d9%84%d8%a7%d8%aa-%d8%a7%d8%ac%d9%86%d8%a8%d9%8a/'
-URL_SERIES_Arabic = URL_MAIN + 'category/%d9%85%d8%b3%d9%84%d8%b3%d9%84%d8%a7%d8%aa/13-%d9%85%d8%b3%d9%84%d8%b3%d9%84%d8%a7%d8%aa-%d8%b9%d8%b1%d8%a8%d9%8a%d9%87-arabic-series/'
+URL_SERIES_Arabic = URL_MAIN + 'category/مسلسلات/15-مسلسلات-عربيه-arabic-series/'
 URL_MOVIES_Kids = URL_MAIN + 'category/افلام-كرتون/'
 Ramadan = URL_MAIN + 'category/مسلسلات/مسلسلات-رمضان-2025/'
 URL_SEARCH = URL_MAIN + 'search/%s'
