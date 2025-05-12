@@ -270,8 +270,10 @@ class cPluginHandler:
 
     # Überprüfung des Domain Namens. Leite um und hole neue URL und schreibe in die settings.xml. Bei nicht erreichen der Seite deaktiviere Globale Suche bis zum nächsten Start und überprüfe erneut.
     def checkDomain(self):
+        import threading
         log(LOGMESSAGE + ' -> [checkDomain]: Query status code of the provider', LOGNOTICE)
         fileNames = self.__getFileNamesFromFolder(self.defaultFolder)
+        threads = []
         for fileName in fileNames:
             try:
                 pluginDataDomain = self.__getPluginDataDomain(fileName, self.defaultFolder)
@@ -284,61 +286,54 @@ class cPluginHandler:
                     xbmcaddon.Addon().setSetting('plugin_' + provider + '.domain', '')  # Falls doch dann lösche Settings Eintrag
                     xbmcaddon.Addon().setSetting('plugin_' + provider + '_status', '')  # lösche Status Code in die settings
                     continue
-                try:
-                    if xbmcaddon.Addon().getSetting('plugin_' + provider) == 'false':  # Wenn SitePlugin deaktiviert
-                        cConfig().setSetting('global_search_' + provider, 'false')  # setzte Globale Suche auf aus
-                        cConfig().setSetting('plugin_' + provider + '_checkdomain', 'false')  # setzte Domain Check auf aus
-                        cConfig().setSetting('plugin_' + provider + '.domain', '')  # lösche Settings Eintrag
-                        cConfig().setSetting('plugin_' + provider + '_status', '')  # lösche Settings Eintrag
+                if xbmcaddon.Addon().getSetting('plugin_' + provider) == 'false':  # Wenn SitePlugin deaktiviert
+                    cConfig().setSetting('global_search_' + provider, 'false')  # setzte Globale Suche auf aus
+                    cConfig().setSetting('plugin_' + provider + '_checkdomain', 'false')  # setzte Domain Check auf aus
+                    cConfig().setSetting('plugin_' + provider + '.domain', '')  # lösche Settings Eintrag
+                    cConfig().setSetting('plugin_' + provider + '_status', '')  # lösche Settings Eintrag
 
-                    if xbmcaddon.Addon().getSetting('plugin_' + provider + '_checkdomain') == 'true':  # aut. Domainüberprüfung an ist überprüfe Status der Sitplugins
-                        oRequest = cRequestHandler(base_link, caching=False, ignoreErrors=True)
-                        oRequest.request()
-                        status_code = int(oRequest.getStatus())
-                        cConfig().setSetting('plugin_' + provider + '_status', str(status_code))  # setzte Status Code in die settings
-                        log(LOGMESSAGE + ' -> [checkDomain]: Status Code ' + str(status_code) + '  ' + provider + ': - ' + base_link, LOGNOTICE)
-
-                        # Status 403 - bedeutet, dass der Zugriff auf eine angeforderte Ressource blockiert ist.
-                        # Status 404 - Seite nicht gefunden. Diese Meldung zeigt an, dass die Seite oder der Ordner auf dem Server, die aufgerufen werden sollten, nicht unter der angegebenen URL zu finden sind.
-                        if 403 <= status_code <= 503:  # Domain Interner Server Error und nicht erreichbar
-                            cConfig().setSetting('plugin_' + provider + '_status', str(status_code))  # setzte Status Code in die settings
-                            cConfig().setSetting('global_search_' + provider, 'false')  # deaktiviere Globale Suche
-                            log(LOGMESSAGE + ' -> [checkDomain]: Internal Server Error (DDOS Guard, HTTP Error, Cloudflare or BlazingFast active)', LOGNOTICE)
-
-                        # Status 301 - richtet Ihr auf Eurem Server ein, wenn sich die URL geändert hat, Eure Domain umgezogen ist oder sich ein Inhalt anderweitig verschoben hat.
-                        elif 300 <= status_code <= 400:  # Domain erreichbar mit Umleitung
-                            url = oRequest.getRealUrl()
-                            # cConfig().setSetting('plugin_'+ provider +'.base_link', url)
-                            cConfig().setSetting('plugin_' + provider + '.domain', urlparse(url).hostname)  # setze Domain in die settings.xml
-                            if 'vod_' in provider:
-                                cConfig().setSetting('global_search_' + provider, 'false')  # deaktiviere Globale Suche
-                                log(LOGMESSAGE + ' -> [checkDomain]: globalSearch for ' + provider + ' is deactivated.', LOGNOTICE)
-                            else:
-                                cConfig().setSetting('global_search_' + provider, 'true')  # aktiviere Globale Suche
-                                log(LOGMESSAGE + ' -> [checkDomain]: globalSearch for ' + provider + ' is activated.', LOGNOTICE)
-
-                        # Status 200 - Dieser Code wird vom Server zurückgegeben, wenn er den Request eines Browsers korrekt zurückgeben kann. Für die Ausgabe des Codes und des Inhalts der Seite muss der Server die Anfrage zunächst akzeptieren.
-                        elif status_code == 200:  # Domain erreichbar
-                            # cConfig().setSetting('plugin_' + provider + '.base_link', base_link)
-                            cConfig().setSetting('plugin_' + provider + '.domain', urlparse(base_link).hostname)  # setze URL_MAIN in die settings.xml
-                            if 'vod_' in provider:
-                                cConfig().setSetting('global_search_' + provider, 'false')  # deaktiviere Globale Suche
-                                log(LOGMESSAGE + ' -> [checkDomain]: globalSearch for ' + provider + ' is deactivated.', LOGNOTICE)
-                            else:
-                                cConfig().setSetting('global_search_' + provider, 'true')  # aktiviere Globale Suche
-                                log(LOGMESSAGE + ' -> [checkDomain]: globalSearch for ' + provider + ' is activated.', LOGNOTICE)
-                        # Wenn keiner der Statuse oben greift
-                        else:
-                            log(LOGMESSAGE + ' -> [checkDomain]: Error ' + provider + ' not available.', LOGNOTICE)
-                            cConfig().setSetting('global_search_' + provider, 'false')  # deaktiviere Globale Suche
-                            xbmcaddon.Addon().setSetting('plugin_' + provider + '.domain', '')  # lösche Settings Eintrag
-                            log(LOGMESSAGE + ' -> [checkDomain]: globalSearch for ' + provider + ' is deactivated.', LOGNOTICE)
-                except:
-                    # Wenn Timeout und die Seite Offline ist
-                    cConfig().setSetting('global_search_' + provider, 'false')  # deaktiviere Globale Suche
-                    xbmcaddon.Addon().setSetting('plugin_' + provider + '.domain', '')  # lösche Settings Eintrag
-                    log(LOGMESSAGE + ' -> [checkDomain]: Error ' + provider + ' not available.', LOGNOTICE)
-                    pass
+                if xbmcaddon.Addon().getSetting('plugin_' + provider + '_checkdomain') == 'true':  # aut. Domainüberprüfung an ist überprüfe Status der Sitplugins
+                    t = threading.Thread(target=self._checkdomain, args=(provider, base_link), name=fileName)
+                    threads += [t]
+                    t.start()
             except Exception:
                 pass
+        for count, t in enumerate(threads):
+            t.join()
         log(LOGMESSAGE + ' -> [checkDomain]: Domains for all available Plugins updated', LOGNOTICE)
+
+    def _checkdomain(self, provider, base_link):
+        try:
+            oRequest = cRequestHandler(base_link, caching=False, ignoreErrors=True)
+            oRequest.request()
+            status_code = int(oRequest.getStatus())
+            cConfig().setSetting('plugin_' + provider + '_status', str(status_code))  # setzte Status Code in die settings
+            log(LOGMESSAGE + ' -> [checkDomain]: Status Code ' + str(status_code) + '  ' + provider + ': - ' + base_link, LOGNOTICE)
+            # Status 403 - bedeutet, dass der Zugriff auf eine angeforderte Ressource blockiert ist.
+            # Status 404 - Seite nicht gefunden. Diese Meldung zeigt an, dass die Seite oder der Ordner auf dem Server, die aufgerufen werden sollten, nicht unter der angegebenen URL zu finden sind.
+            if 403 <= status_code <= 503:  # Domain Interner Server Error und nicht erreichbar
+                cConfig().setSetting('global_search_' + provider, 'false')  # deaktiviere Globale Suche
+                log(LOGMESSAGE + ' -> [checkDomain]: Internal Server Error for ' + provider + ' (DDOS Guard, HTTP Error, Cloudflare or BlazingFast active)', LOGNOTICE)
+            # Status 301 - richtet Ihr auf Eurem Server ein, wenn sich die URL geändert hat, Eure Domain umgezogen ist oder sich ein Inhalt anderweitig verschoben hat.
+            elif 300 <= status_code <= 400:  # Domain erreichbar mit Umleitung
+                url = oRequest.getRealUrl()
+                cConfig().setSetting('plugin_' + provider + '.domain', urlparse(url).hostname)  # setze Domain in die settings.xml
+                cConfig().setSetting('global_search_' + provider, 'true')  # aktiviere Globale Suche
+                log(LOGMESSAGE + ' -> [checkDomain]: globalSearch for ' + provider + ' is activated.', LOGNOTICE)
+            # Status 200 - Dieser Code wird vom Server zurückgegeben, wenn er den Request eines Browsers korrekt zurückgeben kann. Für die Ausgabe des Codes und des Inhalts der Seite muss der Server die Anfrage zunächst akzeptieren.
+            elif status_code == 200:  # Domain erreichbar
+                cConfig().setSetting('plugin_' + provider + '.domain', urlparse(base_link).hostname)  # setze URL_MAIN in die settings.xml
+                cConfig().setSetting('global_search_' + provider, 'true')  # aktiviere Globale Suche
+                log(LOGMESSAGE + ' -> [checkDomain]: globalSearch for ' + provider + ' is activated.', LOGNOTICE)
+            # Wenn keiner der Status oben greift
+            else:
+                log(LOGMESSAGE + ' -> [checkDomain]: Error ' + provider + ' not available.', LOGNOTICE)
+                cConfig().setSetting('global_search_' + provider, 'false')  # deaktiviere Globale Suche
+                xbmcaddon.Addon().setSetting('plugin_' + provider + '.domain', '')  # lösche Settings Eintrag
+                log(LOGMESSAGE + ' -> [checkDomain]: globalSearch for ' + provider + ' is deactivated.', LOGNOTICE)
+        except:
+            # Wenn Timeout und die Seite Offline ist
+            cConfig().setSetting('global_search_' + provider, 'false')  # deaktiviere Globale Suche
+            xbmcaddon.Addon().setSetting('plugin_' + provider + '.domain', '')  # lösche Settings Eintrag
+            log(LOGMESSAGE + ' -> [checkDomain]: Error ' + provider + ' not available.', LOGNOTICE)
+            pass
