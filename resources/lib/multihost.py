@@ -42,30 +42,31 @@ class cMegamax:
         self.list = []
         
     def GetUrls(self, url):
-        sHosterUrl = url.replace('download','iframe')
-        oRequestHandler = cRequestHandler(sHosterUrl)
-        sHtmlContent1 = oRequestHandler.request()
-        sHtmlContent1 = sHtmlContent1.replace('&quot;','"')
-        oParser = cParser()
+        try:
+         sHosterUrl = url.replace('download','iframe')
+         oRequestHandler = cRequestHandler(sHosterUrl)
+         sHtmlContent1 = oRequestHandler.request()
+         sHtmlContent1 = sHtmlContent1.replace('&quot;','"')
+         oParser = cParser()
         
-        sVer = ''
-        sPattern = '"version":"([^"]+)'
-        aResult = oParser.parse(sHtmlContent1, sPattern)
-        if aResult[0]:
+         sVer = ''
+         sPattern = '"version":"([^"]+)'
+         aResult = oParser.parse(sHtmlContent1, sPattern)
+         if aResult[0]:
             for aEntry in (aResult[1]):
                 sVer = aEntry
 
-        s = requests.Session()            
-        headers = {'Referer':sHosterUrl,
+         s = requests.Session()            
+         headers = {'Referer':sHosterUrl,
                                 'Sec-Fetch-Mode':'cors',
                                 'X-Inertia':'true',
                                 'X-Inertia-Partial-Component':'files/mirror/video',
                                 'X-Inertia-Partial-Data':'streams',
                                 'X-Inertia-Version':sVer}
 
-        r = s.get(sHosterUrl, headers=headers).json()
+         r = s.get(sHosterUrl, headers=headers).json()
         
-        for key in r['props']['streams']['data']:
+         for key in r['props']['streams']['data']:
             sQual = key['label'].replace(' (source)','')
             for sLink in key['mirrors']:
                 sHosterUrl = sLink['link']
@@ -77,7 +78,8 @@ class cMegamax:
                     
                     
                     
-        return self.list 
+         return self.list
+        except:return None 
 
 class cJheberg:
     def __init__(self):

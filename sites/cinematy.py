@@ -245,7 +245,8 @@ def showHosters():
                     if megamax:
                       sRefer = sUrl4.split('/e/')[0]+'/'
                       sHtmlContent2 = cMegamax().GetUrls(sUrl4)
-                      for item in sHtmlContent2:
+                      if sHtmlContent2 :
+                       for item in sHtmlContent2:
                         sUrl = item.split(',')[0].split('=')[1]
                         sQuality = item.split(',')[1].split('=')[1]
                         
