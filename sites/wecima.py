@@ -293,7 +293,8 @@ def showHosters():
     isMatch,aResult = cParser.parse(sHtmlContent, sPattern)
     if isMatch:
        for shost,sQuality  in aResult :
-        
+        if 'غير محدد' in sQuality :
+           continue
         sName = cParser.urlparse(shost)
         if 'top15top'in shost:
            sName='Wecima'
