@@ -30,7 +30,7 @@ DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'egyrbyeteu
 URL_MAIN = 'https://' + DOMAIN + '/'
 
 
-URL_MOVIES_English = URL_MAIN + 'category/افلام-اجنبي/'
+URL_MOVIES_English = URL_MAIN + 'category/افلام-اجنبي-ا/'
 URL_SERIES_English = URL_MAIN + 'series-category/مسلسلات-اجنبي-1/'
 URL_MOVIES_Kids = URL_MAIN + 'category/افلام-كرتون/'
 URL_SEARCH = URL_MAIN + '?s=%s'
