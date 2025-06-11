@@ -32,9 +32,9 @@ URL_MAIN = 'https://' + DOMAIN + '/'
 
 
 URL_MOVIES_English = URL_MAIN + 'category-4cima.php?cat=english-movies-4Cima-7'
-URL_MOVIES_Arabic = URL_MAIN + 'category-4cima.php?cat=aflam-3rby-4Cima-5'
-URL_SERIES_English = URL_MAIN + 'category-4cima.php?cat=english-series-4Cima-1'
-URL_SERIES_Arabic = URL_MAIN + 'category-4cima.php?cat=arabic-series-4Cima-4'
+URL_MOVIES_Arabic = URL_MAIN + 'categories-4cima.php?cat=aflam-3rby-4Cima-6'
+URL_SERIES_English = URL_MAIN + 'categories-4cima.php?cat=english-series-4Cima-1'
+URL_SERIES_Arabic = URL_MAIN + 'categories-4cima.php?cat=arabic-series-4Cima-5'
 URL_MOVIES_Kids = URL_MAIN + 'category-4cima.php?cat=anime-movies-4Cima'
 Ramadan = URL_MAIN + 'category-4cima.php?cat=mosalsalat-ramadan-2025'
 URL_SEARCH = URL_MAIN + 'search.php?keywords=%s&video-id='
