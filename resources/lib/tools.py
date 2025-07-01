@@ -18,6 +18,8 @@ from xbmcvfs import translatePath
 from urllib.parse import quote, unquote, quote_plus, unquote_plus, urlparse
 from html.entities import name2codepoint
 
+AddonName = xbmcaddon.Addon().getAddonInfo('name')
+
 
 # Aufgeführte Plattformen zum Anzeigen der Systemplattform
 def platform():
@@ -48,6 +50,13 @@ def platform():
     elif xbmc.getCondVisibility('System.HasAddon(service.osmc.settings)'):
         return 'OSMC'
 
+
+def infoDialog(message, heading=AddonName, icon='', time=5000, sound=False):
+    if icon == '': icon = xbmcaddon.Addon().getAddonInfo('icon')
+    elif icon == 'INFO': icon = xbmcgui.NOTIFICATION_INFO
+    elif icon == 'WARNING': icon = xbmcgui.NOTIFICATION_WARNING
+    elif icon == 'ERROR': icon = xbmcgui.NOTIFICATION_ERROR
+    xbmcgui.Dialog().notification(heading, message, icon, time, sound=sound)
 
 # zeigt nach Update den Changelog als Popup an
 def changelog():
@@ -362,7 +371,7 @@ class cCache(object):
 
         if cachedata:
             cachedata = eval(cachedata)
-            if time.time() - cachedata[0] < cache_time:
+            if time.time() - cachedata[0] < cache_time or cache_time < 0:
                 return cachedata[1]
             else:
                 self._win.clearProperty(key)

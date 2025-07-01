@@ -16,7 +16,7 @@ from xbmcgui import Dialog
 from xbmcaddon import Addon
 from xbmcvfs import translatePath
 from resources.lib.tools import platform
-
+from resources.lib.tools import infoDialog
 
 #if cConfig().getSetting('bypassDNSlock') == 'true': #ToDo Noch mal prüfen ob wir das so brauchen oder die Logger-Meldungen so lassen
 #    from resources.lib.handler.requestHandler import cRequestHandlerwDNS as cRequestHandler
@@ -259,6 +259,8 @@ class cPluginHandler:
             + '\n'  # Absatz
             + cConfig().getLocalizedString(30420) + '\n'  # DNS Informationen
             + cConfig().getLocalizedString(30417) + ' ' + BYPASS + '\n'  # xStream DNS Bypass aktiv/inaktiv
+            + cConfig().getLocalizedString(30434) + '1' + ' ' + xbmc.getInfoLabel('Network.DNS1Address') + '\n'
+            + cConfig().getLocalizedString(30434) + '2' + ' ' + xbmc.getInfoLabel('Network.DNS2Address') + '\n'
             + '\n'  # Absatz
             + cConfig().getLocalizedString(30421) + '\n'  # Repo Informationen
             
@@ -301,7 +303,9 @@ class cPluginHandler:
         for count, t in enumerate(threads):
             t.join()
         log(LOGMESSAGE + ' -> [checkDomain]: Domains for all available Plugins updated', LOGNOTICE)
-
+        infoDialog("Domain verification of all plugins completed", sound=False, icon='INFO', time=6000)
+    
+    
     def _checkdomain(self, provider, base_link):
         try:
             oRequest = cRequestHandler(base_link, caching=False, ignoreErrors=True)

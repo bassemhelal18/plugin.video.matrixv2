@@ -8,6 +8,7 @@ import xbmcaddon
 import os
 import zlib
 import base64
+import time
 from xbmcaddon import Addon
 from xbmcvfs import translatePath
 from resources.lib.handler.ParameterHandler import ParameterHandler
@@ -17,7 +18,7 @@ from xbmc import LOGINFO as LOGNOTICE, LOGERROR, log
 from resources.lib.gui.guiElement import cGuiElement
 from resources.lib.gui.gui import cGui
 from resources.lib.config import cConfig
-from resources.lib.tools import logger, cParser
+from resources.lib.tools import logger, cParser, cCache
 
 PATH = xbmcaddon.Addon().getAddonInfo('path')
 ART = os.path.join(PATH, 'resources', 'art')
@@ -149,6 +150,9 @@ def showMainMenu(sFunction):
     # Setzte die globale Suche an erste Stelle
     if cConfig().getSetting('GlobalSearchPosition') == 'true':
         oGui.addFolder(globalSearchGuiElement())
+    addon_id = xbmcaddon.Addon().getAddonInfo('id')
+    while (startupStatus := cCache().get(addon_id + '_main', -1)) != 'finished':
+        time.sleep(5)
     oPluginHandler = cPluginHandler()
     aPlugins = oPluginHandler.getAvailablePlugins()
     if not aPlugins:
@@ -168,7 +172,7 @@ def showMainMenu(sFunction):
             oGui.addFolder(oGuiElement)
         if cConfig().getSetting('GlobalSearchPosition') == 'false':
             oGui.addFolder(globalSearchGuiElement())
-
+        
     if cConfig().getSetting('SettingsFolder') == 'true':
         # Einstellung im Menü mit Untereinstellungen
         oGuiElement = cGuiElement()
