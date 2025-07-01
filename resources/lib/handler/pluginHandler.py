@@ -15,8 +15,7 @@ from urllib.parse import urlparse
 from xbmcgui import Dialog
 from xbmcaddon import Addon
 from xbmcvfs import translatePath
-from resources.lib.tools import platform
-from resources.lib.tools import infoDialog
+from resources.lib.tools import platform, infoDialog, getDNS
 
 #if cConfig().getSetting('bypassDNSlock') == 'true': #ToDo Noch mal prüfen ob wir das so brauchen oder die Logger-Meldungen so lassen
 #    from resources.lib.handler.requestHandler import cRequestHandlerwDNS as cRequestHandler
@@ -259,8 +258,8 @@ class cPluginHandler:
             + '\n'  # Absatz
             + cConfig().getLocalizedString(30420) + '\n'  # DNS Informationen
             + cConfig().getLocalizedString(30417) + ' ' + BYPASS + '\n'  # xStream DNS Bypass aktiv/inaktiv
-            + cConfig().getLocalizedString(30434) + '1' + ' ' + xbmc.getInfoLabel('Network.DNS1Address') + '\n'
-            + cConfig().getLocalizedString(30434) + '2' + ' ' + xbmc.getInfoLabel('Network.DNS2Address') + '\n'
+            + cConfig().getLocalizedString(30434) + '1' + ' ' + getDNS('Network.DNS1Address') + '\n'
+            + cConfig().getLocalizedString(30434) + '2' + ' ' + getDNS('Network.DNS2Address') + '\n'
             + '\n'  # Absatz
             + cConfig().getLocalizedString(30421) + '\n'  # Repo Informationen
             

@@ -17,6 +17,8 @@ from xbmcaddon import Addon
 from xbmcvfs import translatePath
 from urllib.parse import quote, unquote, quote_plus, unquote_plus, urlparse
 from html.entities import name2codepoint
+from os import path, chdir
+
 
 AddonName = xbmcaddon.Addon().getAddonInfo('name')
 
@@ -354,6 +356,16 @@ def valid_email(email): #ToDo: Funktion in Settings / Konten aktivieren
     else:
         return False
     
+def getDNS(dns):
+    status = 'Busy'
+    loop = 1
+    while status == 'Busy':
+        if loop == 20:
+            break
+        status = xbmc.getInfoLabel(dns)
+        xbmc.sleep(20)
+        loop += 1
+    return status
 
 class cCache(object):
     _win = None
