@@ -18,9 +18,10 @@ from xbmcvfs import translatePath
 from urllib.parse import quote, unquote, quote_plus, unquote_plus, urlparse
 from html.entities import name2codepoint
 from os import path, chdir
+from difflib import SequenceMatcher
 
 
-AddonName = xbmcaddon.Addon().getAddonInfo('name')
+AddonName = cConfig().getAddonInfo('name')
 
 
 # Aufgeführte Plattformen zum Anzeigen der Systemplattform
@@ -54,7 +55,7 @@ def platform():
 
 
 def infoDialog(message, heading=AddonName, icon='', time=5000, sound=False):
-    if icon == '': icon = xbmcaddon.Addon().getAddonInfo('icon')
+    if icon == '': icon = cConfig().getAddonInfo('icon')
     elif icon == 'INFO': icon = xbmcgui.NOTIFICATION_INFO
     elif icon == 'WARNING': icon = xbmcgui.NOTIFICATION_WARNING
     elif icon == 'ERROR': icon = xbmcgui.NOTIFICATION_ERROR
@@ -63,10 +64,10 @@ def infoDialog(message, heading=AddonName, icon='', time=5000, sound=False):
 # zeigt nach Update den Changelog als Popup an
 def changelog():
     CHANGELOG_PATH = translatePath(os.path.join('special://home/addons/' + Addon().getAddonInfo('id') + '/', 'changelog.txt'))
-    version = xbmcaddon.Addon().getAddonInfo('version')
-    if xbmcaddon.Addon().getSetting('changelog_version') == version or not os.path.isfile(CHANGELOG_PATH):
+    version = cConfig().getAddonInfo('version')
+    if cConfig().getSetting('changelog_version') == version or not os.path.isfile(CHANGELOG_PATH):
         return
-    xbmcaddon.Addon().setSetting('changelog_version', version)
+    cConfig().setSetting('changelog_version', version)
     heading = cConfig().getLocalizedString(30275)
     with open(CHANGELOG_PATH, mode="r", encoding="utf-8") as f:
         cl_lines = f.readlines()
@@ -348,6 +349,29 @@ class cUtil:
         key = fd[0:key_size]
         iv = fd[key_size:key_size + iv_size]
         return key, iv
+
+    @staticmethod
+    def isSimilar(sSearch, sText, threshold=0.9):
+        return (SequenceMatcher(None, sSearch, sText).ratio() >= threshold)
+    
+    @staticmethod
+    @lru_cache(maxsize=200000)
+    def get_seq_match_ratio(token1, token2):
+        return SequenceMatcher(None, token1, token2).ratio()
+    
+    @staticmethod
+    def isSimilarByToken(sSearch, sText, threshold=0.9):
+        tokens_sSearch = sSearch.split()
+        tokens_sText = sText.split()
+        if not tokens_sSearch:
+            return False
+
+        #get_ratio = lambda a, b: SequenceMatcher(None, a, b).ratio()
+        best_ratios = [
+            max(cUtil.get_seq_match_ratio(token, token2) for token2 in tokens_sText)
+            for token in tokens_sSearch
+        ]
+        return (sum(best_ratios) / len(best_ratios)) >= threshold    
 
 def valid_email(email): #ToDo: Funktion in Settings / Konten aktivieren
     # Überprüfen der EMail-Adresse mit dem Muster

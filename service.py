@@ -25,7 +25,7 @@ HEADERMESSAGE = cConfig().getLocalizedString(30151)
 LOGMESSAGE = cConfig().getLocalizedString(30166)
 
 
-AddonName = xbmcaddon.Addon().getAddonInfo('name')
+AddonName = cConfig().getAddonInfo('name')
 
 # Pfad der update.sha
 NIGHTLY_UPDATE = os.path.join(translatePath(Addon().getAddonInfo('profile')), "update_sha")
@@ -70,7 +70,7 @@ def checkDependence(ADDONID):
                 if 'optional' in i or 'xbmc.python' in i: continue
                 pattern = 'import.*?"([^"]+)'
                 IDdoADDON = re.search(pattern, i).group(1)
-                if os.path.exists(ADDON_PATH % IDdoADDON) == True and xbmcaddon.Addon().getSetting('enforceUpdate') != 'true':
+                if os.path.exists(ADDON_PATH % IDdoADDON) == True and cConfig().getSetting('enforceUpdate') != 'true':
                     enableAddon(IDdoADDON)
                 else:
                     xbmc.executebuiltin('InstallAddon(%s)' % (IDdoADDON))
@@ -93,9 +93,9 @@ def delHtmlCache():
         cConfig().setSetting('lastdelhtml', str(currentTime))
 # Auslesen der installierten Kodi Version und setze danach den Release Branch in den settings
 def main():
-    cCache().set(xbmcaddon.Addon().getAddonInfo('id') + '_main', 'running')
+    cCache().set(cConfig().getAddonInfo('id') + '_main', 'running')
 
-    xbmcaddon.Addon().setSetting('matrixv2.branch.release', 'main')
+    cConfig().setSetting('matrixv2.branch.release', 'main')
 
 
 
@@ -108,11 +108,11 @@ def main():
            if status1 == True: infoDialog(cConfig().getLocalizedString(30113), sound=False, icon='INFO', time=6000)
            if status1 == False: infoDialog(cConfig().getLocalizedString(30114), sound=True, icon='ERROR')
            if status1 == None: infoDialog(cConfig().getLocalizedString(30115), sound=False, icon='INFO', time=6000)
-           if xbmcaddon.Addon().getSetting('enforceUpdate') == 'true': xbmcaddon.Addon().setSetting('enforceUpdate', 'false')
+           if cConfig().getSetting('enforceUpdate') == 'true': cConfig().setSetting('enforceUpdate', 'false')
        else:
            if status1 == True: infoDialog(cConfig().getLocalizedString(30113), sound=False, icon='INFO', time=6000)
            if status1 == False: infoDialog(cConfig().getLocalizedString(30114), sound=True, icon='ERROR')
-           if xbmcaddon.Addon().getSetting('enforceUpdate') == 'true': xbmcaddon.Addon().setSetting('enforceUpdate', 'false')
+           if cConfig().getSetting('enforceUpdate') == 'true': cConfig().setSetting('enforceUpdate', 'false')
 
 
 # Starte Resolver Update wenn auf Github verfügbar    
@@ -120,14 +120,14 @@ def main():
        status2 = updateManager.resolverUpdate(True)
        if Addon().getSetting('update.notification') == 'full': # Benachrichtung Resolver vollständig
            infoDialog(cConfig().getLocalizedString(30112), sound=False, icon='INFO', time=10000)   # Suche Updates
-           if status2 == True: infoDialog('Resolver ' + xbmcaddon.Addon().getSetting('resolver.branch') + cConfig().getLocalizedString(30116), sound=False, icon='INFO', time=6000)
+           if status2 == True: infoDialog('Resolver ' + cConfig().getSetting('resolver.branch') + cConfig().getLocalizedString(30116), sound=False, icon='INFO', time=6000)
            if status2 == False: infoDialog(cConfig().getLocalizedString(30117), sound=True, icon='ERROR')
            if status2 == None: infoDialog(cConfig().getLocalizedString(30118), sound=False, icon='INFO', time=6000)
-           if xbmcaddon.Addon().getSetting('enforceUpdate') == 'true': xbmcaddon.Addon().setSetting('enforceUpdate', 'false')
+           if cConfig().getSetting('enforceUpdate') == 'true': cConfig().setSetting('enforceUpdate', 'false')
        else:
-           if status2 == True: infoDialog('Resolver ' + xbmcaddon.Addon().getSetting('resolver.branch') + cConfig().getLocalizedString(30116), sound=False, icon='INFO', time=6000)
+           if status2 == True: infoDialog('Resolver ' + cConfig().getSetting('resolver.branch') + cConfig().getLocalizedString(30116), sound=False, icon='INFO', time=6000)
            if status2 == False: infoDialog(cConfig().getLocalizedString(30117), sound=True, icon='ERROR')
-           if xbmcaddon.Addon().getSetting('enforceUpdate') == 'true': xbmcaddon.Addon().setSetting('enforceUpdate', 'false')
+           if cConfig().getSetting('enforceUpdate') == 'true': cConfig().setSetting('enforceUpdate', 'false')
 
 
 # Startet Überprüfung der Abhängigkeiten
@@ -138,16 +138,16 @@ def main():
 
     # Wenn neue settings vorhanden oder geändert in addon_data dann starte Pluginhandler und aktualisiere die PluginDB um Daten von checkDomain mit aufzunehmen
     try:
-        if xbmcaddon.Addon().getSetting('newSetting') == 'true':
+        if cConfig().getSetting('newSetting') == 'true':
             cPluginHandler().getAvailablePlugins()
     except Exception:
         pass
 
     # getAvailablePlugins must be finished before the main menu can be started!
-    cCache().set(xbmcaddon.Addon().getAddonInfo('id') + '_main', 'finished')
+    cCache().set(cConfig().getAddonInfo('id') + '_main', 'finished')
 
     # Changelog Popup in den "settings.xml" ein bzw. aus schaltbar
-    if xbmcaddon.Addon().getSetting('popup.update.notification') == 'true':
+    if cConfig().getSetting('popup.update.notification') == 'true':
         tools.changelog()
 
     # Html Cache beim KodiStart nach (X) Tage löschen

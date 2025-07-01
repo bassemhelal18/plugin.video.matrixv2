@@ -227,15 +227,15 @@ class cPluginHandler:
         result_string = result_string.replace('false', cConfig().getLocalizedString(30419))
         list_of_PluginData = (result_string) # Ergebnis der Liste
         # Settings Abragen
-        if xbmcaddon.Addon().getSetting('githubUpdateMatrixv2') == 'true':  # xStream Update An/Aus
+        if cConfig().getSetting('githubUpdateMatrixv2') == 'true':  # xStream Update An/Aus
             UPDATEXS = cConfig().getLocalizedString(30415)  # Aktiv
         else:
             UPDATEXS = cConfig().getLocalizedString(30416)  # Inaktiv
-        if xbmcaddon.Addon().getSetting('githubUpdateResolver') == 'true':  # Resolver Update An/Aus
+        if cConfig().getSetting('githubUpdateResolver') == 'true':  # Resolver Update An/Aus
             UPDATERU = cConfig().getLocalizedString(30415)  # Aktiv
         else:
             UPDATERU = cConfig().getLocalizedString(30416)  # Inaktiv
-        if xbmcaddon.Addon().getSetting('bypassDNSlock') == 'true':  # DNS Bypass
+        if cConfig().getSetting('bypassDNSlock') == 'true':  # DNS Bypass
             BYPASS = cConfig().getLocalizedString(30418)  # Aktiv
         else:
             BYPASS = cConfig().getLocalizedString(30419)  # Inaktiv
@@ -284,16 +284,16 @@ class cPluginHandler:
                 base_link = 'http://' + domain + '/'  # URL_MAIN
                 wrongDomain = 'site-maps.cc', 'www.drei.at', 'notice.cuii.info'
                 if domain in wrongDomain:  # Falsche Umleitung ausschliessen
-                    xbmcaddon.Addon().setSetting('plugin_' + provider + '.domain', '')  # Falls doch dann lösche Settings Eintrag
-                    xbmcaddon.Addon().setSetting('plugin_' + provider + '_status', '')  # lösche Status Code in die settings
+                    cConfig().setSetting('plugin_' + provider + '.domain', '')  # Falls doch dann lösche Settings Eintrag
+                    cConfig().setSetting('plugin_' + provider + '_status', '')  # lösche Status Code in die settings
                     continue
-                if xbmcaddon.Addon().getSetting('plugin_' + provider) == 'false':  # Wenn SitePlugin deaktiviert
+                if cConfig().getSetting('plugin_' + provider) == 'false':  # Wenn SitePlugin deaktiviert
                     cConfig().setSetting('global_search_' + provider, 'false')  # setzte Globale Suche auf aus
                     cConfig().setSetting('plugin_' + provider + '_checkdomain', 'false')  # setzte Domain Check auf aus
                     cConfig().setSetting('plugin_' + provider + '.domain', '')  # lösche Settings Eintrag
                     cConfig().setSetting('plugin_' + provider + '_status', '')  # lösche Settings Eintrag
 
-                if xbmcaddon.Addon().getSetting('plugin_' + provider + '_checkdomain') == 'true':  # aut. Domainüberprüfung an ist überprüfe Status der Sitplugins
+                if cConfig().getSetting('plugin_' + provider + '_checkdomain') == 'true':  # aut. Domainüberprüfung an ist überprüfe Status der Sitplugins
                     t = threading.Thread(target=self._checkdomain, args=(provider, base_link), name=fileName)
                     threads += [t]
                     t.start()
@@ -332,11 +332,11 @@ class cPluginHandler:
             else:
                 log(LOGMESSAGE + ' -> [checkDomain]: Error ' + provider + ' not available.', LOGNOTICE)
                 cConfig().setSetting('global_search_' + provider, 'false')  # deaktiviere Globale Suche
-                xbmcaddon.Addon().setSetting('plugin_' + provider + '.domain', '')  # lösche Settings Eintrag
+                cConfig().setSetting('plugin_' + provider + '.domain', '')  # lösche Settings Eintrag
                 log(LOGMESSAGE + ' -> [checkDomain]: globalSearch for ' + provider + ' is deactivated.', LOGNOTICE)
         except:
             # Wenn Timeout und die Seite Offline ist
             cConfig().setSetting('global_search_' + provider, 'false')  # deaktiviere Globale Suche
-            xbmcaddon.Addon().setSetting('plugin_' + provider + '.domain', '')  # lösche Settings Eintrag
+            cConfig().setSetting('plugin_' + provider + '.domain', '')  # lösche Settings Eintrag
             log(LOGMESSAGE + ' -> [checkDomain]: Error ' + provider + ' not available.', LOGNOTICE)
             pass

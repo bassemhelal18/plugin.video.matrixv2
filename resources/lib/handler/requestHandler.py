@@ -81,7 +81,7 @@ class cRequestHandler:
     # useful for e.g. tmdb request where multiple requests are made within a loop
     persistent_openers = {}
     
-    def __init__(self, sUrl, caching=True, ignoreErrors=False, compression=True, jspost=False, ssl_verify=False, bypass_dns=False):
+    def __init__(self, sUrl, caching=True, ignoreErrors=False, method='GET', data=None, compression=True, jspost=False, ssl_verify=False, bypass_dns=False):
         self._sUrl = self.__cleanupUrl(sUrl)
         self._sUrl = sUrl
         self._sRealUrl = ''
@@ -98,6 +98,8 @@ class cRequestHandler:
         self.ignoreDiscard(False)
         self.ignoreExpired(False)
         self.caching = caching
+        self.method = method
+        self.data = data
         self.ignoreErrors = ignoreErrors
         self.compression = compression
         self.jspost = jspost
@@ -165,25 +167,19 @@ class cRequestHandler:
 
     @staticmethod
     def __cleanupUrl(url):
-        # für Leerzeichen und Umlaute in der sUrl
-        #for t in (('²', '&#xB2;'), ('³', '&#xB3;'), ('´', '&#xB4;'), ("'", "&#x27;"),('`', '&#x60;'), ('Ä', '&#xC4;'), ('ä', '&#xE4;'), #ToDo Löschen wenn untere Lösung funktioniert 10.04.25
-        #          ('Ö', '&#xD6;'), ('ö', '&#xF6;'), ('Ü', '&#xDC;'), ('ü', '&#xFC;'), ('ß', '&#xDF;'), ('¼', '&#xBC;'), ('½', '&#xBD;'),
-        #          ('¾', '&#xBE;'), ('⅓', '&#8531;'), ('*', '%2a'),
-        #          ('⭐', '%E2%AD%90'), ('✨', '%E2%9C%A8'), ('❄', '%e2%9d%84'), ('⛄', '%e2%9b%84')):
-        #    url = url.replace(*t)
-        #return url
-        p = urlparse(url)
-        if p.query:
-            query = quote_plus(p.query).replace('%3D', '=').replace('%26', '&')
-            p = p._replace(query=p.query.replace(p.query, query))
-        else:
-            path = quote_plus(p.path).replace('%2F', '/').replace('%26', '&').replace('%3D', '=')
-            p = p._replace(path=p.path.replace(p.path, path))
-        return p.geturl()    
+        #p = urlparse(url)
+        #if p.query:
+        #    query = quote_plus(p.query).replace('%3D', '=').replace('%26', '&')
+        #    p = p._replace(query=p.query.replace(p.query, query))
+        #else:
+        #    path = quote_plus(p.path).replace('%2F', '/').replace('%26', '&').replace('%3D', '=')
+        #    p = p._replace(path=p.path.replace(p.path, path))
+        #return p.geturl()
+        return url   
     
     def request(self):    
         self._sUrl = urllib_parse.quote(self._sUrl, '%/:?=&!+')
-        if self.caching and self.cacheTime > 0:
+        if self.caching and self.cacheTime > 0  and self.method == 'GET' and self.data is None:
             if self.isMemoryCacheActive:
                 sContent = self.__readVolatileCache(self.getRequestUri(), self.cacheTime)
             else:
@@ -191,7 +187,9 @@ class cRequestHandler:
             if sContent:
                 self._Status = '200'
                 return sContent
-            
+        else:
+            logger.info('-> [requestHandler]: read html for %s' % self.getRequestUri())
+
         if self._bypass_dns and self.bypassDNSlock:
             ### DNS lock bypass
             ip_override = self.__doh_request(self._sUrl)
@@ -213,12 +211,30 @@ class cRequestHandler:
             opener = build_opener(*handlers)
             cRequestHandler.persistent_openers[domain] = opener
 
-        sParameters = json.dumps(self._aParameters).encode() if self.jspost else urlencode(self._aParameters, True).encode()
-        oRequest = Request(self._sUrl, sParameters if len(sParameters) > 0 else None)
+        # Prepare parameters for GET/POST
+        if self.method == 'POST':
+            if self.data is not None:
+                if isinstance(self.data, dict):
+                    # Default: form data
+                    sParameters = urlencode(self.data).encode()
+                elif isinstance(self.data, str):
+                    sParameters = self.data.encode()
+                else:
+                    sParameters = self.data
+            else:
+                sParameters = None
+        else:
+            sParameters = json.dumps(self._aParameters).encode() if self.jspost else urlencode(self._aParameters, True).encode()
+            if len(sParameters) == 0:
+                sParameters = None
+        
+        oRequest = Request(self._sUrl, sParameters if sParameters and len(sParameters) > 0 else None)
 
         for key, value in self._headerEntries.items():
             oRequest.add_header(key, value)
-        if self.jspost:
+        if self.method == 'POST' and 'Content-Type' not in self._headerEntries:
+            oRequest.add_header('Content-Type', 'application/x-www-form-urlencoded')
+        elif self.jspost:
             oRequest.add_header('Content-Type', 'application/json')
         cookieJar.add_cookie_header(oRequest)
         try:
@@ -301,7 +317,7 @@ class cRequestHandler:
         if self.__bRemoveBreakLines:
             sContent = sContent.replace('&nbsp;', '')
         
-        if self.caching and self.cacheTime > 0:
+        if self.caching and self.cacheTime > 0 and self.method == 'GET' and self.data is None:
             if self.isMemoryCacheActive:
                 self.__writeVolatileCache(self.getRequestUri(), sContent)
             else:
