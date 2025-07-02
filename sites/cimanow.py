@@ -224,17 +224,21 @@ def showHosters():
     isMatch, aResult = cParser().parse(sHtmlContent0, pattern)
     if isMatch:
         for sUrl ,sQuality in aResult:
-            sName = cParser.urlparse(sUrl)
+            if 'https://href.li' in sUrl:
+                sUrl = sUrl.split('?')[-1]
             if 'youtube' in sUrl:
                 continue
-            elif sUrl.startswith('//'):
+            
+            if sUrl.startswith('//'):
                  sUrl = 'https:' + sUrl
-            elif 'filespayout' in sUrl: continue
-            elif 'frdl' in sUrl: continue
-            elif 'cimanow' in sUrl:
+            if  'filespayout' in sUrl: continue
+            if 'frdl' in sUrl: continue
+            sName = cParser.urlparse(sUrl)
+            if 'cimanow' in sUrl:
                 sName = 'CimaNow'
                 sUrl = sUrl +'|AUTH=TLS&verifypeer=false&Referer='+URL_MAIN
                 sUrl = quote(sUrl, '/:=&?|')
+            
             hoster = {'link': sUrl, 'name': sName, 'displayedName':sName+' '+sQuality, 'quality': sQuality} # Qualität Anzeige aus Release Eintrag
             if 'cimanow' in sUrl:
                 hoster.update({ 'resolved': True})
