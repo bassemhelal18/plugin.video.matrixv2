@@ -119,10 +119,17 @@ def parseUrl():
     elif sSiteName == 'Matrixv2':
         oGui = cGui()
         oGui.openSettings()
-        oGui.updateDirectory()
+        # resolves strange errors in the logfile
+        #oGui.updateDirectory()
+        oGui.setEndOfDirectory()
+        xbmc.executebuiltin('Action(ParentDir)')
     # Resolver Einstellungen im Hauptmenü
     elif sSiteName == 'resolver':
+        oGui = cGui()
         resolver.display_settings()
+        # resolves strange errors in the logfile
+        oGui.setEndOfDirectory()
+        xbmc.executebuiltin('Action(ParentDir)')
     # Manuelles Update im Hauptmenü
     elif sSiteName == 'devUpdates':
         from resources.lib import updateManager
