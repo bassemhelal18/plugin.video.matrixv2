@@ -65,7 +65,7 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     sHtmlContent = oRequest.request()
     
     
-    sPattern = 'Block--Item.*?<ahref=(.*?) title="(.*?)">.*?src=(.*?) alt'
+    sPattern = 'Block--Item.*?<a href="(.*?)" title="(.*?)">.*?src=(.*?) alt'
     isMatch, aResult = cParser.parse(sHtmlContent, sPattern)
     if not isMatch:
         if not sGui: oGui.showInfo()
@@ -108,7 +108,7 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
             oGui.addFolder(oGuiElement, params, isTvshow, total)
         
     if not sGui and not sSearchText:
-        isMatchNextPage, sNextUrl = cParser.parseSingleResult(sHtmlContent,'<aclass="next page-numbers" href="(.*?)">')
+        isMatchNextPage, sNextUrl = cParser.parseSingleResult(sHtmlContent,'class="next page-numbers" href="(.*?)">')
         if isMatchNextPage:
             params.setParam('sUrl', URL_MAIN[:-1]+sNextUrl)
             params.setParam('trumb', os.path.join(ART, 'Next.png'))
@@ -127,12 +127,11 @@ def showSeasons():
     oRequest = cRequestHandler(sUrl)
     sHtmlContent = oRequest.request()
     
-    
-    sStart = 'class=allseasonss'
-    sEnd = '<sectionclass="allepcont getMoreByScroll">'
+    sStart = 'class="allseasonss"'
+    sEnd = 'class="allepcont getMoreByScroll">'
     sHtmlContent = cParser.abParse(sHtmlContent, sStart, sEnd)
     
-    sPattern = 'href=(.+?) title>.*?alt="(.*?)" data-srccs=(.*?)>'
+    sPattern = 'href="(.+?)" title.*?alt="(.*?)" data-srccs="(.*?)"'
     isMatch, aResult = cParser.parse(sHtmlContent, sPattern)
     if  isMatch:
        
@@ -159,11 +158,11 @@ def showEpisodes():
     sSeason = params.getValue('season')
     sShowName = params.getValue('sName')
     
-    sStart = '<sectionclass="allepcont getMoreByScroll">'
-    sEnd = 'sectionclass=otherser'
+    sStart = '<section class="allepcont getMoreByScroll">'
+    sEnd = '<section class="otherser"'
     sHtmlContent = cParser.abParse(sHtmlContent, sStart, sEnd)
     
-    pattern = '<ahref=(.+?) title.*?class=epnum>.*?<span>الحلقة</span>\s*(.*?)\s*</div>'  # start element
+    pattern = '<a href="(.+?)" title.*?class="epnum">.*?<span>الحلقة</span>\s*(.*?)\s*</div>'  # start element
     isMatch, aResult = cParser.parse(sHtmlContent, pattern)
     if  isMatch: 
       total = len(aResult)
@@ -186,12 +185,12 @@ def showHosters():
     
     sHtmlContent = cRequestHandler(sUrl).request()
     
-    pattern = 'watchAndDownlaod href=(.*?) >'  # start element
+    pattern = 'watchAndDownlaod" href="(.*?)">'  # start element
     isMatch, aResult = cParser.parse(sHtmlContent, pattern)
     if not isMatch: return
     for slink in aResult:
         from requests import get
-        
+          
         headers={'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
                   'Accept-Language': 'en-US,en;q=0.9,ar;q=0.8,en-GB;q=0.7',
                   'User-Agent' : common.RAND_UA,
