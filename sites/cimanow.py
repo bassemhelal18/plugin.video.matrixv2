@@ -124,7 +124,7 @@ def showSeasons():
     sName = params.getValue('sName')
     oRequest = cRequestHandler(sUrl)
     sHtmlContent = oRequest.request()
-    if 'adilbo' in sHtmlContent:
+    if 'cimanow_HTML_encoder' in sHtmlContent:
        sHtmlContent = prase_function(sHtmlContent)
        sHtmlContent =str(sHtmlContent.encode('latin-1'),'utf-8')
     
@@ -153,7 +153,7 @@ def showEpisodes():
     sHtmlContent = cRequestHandler(sUrl).request()
     sSeason = params.getValue('season')
     sShowName = params.getValue('sName')
-    if 'adilbo' in sHtmlContent:
+    if 'cimanow_HTML_encoder' in sHtmlContent:
        sHtmlContent = prase_function(sHtmlContent)
        sHtmlContent =str(sHtmlContent.encode('latin-1'),'utf-8')
     
@@ -185,7 +185,7 @@ def showHosters():
     oRequestHandler.addHeaderEntry('User-Agent', common.RAND_UA)
     oRequestHandler.addHeaderEntry('Referer', 'https://rm.freex2line.online/')
     sHtmlContent = oRequestHandler.request()
-    if 'adilbo' in sHtmlContent:
+    if 'cimanow_HTML_encoder' in sHtmlContent:
        sHtmlContent = prase_function(sHtmlContent)
        sHtmlContent =str(sHtmlContent.encode('latin-1'),'utf-8')
     
@@ -268,7 +268,7 @@ def _search(oGui, sSearchText):
     showEntries(URL_SEARCH % cParser().quotePlus(sSearchText), oGui, sSearchText)
 
 def prase_function(page): 
-    if 'adilbo' in page:
+    if 'cimanow_HTML_encoder' in page:
      t_script = re.findall('<script.*?;.*?\'(.*?);', page, re.S)
      t_int = re.findall('/g.....(.*?)\)', page, re.S)
      if t_script and t_int:
