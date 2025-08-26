@@ -191,7 +191,7 @@ def showHosters():
     sHtmlContent = cRequestHandler(sUrl).request()
     
     
-    pattern = "player_iframe.location.href = '([^<]+)&img.*?'" # start element
+    pattern = "player_iframe.location.href = '([^<]+)'" # start element
     isMatch, aResult = cParser.parse(sHtmlContent, pattern)
     if not isMatch: return
     for slink in aResult:
@@ -199,27 +199,25 @@ def showHosters():
         oRequest = cRequestHandler(slink)
         oRequest.addHeaderEntry('referer',URL_MAIN)
         sHtmlContent = oRequest.request()
-    page = prase_function(sHtmlContent)
-    page =str(page.encode('latin-1'),'utf-8')
-
-    Pattern =  'button class="hd_btn " data-url="([^<]+)">([^<]+)</button>'  # start element
-    isMatch, aResult = cParser().parse(page, Pattern)
-    if isMatch:
-        for sUrl ,sQuality in aResult:
-            sName = cParser.urlparse(sUrl)
+        
+        Pattern =  'data-url="([^<]+)">([^<]+)</button>'  # start element
+        isMatch, aResult = cParser().parse(sHtmlContent, Pattern)
+        if isMatch:
+            for sUrl ,sQuality in aResult:
+                sName = cParser.urlparse(sUrl)
             
-             # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
-            if 'youtube' in sUrl:
-                continue
-            elif sUrl.startswith('//'):
-                 sUrl = 'https:' + sUrl
-            elif 'fasel' in sUrl:
-                sName = 'FaselHD'
-            hoster = {'link': sUrl, 'name': sName, 'displayedName':sName+' '+sQuality, 'quality': sQuality, 'resolveable': True, 'resolved': True} # Qualität Anzeige aus Release Eintrag
-            hosters.append(hoster)
-    if hosters:
-        hosters.append('getHosterUrl')
-    return hosters
+                 # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
+                if 'youtube' in sUrl:
+                    continue
+                elif sUrl.startswith('//'):
+                    sUrl = 'https:' + sUrl
+                elif 'fasel' in sUrl:
+                    sName = 'FaselHD'
+                hoster = {'link': sUrl, 'name': sName, 'displayedName':sName+' '+sQuality, 'quality': sQuality, 'resolveable': True, 'resolved': True} # Qualität Anzeige aus Release Eintrag
+                hosters.append(hoster)       
+        if hosters:
+            hosters.append('getHosterUrl')
+        return hosters
 
 def getHosterUrl(sUrl=False):
     
