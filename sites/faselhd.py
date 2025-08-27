@@ -214,10 +214,26 @@ def showHosters():
                 elif 'fasel' in sUrl:
                     sName = 'FaselHD'
                 hoster = {'link': sUrl, 'name': sName, 'displayedName':sName+' '+sQuality, 'quality': sQuality, 'resolveable': True, 'resolved': True} # Qualität Anzeige aus Release Eintrag
-                hosters.append(hoster)       
-        if hosters:
-            hosters.append('getHosterUrl')
-        return hosters
+                hosters.append(hoster)
+    page = sHtmlContent
+    Pattern =  "videoSrc = '(.*?)'"  # start element
+    isMatch, aResult = cParser().parse(page, Pattern)
+    if isMatch:
+        for sUrl  in aResult:
+            sName = cParser.urlparse(sUrl)
+            
+                 # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
+            if 'youtube' in sUrl:
+                continue
+            elif sUrl.startswith('//'):
+                sUrl = 'https:' + sUrl
+            elif 'fasel' in sUrl:
+                sName = 'FaselHD'
+            hoster = {'link': sUrl, 'name': sName, 'displayedName':sName+' auto 2', 'resolveable': True, 'resolved': True} # Qualität Anzeige aus Release Eintrag
+            hosters.append(hoster)                   
+    if hosters:
+        hosters.append('getHosterUrl')
+    return hosters
 
 def getHosterUrl(sUrl=False):
     
