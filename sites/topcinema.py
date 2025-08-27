@@ -205,7 +205,7 @@ def showHosters():
                 if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
                 if 'youtube' in sUrl:
                   continue
-                if 'trgsfjll.sbs' in sUrl:
+                if 'streamwish' in sUrl:
                   sUrl = sUrl + "$$" + URL_MAIN
                 if 'vidhide' in sUrl:
                   sUrl = sUrl + "$$" + URL_MAIN
@@ -234,7 +234,7 @@ def showHosters():
              # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
             if 'youtube' in sUrl:
                 continue
-            if 'trgsfjll.sbs' in sUrl:
+            if 'streamwish' in sUrl:
                  sUrl = sUrl + "$$" + URL_MAIN
             if 'vidhide' in sUrl:
                 sUrl = sUrl + "$$" + URL_MAIN
