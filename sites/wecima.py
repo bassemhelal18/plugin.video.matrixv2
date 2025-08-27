@@ -301,6 +301,8 @@ def showHosters():
            shost = shost +'|Referer='+URL_MAIN
         if 'youtube' in shost:
             continue
+        if shost.startswith('?Key'):
+           continue
         elif shost.startswith('//'):
                shost = 'https:' + shost
         hoster = {'link': shost, 'name': sName, 'displayedName':sName+' '+sQuality, 'quality': sQuality, 'resolveable': True, 'resolved': True} # Qualität Anzeige aus Release Eintrag
