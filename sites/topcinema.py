@@ -209,6 +209,11 @@ def showHosters():
                   sUrl = sUrl + "$$" + URL_MAIN
                 if 'vidhide' in sUrl:
                   sUrl = sUrl + "$$" + URL_MAIN
+                if 'vidtube' in sUrl:
+                  sUrl = sUrl + "$$" + URL_MAIN
+                if 'updown' in sUrl:
+                  sUrl = sUrl.split('-1280')[0]
+                  sUrl = sUrl + "$$" + URL_MAIN    
                 elif sUrl.startswith('//'):
                     sUrl = 'https:' + sUrl
                 hoster = {'link': sUrl, 'name': sName, 'displayedName':sName} # Qualität Anzeige aus Release Eintrag
@@ -233,6 +238,11 @@ def showHosters():
                  sUrl = sUrl + "$$" + URL_MAIN
             if 'vidhide' in sUrl:
                 sUrl = sUrl + "$$" + URL_MAIN
+            if 'vidtube' in sUrl:
+                  sUrl = sUrl + "$$" + URL_MAIN
+            if 'updown' in sUrl:
+                  sUrl = sUrl.split('-1280')[0]
+                  sUrl = sUrl + "$$" + URL_MAIN          
             elif sUrl.startswith('//'):
                  sUrl = 'https:' + sUrl
             
