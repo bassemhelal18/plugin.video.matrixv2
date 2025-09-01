@@ -303,17 +303,19 @@ def getlinks(token,actionurl,sUrl):
             'referer': actionurl,
             'sec-fetch-dest':'empty',
 'sec-fetch-mode':'cors',
-'sec-fetch-site':'same-origin',
-'cookie':'cf_clearance=I9nx.yh3h6_Sg6RWEkolVwKWRntW1vL6eXEy8aT602Q-1743364415-1.2.1.1-8ASTk0GfGrFbG1qCOHFAb6r1Zl9m9.AViOtXMueCpWfyWo0N81r.0Kld1cJnyIOuBGF7baqn6tLQL0VbDwC5y1hQCHJYY.MPdYiG7RbGqEA_ZAFl4_JRl.O0.xS8MPYQ7Qr4izqGpOB6ZkOgvrSSYmmmLYeRL9gvB7ws30C84wU16nks6fOPvtjM9WUXMiRLnakvBLoPRnGoIysno1xd3rn8xmRq9dS3A_.M82nhYAIO3BCwWTqRBow7iDnOsqZQyny.CmLB5z4Jzuqx8Xrp5UdlXhwCEx6I1wbySX5p0szMt1sZZuWoHAXT1q7FX._6G_Wdbt1smGSpsViPaj8SkX_1iL.4qs8RL1J4HLLJvDkAJ_7xM4pACdGjfD1xWZc2rz36lnKC_SQCt16V2CuOaaMH7Bf61QecT1VXKciPtOQ; __eoi=ID=48ec88c4365a9b28:T=1743366976:RT=1743366976:S=AA-AfjZTNalKKKEAvXsyr1G8eV0b; _ga=GA1.1.211684426.1753959474; _ga_13FES6G8SF=GS2.1.s1756563641$o63$g1$t1756563668$j33$l0$h0; watch_servers_sid=3e6e864f1743194fb649b68a429df1a8; _ga_RLYB3E6BPM=GS2.1.s1756667413$o11$g1$t1756669183$j60$l0$h0'
-
-            }
+'sec-fetch-site':'same-origin'}
         
           payload= {'quality':sQual,
              'server':sServer,
              "csrf_token": token,
             }
-        
-          response = requests.post("https://m.gamehub.cam/get__watch__server/",data=payload,headers=headers)
+          cookies = {
+            "__eoi": "ID=48ec88c4365a9b28:T=1743366976:RT=1743366976:S=AA-AfjZTNalKKKEAvXsyr1G8eV0b",
+            "_ga": "GA1.1.211684426.1753959474",
+            "_ga_13FES6G8SF" : "GS2.1.s1756563641$o63$g1$t1756563668$j33$l0$h0",
+            "watch_servers_sid" : "8a4b56b5531ff5755640e809965a2ea5",
+            "_ga_RLYB3E6BPM":"GS2.1.s1756736891$o14$g1$t1756736968$j60$l0$h0"}
+          response = requests.post("https://m.gamehub.cam/get__watch__server/",data=payload,headers=headers,cookies=cookies)
           sHtmlContent = str(response.text).replace('\x00', '')
           
           sPattern = '"server":"([^"]+)"'
