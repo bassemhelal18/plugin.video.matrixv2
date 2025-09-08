@@ -189,13 +189,14 @@ def showHosters():
     isMatch, aResult = cParser.parse(sHtmlContent, pattern)
     if not isMatch: return
     for slink in aResult:
-        from requests import get
-          
-        headers={'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-                  'Accept-Language': 'en-US,en;q=0.9,ar;q=0.8,en-GB;q=0.7',
-                  'User-Agent' : common.RAND_UA,
-                  'Referer':slink.split('watch/')[0]}
-        sHtmlContent4 = get(slink,headers=headers).text
+        
+        oRequestHandler = cRequestHandler(slink)
+        oRequestHandler.addHeaderEntry('User-Agent', common.RAND_UA)
+        oRequestHandler.addHeaderEntry('Referer', slink.split('watch/')[0])
+        oRequestHandler.addHeaderEntry('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7')
+        oRequestHandler.addHeaderEntry('Accept-Language', 'en-US,en;q=0.9,ar;q=0.8,en-GB;q=0.7')
+        sHtmlContent4 = oRequestHandler.request()  
+        
         
     sPattern = 'data-link="?(.+?)"? '
     isMatch,aResult = cParser.parse(sHtmlContent4, sPattern)
