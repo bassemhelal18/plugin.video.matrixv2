@@ -189,11 +189,13 @@ def showEpisodes():
     
     if dataterm:
      urlseason = URL_MAIN + 'season__episodes/'
-     headears = {'x-requested-with':'XMLHttpRequest',
-                 'referer': urllib_parse.quote(sUrl, '%/:?=&!+')}
-     data = {'season_id': dataterm,
-                 'csrf_token': csrf__token}
-     sHtmlContent = requests.post(urlseason,data=data,headers=headears).text
+     oRequestHandler = cRequestHandler(urlseason,'POST')
+     oRequestHandler.addHeaderEntry('User-Agent', common.IOS_USER_AGENT)
+     oRequestHandler.addHeaderEntry('referer',  urllib_parse.quote(sUrl, '%/:?=&!+'))
+     oRequestHandler.addHeaderEntry('X-Requested-With', 'XMLHttpRequest')
+     oRequestHandler.addParameters('season_id', dataterm)
+     oRequestHandler.addParameters('csrf_token', csrf__token)
+     sHtmlContent = oRequestHandler.request()
       
      sHtmlContent = str(json.loads(sHtmlContent))
      pattern = '<a href="(.*?)".*?class="epi__num">.*?<b>(.*?)</b>'  # start element
@@ -237,36 +239,53 @@ def showHosters():
       # start element
     isactionurl, actionurl = cParser.parseSingleResult(sHtmlContent,'<a href="([^<]+)" class="btton watch__btn">' )
     if isactionurl:
-        headers = {'User-Agent': 'Mozilla/5.0 (iPad; CPU OS 13_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/87.0.4280.77 Mobile/15E148 Safari/604.1',
-                   'referer': URL_MAIN}
-        session = requests.Session()
-        r = session.get(actionurl, headers=headers)
-        sHtmlContent4 = r.text
+        
+        oRequestHandler = cRequestHandler(actionurl)
+        oRequestHandler.addHeaderEntry('User-Agent', common.IOS_USER_AGENT)
+        oRequestHandler.addHeaderEntry('referer', URL_MAIN)
+        cookies = oRequestHandler.getCookie('watch_servers_sid')
+        cookies = str(cookies.value) + ";"
+        sHtmlContent4 = oRequestHandler.request()
         
         isMatch, token = cParser.parseSingleResult(sHtmlContent4,'''['"]csrf__token['"]: ['"](.*?)["']''')
         if isMatch:
-            
-            sHtmlContent2 = str(getlinks(token,actionurl,sUrl))
-               
-        
+            sStart = 'class="qualities__list">'
+            sEnd = '</ul>'
+            sHtmlContent = cParser.abParse(sHtmlContent4, sStart, sEnd)
     
-    sPattern = "(https.*?),(.*?)'"
-    isMatch,aResult = cParser.parse(sHtmlContent2, sPattern)
+            pattern = '<div class="qu">(.+?)</div>'   # start element
+    
+            isMatch, aResult = cParser.parse(sHtmlContent, pattern)
+            if not isMatch: return
+            for sQual in aResult:
+                oRequestHandler = cRequestHandler('https://m.gamehub.cam/get__quality__servers/','POST')
+                oRequestHandler.addHeaderEntry('User-Agent', common.IOS_USER_AGENT)
+                oRequestHandler.addHeaderEntry('referer', actionurl)
+                oRequestHandler.addHeaderEntry('X-Requested-With', 'XMLHttpRequest')
+                oRequestHandler.addHeaderEntry("watch_servers_sid", cookies)
+                oRequestHandler.addParameters('quality', sQual)
+                oRequestHandler.addParameters('csrf_token', token)
+                sHtmlContent41 = oRequestHandler.request()
+                
+                sHtmlContent2 = getlinks(str(sHtmlContent41),actionurl,token,cookies)
+                
+                sPattern = "(https.*?),(.*?)'"
+                isMatch,aResult = cParser.parse(str(sHtmlContent2), sPattern)
      
-    if isMatch:
-       for shost, sQuality in aResult :
+                if isMatch:
+                 for shost, sQuality in aResult :
         
-        sName = cParser.urlparse(shost)
+                    sName = cParser.urlparse(shost)
         
-        if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
-        if 'youtube' in shost:
-            continue
-        if 'Gamezone' in sName:
-            sName = 'Arabseed'
-        elif shost.startswith('//'):
-               shost = 'https:' + shost
-        hoster = {'link': shost, 'name': sName, 'displayedName':sName+' '+sQuality, 'quality': sQuality} # Qualität Anzeige aus Release Eintrag
-        hosters.append(hoster)
+                    if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
+                    if 'youtube' in shost:
+                        continue
+                    if 'Gamezone' in sName:
+                       sName = 'Arabseed'
+                    elif shost.startswith('//'):
+                      shost = 'https:' + shost
+                    hoster = {'link': shost, 'name': sName, 'displayedName':sName+' '+sQuality, 'quality': sQuality} # Qualität Anzeige aus Release Eintrag
+                    hosters.append(hoster)
     
     
     if hosters:
@@ -289,41 +308,29 @@ def showSearch():
 def _search(oGui, sSearchText):
     showEntries(URL_SEARCH % cParser.quotePlus(sSearchText), oGui, sSearchText)
 
-def getlinks(token,actionurl,sUrl):
+def getlinks(sHtmlContent,actionurl,token,cookies):
+    sHtmlContent = json.loads(sHtmlContent)
+    sHtmlContent = sHtmlContent["html"]
+    listqual=[]
+    pattern = '''data-server=['"]([^"]+)['"].*?qu=['"]([^"]+)['"]'''   # start element
     
-    listqual = []
-    logger.info(actionurl)
-    for sServer in ('0', '1', '2', '3', '4', '5','6', '7','8'):
-        for sQual in ('1080', '720', '480', '360'):
-
-          headers = {'accept':
-'application/json, text/javascript, */*; q=0.01',
-            'x-requested-with' : 'XMLHttpRequest',
-            'origin':'https://m.gamehub.cam',
-            'referer': actionurl,
-            'sec-fetch-dest':'empty',
-'sec-fetch-mode':'cors',
-'sec-fetch-site':'same-origin'}
-        
-          payload= {'quality':sQual,
-             'server':sServer,
-             "csrf_token": token,
-            }
-          cookies = {
-            "__eoi": "ID=48ec88c4365a9b28:T=1743366976:RT=1743366976:S=AA-AfjZTNalKKKEAvXsyr1G8eV0b",
-            "_ga": "GA1.1.211684426.1753959474",
-            "_ga_13FES6G8SF" : "GS2.1.s1756563641$o63$g1$t1756563668$j33$l0$h0",
-            "watch_servers_sid" : "8a4b56b5531ff5755640e809965a2ea5",
-            "_ga_RLYB3E6BPM":"GS2.1.s1756736891$o14$g1$t1756736968$j60$l0$h0"}
-          response = requests.post("https://m.gamehub.cam/get__watch__server/",data=payload,headers=headers,cookies=cookies)
-          sHtmlContent = str(response.text).replace('\x00', '')
+    isMatch, aResult = cParser.parse(sHtmlContent, pattern)
+    if not isMatch: return
+    for server, sQual  in aResult:
+       
+       oRequestHandler = cRequestHandler('https://m.gamehub.cam/get__watch__server/','POST')
+       oRequestHandler.addHeaderEntry('User-Agent', common.IOS_USER_AGENT)
+       oRequestHandler.addHeaderEntry('referer', actionurl)
+       oRequestHandler.addHeaderEntry('X-Requested-With', 'XMLHttpRequest')
+       oRequestHandler.addHeaderEntry("watch_servers_sid", cookies)
+       oRequestHandler.addParameters('quality', sQual)
+       oRequestHandler.addParameters('server', server)
+       oRequestHandler.addParameters('csrf_token', token)
+       sHtmlContent42 = oRequestHandler.request()
+       sHtmlContent42 = json.loads(sHtmlContent42)
+       sHosterUrl = sHtmlContent42["server"]
           
-          sPattern = '"server":"([^"]+)"'
-          aResult = cParser.parse(sHtmlContent, sPattern)
-          if aResult[0]:
-            for aEntry in aResult[1]:
+       listqual.append(sHosterUrl+' ,'+sQual)
         
-                sHosterUrl = aEntry
-                listqual.append(sHosterUrl+' ,'+sQual)
-        
-    return listqual
+    return listqual      
+    
