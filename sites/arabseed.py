@@ -154,7 +154,7 @@ def showSeasons():
         cGui().addFolder(oGuiElement, params, True, total)
     else:
         
-        pattern = '<link rel="canonical" href="(.*?)".*?<meta property="og:title" content="(.*?)" />'  # start element
+        pattern = '<link rel="canonical" href="(.*?)".*?<title>(.*?)</title>'  # start element
         isMatch, aResult = cParser.parse(sHtmlContent, pattern)
         if  isMatch:
           total = len(aResult)
@@ -213,10 +213,10 @@ def showEpisodes():
         cGui().addFolder(oGuiElement, params, False, total)
     else:
        
-       sStart = '<div class="ContainerEpisodesList"'
-       sEnd = '<div style="clear: both;"></div>'
+       sStart = '<ul class="episodes__list boxs__wrapper d__flex flex__wrap">'
+       sEnd = '<div class="break__line"></div>'
        sHtmlContent = cParser.abParse(sHtmlContent, sStart, sEnd)
-       pattern = 'href="([^<]+)">.*?<em>([^<]+)</em>'  # start element
+       pattern = 'href="([^<]+)" class=.*?class="epi__num">الحلقة<b>(.*?)</b>'  # start element
        isMatch, aResult = cParser.parse(sHtmlContent, pattern)
        if  isMatch:
         total = len(aResult)
