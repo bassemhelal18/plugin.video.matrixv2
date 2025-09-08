@@ -194,11 +194,14 @@ def showHosters():
     if isMatch:
      for sIndex ,sId in aResult:
             siteUrl = URL_MAIN + '/wp-content/themes/Cima%20Now%20New/core.php?action=switch&index='+sIndex+'&id='+sId
-            hdr = {'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:66.0) Gecko/20100101 Firefox/66.0','referer' : URL_MAIN}
-            params = {'action':'switch','index':sIndex,'id':sId}                
-            import requests
-            St=requests.Session()
-            sHtmlContent2= St.get(siteUrl,headers=hdr,params=params).text
+            oRequestHandler = cRequestHandler(siteUrl)
+            oRequestHandler.addHeaderEntry('User-Agent', common.IOS_USER_AGENT)
+            oRequestHandler.addHeaderEntry('referer', URL_MAIN)
+            oRequestHandler.addHeaderEntry('X-Requested-With', 'XMLHttpRequest')
+            oRequestHandler.addParameters('action','switch')
+            oRequestHandler.addParameters('index',sIndex)
+            oRequestHandler.addParameters('id',sId)
+            sHtmlContent2 = oRequestHandler.request()
             
             sPattern =  '<iframe.+?src="([^"]+)"'
             isMatch, aResult = cParser().parse(sHtmlContent2,sPattern)
