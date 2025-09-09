@@ -244,7 +244,11 @@ def showHosters():
         oRequestHandler.addHeaderEntry('User-Agent', common.IOS_USER_AGENT)
         oRequestHandler.addHeaderEntry('referer', URL_MAIN)
         cookies = oRequestHandler.getCookie('watch_servers_sid')
-        cookies = str(cookies.value) + ";"
+        try:
+            cookies = cookies.value
+        except AttributeError:
+            cookies = str(cookies)
+        cookies = str(cookies) + ";"
         sHtmlContent4 = oRequestHandler.request()
         
         isMatch, token = cParser.parseSingleResult(sHtmlContent4,'''['"]csrf__token['"]: ['"](.*?)["']''')
