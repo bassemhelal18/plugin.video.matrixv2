@@ -210,7 +210,10 @@ class cTMDB:
             url = '%stv/%s/season/%s?api_key=%s&language=%s' % (self.URL, tmdb_id, season, self.api_key, self.lang)
             Data = cRequestHandler(url, ignoreErrors=True).request()
             if Data:
-                meta = json.loads(Data)
+                try:
+                    meta = json.loads(Data)
+                except Exception as e:
+                    meta = {}
         if 'id' in meta:
             _meta = {}
             if 'name' in meta and meta['name']:
