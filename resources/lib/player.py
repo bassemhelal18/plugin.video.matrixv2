@@ -7,9 +7,11 @@ from resources.lib.config import cConfig
 from xbmc import LOGINFO as LOGNOTICE, LOGERROR, LOGWARNING, log, executebuiltin, getCondVisibility, getInfoLabel
 
 LOGMESSAGE = cConfig().getLocalizedString(30166)
+
+
 class Matrixv2Player(xbmc.Player):
     def __init__(self, *args, **kwargs):
-        xbmc.Player.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.streamFinished = False
         self.streamSuccess = True
         self.playedTime = 0
@@ -18,7 +20,18 @@ class Matrixv2Player(xbmc.Player):
 
     def onPlayBackStarted(self):
         log(LOGMESSAGE + ' -> [player]: starting Playback', LOGNOTICE)
-        self.totalTime = self.getTotalTime()
+        import time
+        for i in range(5):  # retry up to 5 times
+            if self.isPlaying():
+                try:
+                    self.totalTime = self.getTotalTime()
+                    break
+                except RuntimeError:
+                    log(LOGMESSAGE + f' -> [player]: getTotalTime failed, retry {i+1}', LOGWARNING)
+            time.sleep(0.5)  # small delay before retry
+        else:
+            self.totalTime = 0  # fallback if still not available
+            log(LOGMESSAGE + ' -> [player]: getTotalTime unavailable', LOGERROR)
 
     def onPlayBackStopped(self):
         log(LOGMESSAGE + ' -> [player]: Playback stopped', LOGNOTICE)
