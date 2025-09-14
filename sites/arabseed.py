@@ -239,20 +239,15 @@ def showHosters():
       # start element
     isactionurl, actionurl = cParser.parseSingleResult(sHtmlContent,'<a href="([^<]+)" class="btton watch__btn">' )
     if isactionurl:
-        
         oRequestHandler = cRequestHandler(actionurl)
         oRequestHandler.addHeaderEntry('User-Agent', common.IOS_USER_AGENT)
         oRequestHandler.addHeaderEntry('referer', URL_MAIN)
-        cookies = oRequestHandler.getCookie('watch_servers_sid')
-        try:
-            cookies = cookies.value
-        except AttributeError:
-            cookies = str(cookies)
-        cookies = str(cookies) + ";"
         sHtmlContent4 = oRequestHandler.request()
         
         isMatch, token = cParser.parseSingleResult(sHtmlContent4,'''['"]csrf__token['"]: ['"](.*?)["']''')
         if isMatch:
+         ispsot_id, psot_id = cParser.parseSingleResult(sHtmlContent4,'''['"]psot_id['"]: ['"](.*?)["']''' )
+         if ispsot_id:
             sStart = 'class="qualities__list">'
             sEnd = '</ul>'
             sHtmlContent = cParser.abParse(sHtmlContent4, sStart, sEnd)
@@ -262,16 +257,16 @@ def showHosters():
             isMatch, aResult = cParser.parse(sHtmlContent, pattern)
             if not isMatch: return
             for sQual in aResult:
-                oRequestHandler = cRequestHandler('https://m.gamehub.cam/get__quality__servers/','POST')
+                oRequestHandler = cRequestHandler(URL_MAIN+'/get__quality__servers/','POST')
                 oRequestHandler.addHeaderEntry('User-Agent', common.IOS_USER_AGENT)
                 oRequestHandler.addHeaderEntry('referer', actionurl)
                 oRequestHandler.addHeaderEntry('X-Requested-With', 'XMLHttpRequest')
-                oRequestHandler.addHeaderEntry("watch_servers_sid", cookies)
                 oRequestHandler.addParameters('quality', sQual)
+                oRequestHandler.addParameters('post_id', psot_id)
                 oRequestHandler.addParameters('csrf_token', token)
                 sHtmlContent41 = oRequestHandler.request()
                 
-                sHtmlContent2 = getlinks(str(sHtmlContent41),actionurl,token,cookies)
+                sHtmlContent2 = getlinks(str(sHtmlContent41),actionurl,token,psot_id)
                 
                 sPattern = "(https.*?),(.*?)'"
                 isMatch,aResult = cParser.parse(str(sHtmlContent2), sPattern)
@@ -312,7 +307,7 @@ def showSearch():
 def _search(oGui, sSearchText):
     showEntries(URL_SEARCH % cParser.quotePlus(sSearchText), oGui, sSearchText)
 
-def getlinks(sHtmlContent,actionurl,token,cookies):
+def getlinks(sHtmlContent,actionurl,token, psot_id):
     sHtmlContent = json.loads(sHtmlContent)
     sHtmlContent = sHtmlContent["html"]
     listqual=[]
@@ -322,14 +317,14 @@ def getlinks(sHtmlContent,actionurl,token,cookies):
     if not isMatch: return
     for server, sQual  in aResult:
        
-       oRequestHandler = cRequestHandler('https://m.gamehub.cam/get__watch__server/','POST')
+       oRequestHandler = cRequestHandler(URL_MAIN+'get__watch__server/','POST')
        oRequestHandler.addHeaderEntry('User-Agent', common.IOS_USER_AGENT)
-       oRequestHandler.addHeaderEntry('referer', actionurl)
+       oRequestHandler.addHeaderEntry('referer', quote(actionurl, '/:?=&'))
        oRequestHandler.addHeaderEntry('X-Requested-With', 'XMLHttpRequest')
-       oRequestHandler.addHeaderEntry("watch_servers_sid", cookies)
        oRequestHandler.addParameters('quality', sQual)
        oRequestHandler.addParameters('server', server)
        oRequestHandler.addParameters('csrf_token', token)
+       oRequestHandler.addParameters('post_id', psot_id)
        sHtmlContent42 = oRequestHandler.request()
        sHtmlContent42 = json.loads(sHtmlContent42)
        sHosterUrl = sHtmlContent42["server"]
