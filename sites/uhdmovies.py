@@ -418,6 +418,7 @@ def get_mkv(id):
   for link in aResult:
       href_link = link.strip()
       if href_link.endswith(".mkv"):
+        href_link = href_link.replace(' ','.')
         return href_link,sRes
       else : return None, None
         
@@ -454,6 +455,7 @@ def get_mkv2(id):
     href_link = link.strip()
     if 'https://driveleech.org' in href_link:continue
     if href_link.endswith(".mkv"):
+        href_link = href_link.replace(' ','.')
         return href_link,sRes
   else : return None, None
 
