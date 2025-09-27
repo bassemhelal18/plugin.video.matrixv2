@@ -3,6 +3,7 @@
 
 
 
+import base64
 import os
 import re
 import xbmcaddon
@@ -29,7 +30,7 @@ DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'wecima.fil
 URL_MAIN = 'https://' + DOMAIN + '/'
 
 
-URL_MOVIES_English = URL_MAIN + 'category/أفلام/10-movies-english-افلام-اجنبي/list/recent/'
+URL_MOVIES_English = URL_MAIN + 'category/أفلام/10-movies-english-افلام-اجنبي/'
 URL_MOVIES_Arabic = URL_MAIN + 'category/افلام/افلام-عربي-arabic-movies/'
 URL_SERIES_English = URL_MAIN + 'category/%d9%85%d8%b3%d9%84%d8%b3%d9%84%d8%a7%d8%aa/5-series-english-%d9%85%d8%b3%d9%84%d8%b3%d9%84%d8%a7%d8%aa-%d8%a7%d8%ac%d9%86%d8%a8%d9%8a/'
 URL_SERIES_Arabic = URL_MAIN + 'category/مسلسلات/15-مسلسلات-عربيه-arabic-series/'
@@ -73,10 +74,10 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     if cConfig().getSetting('global_search_' + SITE_IDENTIFIER) == 'true':
         oRequest.cacheTime = 60 * 60 * 6  # 6 Stunden
     sHtmlContent = oRequest.request()
-    sStart = '<div class="Grid--WecimaPosts">'
+    sStart = '<div class="catalog-grid">'
     sEnd = '</wecima>'
     sHtmlContent = cParser.abParse(sHtmlContent, sStart, sEnd)
-    pattern = '<a href="([^<]+)" title="(.+?)">.+?image:url(.+?);"><div.+?class="year">(.+?)</span>'  # start element
+    pattern = '<div class="media-card__thumb">\s*<a href="([^"]+)"\s*title="([^"]+)".+?image:\s*url\((.*?)\).+?class="year">(.+?)</span>'  # start element
     isMatch, aResult = cParser.parse(sHtmlContent, pattern)
     if not isMatch:
         if not sGui: oGui.showInfo()
@@ -133,8 +134,12 @@ def showSeasons():
     sHtmlContent = oRequestHandler.request()
     
     seasonList =[]
-    pattern = 'href="([^<]+)">موسم(.+?)</a>'  # start element
-    isMatch, aResult = cParser.parse(sHtmlContent, pattern)
+    sStart = '<div class="seasons__list">'
+    sEnd = '<div class="episodes__list">'
+    sHtmlContent2 = cParser.abParse(sHtmlContent, sStart, sEnd)
+    pattern = '<a href="([^"]+)"\s*aria-label="([^"]+)"\s*>'  # start element
+    
+    isMatch, aResult = cParser.parse(sHtmlContent2, pattern)
     if  isMatch:
      total = len(aResult)
     
@@ -182,8 +187,7 @@ def showSeasons():
            total = len(aResult)
     
            for sUrl,sSeason in aResult:
-             sSeason = sSeason.replace(sName,'').replace('مترجمة','').replace('كامل','').replace('مترجم','').replace('فيلم','').replace('مشاهدة','').replace('مسلسل','').replace('اون','').replace('أون','').replace('لاين','').replace("الموسم العاشر","10").replace("الموسم الحادي عشر","11").replace("الموسم الثاني عشر","12").replace("الموسم الثالث عشر","13").replace("الموسم الرابع عشر","14").replace("الموسم الخامس عشر","15").replace("الموسم السادس عشر","16").replace("الموسم السابع عشر","17").replace("الموسم الثامن عشر","18").replace("الموسم التاسع عشر","19").replace("الموسم العشرون","20").replace("الموسم الحادي و العشرون","21").replace("الموسم الثاني و العشرون","22").replace("الموسم الثالث و العشرون","23").replace("الموسم الرابع والعشرون","24").replace("الموسم الخامس و العشرون","25").replace("الموسم السادس والعشرون","26").replace("الموسم السابع و العشرون","27").replace("الموسم الثامن والعشرون","28").replace("الموسم التاسع والعشرون","29").replace("الموسم الثلاثون","30").replace("الموسم الحادي و الثلاثون","31").replace("الموسم الثاني والثلاثون","32").replace("الموسم الثالث و الثلاثون","33").replace("الموسم الأول","1").replace("الموسم الاول","1").replace("الموسم الثاني","2").replace("الموسم الثالث","3").replace("الموسم الثالث","3").replace("الموسم الرابع","4").replace("الموسم الخامس","5").replace("الموسم السادس","6").replace("الموسم السابع","7").replace("الموسم الثامن","8").replace("الموسم التاسع","9").replace('موسم','').replace('الأرشيف','').strip()
-             
+             sSeason = sSeason.replace(sName,'').split('حلقة')[0].replace('مترجمة','').replace('كامل','').replace('مترجم','').replace('فيلم','').replace('مشاهدة','').replace('مسلسل','').replace('اون','').replace('أون','').replace('لاين','').replace("الموسم العاشر","10").replace("الموسم الحادي عشر","11").replace("الموسم الثاني عشر","12").replace("الموسم الثالث عشر","13").replace("الموسم الرابع عشر","14").replace("الموسم الخامس عشر","15").replace("الموسم السادس عشر","16").replace("الموسم السابع عشر","17").replace("الموسم الثامن عشر","18").replace("الموسم التاسع عشر","19").replace("الموسم العشرون","20").replace("الموسم الحادي و العشرون","21").replace("الموسم الثاني و العشرون","22").replace("الموسم الثالث و العشرون","23").replace("الموسم الرابع والعشرون","24").replace("الموسم الخامس و العشرون","25").replace("الموسم السادس والعشرون","26").replace("الموسم السابع و العشرون","27").replace("الموسم الثامن والعشرون","28").replace("الموسم التاسع والعشرون","29").replace("الموسم الثلاثون","30").replace("الموسم الحادي و الثلاثون","31").replace("الموسم الثاني والثلاثون","32").replace("الموسم الثالث و الثلاثون","33").replace("الموسم الأول","1").replace("الموسم الاول","1").replace("الموسم الثاني","2").replace("الموسم الثالث","3").replace("الموسم الثالث","3").replace("الموسم الرابع","4").replace("الموسم الخامس","5").replace("الموسم السادس","6").replace("الموسم السابع","7").replace("الموسم الثامن","8").replace("الموسم التاسع","9").replace('موسم','').replace('الأرشيف','').strip()
              isSeason,sSeason = cParser.parse(sSeason, '\d+')
              if not isSeason:
                sSeason='1'
@@ -214,8 +218,12 @@ def showEpisodes():
     sShowName = params.getValue('sName')
     
     
-    pattern = '<a class="hoverable activable.+?href="([^<]+)"><div class="Thumb"><span><i class="fa fa-play"></i></span></div><episodeArea><episodeTitle>([^<]+)</episodeTitle></episodeArea></a>'  # start element
-    isMatch, aResult = cParser.parse(sHtmlContent, pattern)
+    sStart = '<div class="episodes__list">'
+    sEnd = '</singlesection>'
+    sHtmlContent2 = cParser.abParse(sHtmlContent, sStart, sEnd)
+    pattern = '<a href="([^"]+)".+?class="hoverable activable.+?class="episode__title">([^<]+)</'  # start element
+    logger.info(sHtmlContent2)
+    isMatch, aResult = cParser.parse(sHtmlContent2, pattern)
     if isMatch:
      total = len(aResult)
      for sUrl, sEpisode in aResult:
@@ -271,10 +279,11 @@ def showHosters():
     sHtmlContent = oRequestHandler.request()
     
     
-    sPattern = '<btn data-url="([^<]+)" class="hoverable activable">'
+    sPattern = '<btn data-url="([^<]+)"'
     isMatch,aResult = cParser.parse(sHtmlContent, sPattern)
     if isMatch:
        for shost in aResult :
+        shost = base64.b64decode(shost).decode("utf-8",errors='ignore')
         sName = cParser.urlparse(shost)
         sName =  sName.split('.')[-2]
         if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
@@ -289,7 +298,7 @@ def showHosters():
     
     
     
-    sPattern = 'class="hoverable activable" target="_blank" href="([^<]+)"><quality>.*?</quality><resolution><i class=".+?"></i>([^<]+)</resolution>'
+    sPattern = '<a class="hoverable activable".+?href="([^"]+)">.*?<i class=".+?"></i>([^<]+)</resolution>'
     isMatch,aResult = cParser.parse(sHtmlContent, sPattern)
     if isMatch:
        for shost,sQuality  in aResult :
