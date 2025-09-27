@@ -75,7 +75,9 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
         oRequest.cacheTime = 60 * 60 * 6  # HTML Cache Zeit 6 Stunden
     
     sHtmlContent = oRequest.request()
-    
+    if 'cimanow_HTML_encoder' in sHtmlContent:
+       sHtmlContent = prase_function(sHtmlContent)
+       sHtmlContent =str(sHtmlContent.encode('latin-1'),'utf-8')
     pattern = '<article aria-label="post">.*?<a href="([^"]+).+?<li aria-label="year">(.+?)</li>.+?<li aria-label="title">([^<]+)<em>.+?data-src="(.+?)" width'
     isMatch, aResult = cParser.parse(sHtmlContent, pattern)
     if not isMatch:
@@ -210,7 +212,9 @@ def showHosters():
               if 'cimanowtv' in sUrl:
                   sUrl = sUrl +'$$'+URL_MAIN
               sName = cParser.urlparse(sUrl)
-              sName =  sName.split('.')[-2]
+              try :
+                  sName =  sName.split('.')[-2]
+              except: sName = sName    
               if cConfig().isBlockedHoster(sName)[0]: continue 
               if 'youtube' in sUrl:
                 continue
