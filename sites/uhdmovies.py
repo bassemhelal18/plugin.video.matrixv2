@@ -398,11 +398,11 @@ def _search(oGui, sSearchText):
     showEntries(URL_SEARCH % sSearchText, oGui, sSearchText)
 
 def get_mkv(id):
-  Request=cRequestHandler(f"https://driveleech.org/zfile/{id}")
-  Request.addHeaderEntry("Referer", "https://driveleech.org/")
-  Request.addHeaderEntry("Origin", "https://driveleech.org")
+  Request=cRequestHandler(f"https://driveseed.org/zfile/{id}")
+  Request.addHeaderEntry("Referer", f"https://driveseed.org/file/{id}")
+  Request.addHeaderEntry("Origin", "https://driveseed.org")
   response = Request.request()
-  
+       
   pattern = '<meta property="og:title" content=".*?((?:2160p|1080p|720p).*?)\.mkv.*?"/>'
   isMatch, aResult = cParser.parse(response, pattern)
   if not isMatch: return None,None
@@ -424,9 +424,9 @@ def get_mkv(id):
         
 
 def get_mkv2(id):
-  Request=cRequestHandler(f"https://driveleech.org/wfile/{id}")
-  Request.addHeaderEntry("Referer", "https://driveleech.org/")
-  Request.addHeaderEntry("Origin", "https://driveleech.org")
+  Request=cRequestHandler(f"https://driveseed.org/wfile/{id}")
+  Request.addHeaderEntry("Referer", "https://driveseed.org/")
+  Request.addHeaderEntry("Origin", "https://driveseed.org")
   response = Request.request()
   
   pattern = '<meta property="og:title" content=".*?((?:2160p|1080p|720p).*?)\.mkv.*?"/>'
@@ -440,9 +440,9 @@ def get_mkv2(id):
   if not isMatch: return None,None
   for link in aResult:
       
-      Request=cRequestHandler(f"https://driveleech.org{link}")
-      Request.addHeaderEntry("Referer", "https://driveleech.org/")
-      Request.addHeaderEntry("Origin", "https://driveleech.org")
+      Request=cRequestHandler(f"https://driveseed.org{link}")
+      Request.addHeaderEntry("Referer", "https://driveseed.org/")
+      Request.addHeaderEntry("Origin", "https://driveseed.org")
       response = Request.request()
       
    
