@@ -16,22 +16,32 @@ class Matrixv2Player(xbmc.Player):
         self.streamSuccess = True
         self.playedTime = 0
         self.totalTime = 999999
-        log(LOGMESSAGE + ' -> [player]: player instance created', LOGNOTICE)
+        self.from_global_search = False  # Track if started from Global Search
+        log(cConfig().getLocalizedString(30166) + ' -> [player]: player instance created', LOGNOTICE)
 
     def onPlayBackStarted(self):
-        log(LOGMESSAGE + ' -> [player]: starting Playback', LOGNOTICE)
-        import time
-        for i in range(5):  # retry up to 5 times
-            if self.isPlaying():
-                try:
-                    self.totalTime = self.getTotalTime()
-                    break
-                except RuntimeError:
-                    log(LOGMESSAGE + f' -> [player]: getTotalTime failed, retry {i+1}', LOGWARNING)
-            time.sleep(0.5)  # small delay before retry
-        else:
-            self.totalTime = 0  # fallback if still not available
-            log(LOGMESSAGE + ' -> [player]: getTotalTime unavailable', LOGERROR)
+        log(cConfig().getLocalizedString(30166) + ' -> [player]: starting Playback', LOGNOTICE)
+        try:
+            self.totalTime = self.getTotalTime()
+        except:
+            self.totalTime = 999999
+
+        # Detect if playback started from Global Search
+        try:
+            path = xbmc.getInfoLabel('Container.FolderPath')
+            if path:
+                low = path.lower()
+                keywords = [
+                    'function=globalsearch',
+                    'site=globalsearch',
+                    'function=searchalter',
+                    'function=searchtmdb'
+                ]
+                if any(kw in low for kw in keywords):
+                    self.from_global_search = True
+                    log(cConfig().getLocalizedString(30166) + ' -> [player]: Detected Global Search context', LOGNOTICE)
+        except:
+            pass
 
     def onPlayBackStopped(self):
         log(LOGMESSAGE + ' -> [player]: Playback stopped', LOGNOTICE)
@@ -39,6 +49,14 @@ class Matrixv2Player(xbmc.Player):
             self.streamSuccess = False
             log(LOGMESSAGE + ' -> [player]: Kodi failed to open stream', LOGERROR)
         self.streamFinished = True
+        # After playback ends, if we came from Global Search → return to main menu
+        if self.from_global_search:
+            try:
+                xbmc.executebuiltin('Container.Update(plugin://plugin.video.matrixv2/)')
+                log('Matrixv2 -> [player]: Returning to addon main menu after Global Search', LOGNOTICE)
+            except Exception as e:
+                log('Matrixv2 -> [player]: Failed to return to main menu: %s' % str(e), LOGERROR)
+
 
     def onPlayBackEnded(self):
         log(LOGMESSAGE + ' -> [player]: Playback completed', LOGNOTICE)

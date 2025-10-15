@@ -391,6 +391,22 @@ def getDNS(dns):
         loop += 1
     return status
 
+def getRepofromAddonsDB(addonID):
+    from sqlite3 import dbapi2 as database
+    from glob import glob
+    chdir(path.join(translatePath('special://database/')))
+    addonsDB = path.join(translatePath('special://database/'), sorted(glob("Addons*.db"), reverse=True)[0])
+    dbcon = database.connect(addonsDB)
+    dbcur = dbcon.cursor()
+    select = ("SELECT origin FROM installed WHERE addonID = '%s'") % addonID
+    dbcur.execute(select)
+    match = dbcur.fetchone()
+    dbcon.close()
+    if match and len(match) > 0:
+         repo = match[0]
+    else:
+        repo = ''
+    return repo
 class cCache(object):
     _win = None
 
