@@ -1349,7 +1349,7 @@ msgid "Wecima"
 msgstr ""
 
 msgctxt "#30713"
-msgid "NetzKino"
+msgid "Cimalight"
 msgstr ""
 
 msgctxt "#30714"
