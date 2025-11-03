@@ -23,7 +23,7 @@ if cConfig().getSetting('global_search_' + SITE_IDENTIFIER) == 'false':
     logger.info('-> [SitePlugin]: globalSearch for %s is deactivated.' % SITE_NAME)
 
 # Domain Abfrage
-DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'shahid4u.mom')
+DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'shahed4u.day')
 URL_MAIN = 'https://' + DOMAIN + '/'
 
 
@@ -208,8 +208,12 @@ def showHosters():
         if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
         if 'youtube' in shost:
             continue
-        if 'filegram' in sUrl:
-            sUrl = sUrl + "$$" + URL_MAIN
+        if 'filegram' in shost:
+            shost = shost + "$$" + URL_MAIN
+        if 'fdewsdc' in shost:
+            shost = shost + "$$" + URL_MAIN
+        if 'fsdcmo' in shost:
+            shost = shost + "$$" + URL_MAIN           
         elif shost.startswith('//'):
                shost = 'https:' + shost
         hoster = {'link': shost, 'name': sName, 'displayedName':sName} # Qualität Anzeige aus Release Eintrag
@@ -231,17 +235,21 @@ def showHosters():
         sPattern = 'href="([^"]+)'
         isMatch,aResult = cParser.parse(sHtmlContent1, sPattern)
         if isMatch:
-         for sUrl in aResult:
+         for sUrl3 in aResult:
           
-          sName = cParser.urlparse(sUrl)
+          sName = cParser.urlparse(sUrl3)
           if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
-          if 'youtube' in shost:
+          if 'youtube' in sUrl3:
             continue
-          if 'filegram' in sUrl:
-            sUrl = sUrl + "$$" + URL_MAIN
-          elif shost.startswith('//'):
-               shost = 'https:' + sUrl
-          hoster = {'link': sUrl, 'name': sName, 'displayedName':sName+' '+sQuality, 'quality': sQuality} # Qualität Anzeige aus Release Eintrag
+          if 'filegram' in sUrl3:
+            sUrl3 = sUrl3 + "$$" + URL_MAIN
+          if 'fdewsdc' in sUrl3:
+            sUrl3 = sUrl3 + "$$" + URL_MAIN
+          if 'fsdcmo' in sUrl3:
+            sUrl3 = sUrl3 + "$$" + URL_MAIN      
+          elif sUrl3.startswith('//'):
+               sUrl3 = 'https:' + sUrl3
+          hoster = {'link': sUrl3, 'name': sName, 'displayedName':sName+' '+sQuality, 'quality': sQuality} # Qualität Anzeige aus Release Eintrag
           hosters.append(hoster)
     if hosters:
         hosters.append('getHosterUrl')
@@ -261,7 +269,7 @@ def showSearch():
 
 
 def _search(oGui, sSearchText):
-    showEntries(URL_SEARCH % sSearchText, oGui, sSearchText)
+    showEntries(URL_SEARCH % cParser.quotePlus(sSearchText), oGui, sSearchText)
 
 
 def deescape(escaped):
