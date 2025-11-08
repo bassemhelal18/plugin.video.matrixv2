@@ -73,6 +73,9 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     isTvshow = False
     if not sUrl: sUrl = params.getValue('sUrl')
     oRequest = cRequestHandler(sUrl, ignoreErrors=(sGui is not False))
+    oRequest.addHeaderEntry('Accept', '*/*')
+    oRequest.addHeaderEntry('Accept-Encoding', 'gzip, deflate, br')
+    oRequest.addHeaderEntry('Connection', 'keep-alive')
     if cConfig().getSetting('global_search_' + SITE_IDENTIFIER) == 'true':
         oRequest.cacheTime = 60 * 60 * 6  # 6 Stunden
     sHtmlContent = oRequest.request()
