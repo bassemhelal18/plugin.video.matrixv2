@@ -50,7 +50,7 @@ class cMegamax:
          oParser = cParser()
         
          sVer = ''
-         sPattern = '"version":"([^"]+)'
+         sPattern = ',"version":"([^"]+)'
          aResult = oParser.parse(sHtmlContent1, sPattern)
          if aResult[0]:
             for aEntry in (aResult[1]):
