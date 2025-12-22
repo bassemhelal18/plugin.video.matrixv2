@@ -26,7 +26,7 @@ if cConfig().getSetting('global_search_' + SITE_IDENTIFIER) == 'false':
     logger.info('-> [SitePlugin]: globalSearch for %s is deactivated.' % SITE_NAME)
 
 # Domain Abfrage
-DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'egyrbyeteuh.sbs')
+DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'egydead.media')
 URL_MAIN = 'https://' + DOMAIN + '/'
 
 
@@ -70,7 +70,7 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     itemList =[]
     total = len(aResult)
     for sUrl, sName,sThumbnail  in aResult:
-        sName = sName.replace('مترجمة','').replace('الجزء','الموسم').replace('مترجم','').replace('فيلم','').replace('مشاهدة','').replace('مسلسل','').replace('اون','').replace('أون','').replace('لاين','').split('الموسم')[0].split('الحلقة')[0].replace('سلسل','').replace("كول سيما","").replace("جميع مواسم","").replace("كامل","").strip()
+        sName = sName.replace('مترجمة','').replace('الجزء','الموسم').replace('مترجم','').replace('فيلم','').replace('انمي','').replace('مشاهدة','').replace('مسلسل','').replace('اون','').replace('أون','').replace('لاين','').split('الموسم')[0].split('الحلقة')[0].replace('سلسل','').replace("كول سيما","").replace("جميع مواسم","").replace("كامل","").strip()
         sYear = ''
         m = re.search(r'(?<!^)(?<!\d)(19|20)\d{2}\b', sName)
         if m:
@@ -88,7 +88,7 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
               if not isTvshow:
                isTvshow, aResult = cParser.parse(unquote(sUrl),'series')
                if not isTvshow:
-                isTvshow, aResult = cParser.parse(unquote(sUrl),'episodes')
+                isTvshow, aResult = cParser.parse(unquote(sUrl),'episode')
             oGuiElement = cGuiElement(sName, SITE_IDENTIFIER, 'showSeasons' if isTvshow else 'showHosters')
             oGuiElement.setThumbnail(sThumbnail)
             oGuiElement.setMediaType('tvshow' if isTvshow else 'movie')

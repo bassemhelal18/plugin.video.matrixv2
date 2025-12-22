@@ -235,7 +235,8 @@ def showHosters():
                 sUrl = sUrl.split('?')[-1]
             if 'youtube' in sUrl:
                 continue
-            
+            if 'jetload' in sUrl:
+                continue
             if sUrl.startswith('//'):
                  sUrl = 'https:' + sUrl
             if  'filespayout' in sUrl: continue

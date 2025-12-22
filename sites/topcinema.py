@@ -201,12 +201,17 @@ def showHosters():
         isMatch, aResult = cParser().parse(sHtmlContent2,sPattern)
         if isMatch:
             for sUrl in aResult:
+                if 'play.php?to=' in sUrl:
+                  sUrl = 'https://'+sUrl.split('?to=')[-1]
                 sName = cParser.urlparse(sUrl)
+                
                 if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
                 if 'youtube' in sUrl:
                   continue
                 if 'streamwish' in sUrl:
                   sUrl = sUrl + "$$" + URL_MAIN
+                if 'earnvids' in sUrl:
+                  sUrl = sUrl + "$$" + URL_MAIN  
                 if 'vidhide' in sUrl:
                   sUrl = sUrl + "$$" + URL_MAIN    
                 if 'vidtube' in sUrl:
@@ -226,13 +231,18 @@ def showHosters():
     isMatch, aResult = cParser().parse(sHtmlContent, sPattern)
     if isMatch:
         for sUrl ,sQuality in aResult:
+            if 'play.php?to=' in sUrl:
+                  sUrl = 'https://'+sUrl.split('?to=')[-1]
             sName = cParser.urlparse(sUrl)
+            
             if cConfig().isBlockedHoster(sName)[0]: continue
              # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
             if 'youtube' in sUrl:
                 continue
             if 'streamwish' in sUrl:
                  sUrl = sUrl + "$$" + URL_MAIN
+            if 'earnvids' in sUrl:
+                  sUrl = sUrl + "$$" + URL_MAIN  
             if 'vidhide' in sUrl:
                 sUrl = sUrl + "$$" + URL_MAIN         
             if 'vidtube' in sUrl:
