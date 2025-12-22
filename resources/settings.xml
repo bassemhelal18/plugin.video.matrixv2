@@ -638,50 +638,6 @@
 					<control type="toggle"/>
 				</setting>
 			</group>
-			<group id="plugin_wecima" label="30712">
-				<setting id="plugin_wecima" type="boolean" label="30050" help="">
-					<level>0</level>
-                    <default>True</default>
-					<control type="toggle"/>
-				</setting>				
-				<setting id="global_search_wecima" type="boolean" label="30052">
-					<level>0</level>
-					<default>False</default>
-					<dependencies>
-						<dependency type="enable" operator="!is" setting="plugin_wecima">False</dependency>
-					</dependencies>
-					<control type="toggle"/>
-				</setting>
-				<!-- Domain Überprüfung mit automatischer und manueller Anpassung -->
-				<setting id="plugin_wecima_checkDomain" type="boolean" label="30277">
-					<level>3</level>
-					<default>True</default>
-					<dependencies>
-						<dependency type="enable" operator="!is" setting="plugin_wecima">false</dependency>
-						<dependency type="visible" operator="!is" setting="plugin_wecima">false</dependency>
-					</dependencies>
-					<control type="toggle"/>
-				</setting>
-				<setting id="plugin_wecima.domain" type="string" label="30278" help="">
-					<level>3</level>
-					<default/>
-					<constraints>
-						<allowempty>true</allowempty>
-					</constraints>
-					<dependencies>
-						<dependency type="enable" operator="!is" setting="plugin_wecima">false</dependency>
-						<dependency type="visible" operator="!is" setting="plugin_wecima">false</dependency>
-					</dependencies>
-					<control type="edit" format="string">
-						<heading>30278</heading>
-					</control>
-				</setting>
-				<setting id="plugin_wecima_status" type="string" label="Dummy" help="">
-					<visible>false</visible>
-					<default>true</default>
-					<control type="toggle"/>
-				</setting>
-			</group>
 		</category>
 		<category id="indexsite2" label="30095">
 			<group id="plugin_cimanow" label="30725">
