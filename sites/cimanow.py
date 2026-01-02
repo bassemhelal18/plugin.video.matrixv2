@@ -227,10 +227,15 @@ def showHosters():
     sStart = '<ul class="tabcontent" id="download">'
     sEnd = '</section>'
     sHtmlContent0 = cParser.abParse(sHtmlContent, sStart, sEnd)
-    pattern = '<a href="(.+?)".*?class.*?></i>(.*?)(?:<p>|</a>)'  # start element
+    pattern = r'<a\s+[^>]*href="([^"]+)"[^>]*>(.*?)<\/a>'
     isMatch, aResult = cParser().parse(sHtmlContent0, pattern)
+
     if isMatch:
-        for sUrl ,sQuality in aResult:
+     for sUrl, sContent in aResult:
+            
+            oQuality = re.search(r'([0-9]{3,4}p)', sContent)
+            sQuality = oQuality.group(1) if oQuality else ''
+            
             if 'https://href.li' in sUrl:
                 sUrl = sUrl.split('?')[-1]
             if 'youtube' in sUrl:
@@ -247,7 +252,7 @@ def showHosters():
                 sUrl = sUrl +'|AUTH=TLS&verifypeer=false&Referer='+URL_MAIN
                 sUrl = quote(sUrl, '/:=&?|')
             
-            hoster = {'link': sUrl, 'name': sName, 'displayedName':sName+' '+sQuality, 'quality': sQuality} # Qualität Anzeige aus Release Eintrag
+            hoster = {'link': sUrl, 'name': sName, 'displayedName':sName + ' ' + sQuality, 'quality': sQuality} # Qualität Anzeige aus Release Eintrag
             if 'cimanow' in sUrl:
                 hoster.update({ 'resolved': True})
             hosters.append(hoster)
