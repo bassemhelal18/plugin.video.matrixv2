@@ -247,13 +247,13 @@ def showHosters():
             if  'filespayout' in sUrl: continue
             if 'frdl' in sUrl: continue
             sName = cParser.urlparse(sUrl)
-            if 'cimanow' in sUrl:
+            if 'cimanowtv' in sUrl:
                 sName = 'CimaNow'
                 sUrl = sUrl +'|AUTH=TLS&verifypeer=false&Referer='+URL_MAIN
                 sUrl = quote(sUrl, '/:=&?|')
             
             hoster = {'link': sUrl, 'name': sName, 'displayedName':sName + ' ' + sQuality, 'quality': sQuality} # Qualität Anzeige aus Release Eintrag
-            if 'cimanow' in sUrl:
+            if 'verifypeer' in sUrl:
                 hoster.update({ 'resolved': True})
             hosters.append(hoster)
     if hosters:
