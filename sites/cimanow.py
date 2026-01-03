@@ -191,7 +191,7 @@ def showHosters():
        sHtmlContent = prase_function(sHtmlContent)
        sHtmlContent =str(sHtmlContent.encode('latin-1'),'utf-8')
     
-    pattern = 'data-index="([^"]+)".+?data-id="([^"]+)"' 
+    pattern = '<li data-index="([^"]+)"[\s\S]*?data-id="([^"]+)"' 
     isMatch, aResult = cParser().parse(sHtmlContent, pattern)
     if isMatch:
      for sIndex ,sId in aResult:
@@ -246,6 +246,7 @@ def showHosters():
                  sUrl = 'https:' + sUrl
             if  'filespayout' in sUrl: continue
             if 'frdl' in sUrl: continue
+            if 'fredl' in sUrl: continue
             sName = cParser.urlparse(sUrl)
             if 'cimanowtv' in sUrl:
                 sName = 'CimaNow'
