@@ -4,9 +4,10 @@
 import base64
 import os
 import re
+import time
 import xbmcaddon
 from resources.lib import common
-from urllib.parse import quote, unquote
+from urllib.parse import quote, unquote, urlparse
 from resources.lib.handler.ParameterHandler import ParameterHandler
 from resources.lib.handler.requestHandler import cRequestHandler
 from resources.lib.tools import logger, cParser
@@ -240,8 +241,7 @@ def showHosters():
                 sUrl = sUrl.split('?')[-1]
             if 'youtube' in sUrl:
                 continue
-            if 'jetload' in sUrl:
-                continue
+            
             if sUrl.startswith('//'):
                  sUrl = 'https:' + sUrl
             if  'filespayout' in sUrl: continue
@@ -254,7 +254,7 @@ def showHosters():
                 sUrl = quote(sUrl, '/:=&?|')
             
             hoster = {'link': sUrl, 'name': sName, 'displayedName':sName + ' ' + sQuality, 'quality': sQuality} # Qualität Anzeige aus Release Eintrag
-            if 'verifypeer' in sUrl:
+            if 'verifypeer' in sUrl or 'jetload' in sUrl.lower():
                 hoster.update({ 'resolved': True})
             hosters.append(hoster)
     if hosters:
@@ -263,9 +263,15 @@ def showHosters():
 
 
 def getHosterUrl(sUrl=False):
-    if 'verifypeer'in sUrl:
+
+    if 'verifypeer' in sUrl:
         return [{'streamUrl': sUrl, 'resolved': True}]
-    
+
+    if 'jetload' in sUrl.lower():
+        resolved = resolveJetload(sUrl)
+        if resolved:
+            return [{'streamUrl': resolved, 'resolved': True}]
+        
     return [{'streamUrl': sUrl, 'resolved': False}]
 
 def showSearch():
@@ -298,3 +304,58 @@ def prase_function(page):
                 nb = int(t_ch[0])+int(t_int[0])
                 page = page + chr(nb)
     return page
+
+def resolveJetload(sUrl):
+    try:
+        base_host = urlparse(sUrl).netloc
+        jetload_base = f"https://{base_host}/Jetload3/"
+
+        
+        oReq = cRequestHandler(sUrl, caching=False)
+        oReq.addHeaderEntry('Referer', URL_MAIN)
+        sHtml = oReq.request()
+
+        
+        oReq2 = cRequestHandler(jetload_base, caching=False)
+        oReq2.addHeaderEntry('Referer', oReq.getRealUrl())
+        sHtml2 = oReq2.request()
+
+        
+        data_token = re.search(r'data-token="([^"]+)"', sHtml2)
+        extra_token = re.search(r"window\.extraToken\s*=\s*'([^']+)'", sHtml2)
+        countdown = re.search(r'id="countdown-number">(\d+)</span>', sHtml2)
+
+        if not data_token or not extra_token:
+            
+            return False
+
+        if countdown:
+            time.sleep(int(countdown.group(1)))
+
+        
+        oReq3 = cRequestHandler(
+            jetload_base + 'get-link.php?token=' + data_token.group(1),
+            caching=False
+        )
+        
+        oReq3.addHeaderEntry('Referer', jetload_base)
+        oReq3.addHeaderEntry('X-Requested-With', 'XMLHttpRequest')
+        
+        intermediate = oReq3.request().strip().lstrip('\ufeff')
+        
+        if not intermediate:
+            return False
+
+        import requests
+        html3 = requests.get(intermediate+'?t='+extra_token.group(1),
+                            headers={"Referer": jetload_base},allow_redirects=False)
+
+        url = html3.headers.get("Location")
+        if url:
+            final_url = url+'|Referer=' + jetload_base
+            return final_url
+        
+    except Exception as e:
+        logger.error(f"Error resolving Jetload URL: {e}")
+        return False
+        
