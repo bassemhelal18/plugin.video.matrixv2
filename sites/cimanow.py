@@ -254,7 +254,7 @@ def showHosters():
                 sUrl = quote(sUrl, '/:=&?|')
             
             hoster = {'link': sUrl, 'name': sName, 'displayedName':sName + ' ' + sQuality, 'quality': sQuality} # Qualität Anzeige aus Release Eintrag
-            if 'verifypeer' in sUrl or 'jetload' in sUrl.lower():
+            if 'verifypeer' in sUrl :
                 hoster.update({ 'resolved': True})
             hosters.append(hoster)
     if hosters:
