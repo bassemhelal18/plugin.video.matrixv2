@@ -252,7 +252,7 @@ def showHosters():
             sName = cParser.urlparse(sUrl)
             if 'cimanowtv' in sUrl:
                 sName = 'CimaNow'
-                sUrl = sUrl +'|AUTH=TLS&verifypeer=false&Referer='+URL_MAIN
+                sUrl = sUrl +'|verifypeer=false&Referer='+URL_MAIN
                 sUrl = quote(sUrl, '/:=&?|')
             
             hoster = {'link': sUrl, 'name': sName, 'displayedName':sName + ' ' + sQuality, 'quality': sQuality} # Qualität Anzeige aus Release Eintrag
