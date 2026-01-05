@@ -247,6 +247,8 @@ def showHosters():
             if  'filespayout' in sUrl: continue
             if 'frdl' in sUrl: continue
             if 'fredl' in sUrl: continue
+            if 'jetload' in sUrl:
+                sUrl = resolveJetload(sUrl)
             sName = cParser.urlparse(sUrl)
             if 'cimanowtv' in sUrl:
                 sName = 'CimaNow'
@@ -254,7 +256,7 @@ def showHosters():
                 sUrl = quote(sUrl, '/:=&?|')
             
             hoster = {'link': sUrl, 'name': sName, 'displayedName':sName + ' ' + sQuality, 'quality': sQuality} # Qualität Anzeige aus Release Eintrag
-            if 'verifypeer' in sUrl :
+            if 'verifypeer' in sUrl or 'jetload' in sUrl.lower():
                 hoster.update({ 'resolved': True})
             hosters.append(hoster)
     if hosters:
@@ -264,14 +266,8 @@ def showHosters():
 
 def getHosterUrl(sUrl=False):
 
-    if 'verifypeer' in sUrl:
-        return [{'streamUrl': sUrl, 'resolved': True}]
-
-    if 'jetload' in sUrl.lower():
-        resolved = resolveJetload(sUrl)
-        if resolved:
-            return [{'streamUrl': resolved, 'resolved': True}]
-        
+    if 'verifypeer' in sUrl or 'jetload' in sUrl.lower():
+        return [{'streamUrl': sUrl, 'resolved': True}] 
     return [{'streamUrl': sUrl, 'resolved': False}]
 
 def showSearch():
