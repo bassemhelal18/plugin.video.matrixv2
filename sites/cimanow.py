@@ -134,11 +134,10 @@ def showSeasons():
     pattern = '<a\s*href="([^<]+)">([^<]+)<em>'  # start element
     
     isMatch, aResult = cParser.parse(sHtmlContent, pattern)
-    if not isMatch:
-        cGui().showInfo()
-        return
-    total = len(aResult)
-    for sUrl, sSeason in aResult:
+    if isMatch:
+        
+     total = len(aResult)
+     for sUrl, sSeason in aResult:
         sSeason = sSeason.replace('الموسم','')
         oGuiElement = cGuiElement('Season'+ sSeason, SITE_IDENTIFIER, 'showEpisodes')
         oGuiElement.setTVShowTitle(sName)
@@ -146,6 +145,15 @@ def showSeasons():
         oGuiElement.setMediaType('season')
         params.setParam('sUrl', sUrl.strip())
         cGui().addFolder(oGuiElement, params, True, total)
+    else:
+        sSeason='1'
+        oGuiElement = cGuiElement('Season'+' '+sSeason, SITE_IDENTIFIER, 'showEpisodes')
+        oGuiElement.setTVShowTitle(sName)
+        oGuiElement.setSeason(sSeason)
+        oGuiElement.setMediaType('season')
+        params.setParam('sThumbnail', sThumbnail)
+        params.setParam('sUrl', sUrl.strip())
+        cGui().addFolder(oGuiElement, params, True, 1)
     cGui().setView('seasons')
     cGui().setEndOfDirectory()
 
