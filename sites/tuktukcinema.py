@@ -203,7 +203,7 @@ def showHosters():
     if isMatch:
        for shost in aResult :
         shost = decode(shost)
-        if 'megamax' in shost or 'megatukmax' in shost or 'megaxmax' in shost:
+        if 'megamax' in shost or 'megatuktuk' in shost or 'megaxmax' in shost:
             shost,sframe = shost.split('iframe/')
             shost2 = 'https://megamax.me/iframe/' +sframe
             sHtmlContent2 = cMegamax().GetUrls(shost2)
