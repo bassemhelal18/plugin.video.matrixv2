@@ -31,8 +31,8 @@ DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'vid.my-cim
 URL_MAIN = 'https://' + DOMAIN + '/'
 
 
-URL_MOVIES_English = URL_MAIN + 'category-4cima.php?cat=english-movies-4Cima-7'
-URL_MOVIES_Arabic = URL_MAIN + 'categories-4cima.php?cat=aflam-3rby-4Cima-6'
+URL_MOVIES_English = URL_MAIN + 'categories-4cima.php?cat=english-movies-4cima-7'
+URL_MOVIES_Arabic = URL_MAIN + 'categories-4cima.php?cat=aflam-3rby-mycima-6'
 URL_SERIES_English = URL_MAIN + 'categories-4cima.php?cat=english-series-4Cima-1'
 URL_SERIES_Arabic = URL_MAIN + 'categories-4cima.php?cat=arabic-series-4Cima-5'
 URL_MOVIES_Kids = URL_MAIN + 'category-4cima.php?cat=anime-movies-4Cima'
@@ -75,7 +75,7 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     if cConfig().getSetting('global_search_' + SITE_IDENTIFIER) == 'true':
         oRequest.cacheTime = 60 * 60 * 6  # 6 Stunden
     sHtmlContent = oRequest.request()
-    pattern = '<li class="col-xs-6 col-sm-4 col-md-3">.*?<a href="(.*?)" title="(.*?)".*?<img src="(.*?)" alt'
+    pattern = '<li class="col-xs-6 col-sm-.*?<a href="(.*?)" title="(.*?)".*?<img src="(.*?)" alt'
     isMatch, aResult = cParser.parse(sHtmlContent, pattern)
     if not isMatch:
         if not sGui: oGui.showInfo()
