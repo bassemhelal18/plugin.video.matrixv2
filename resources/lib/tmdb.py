@@ -200,6 +200,7 @@ class cTMDB:
             for e in meta['episodes']:
                 if 'episode_number':
                     if e['episode_number'] == int(episode):
+                        e['tmdb_id'] = tmdb_id
                         return self._format_episodes(e, name)
         else:
             return {}
@@ -236,6 +237,10 @@ class cTMDB:
 
     def _format_episodes(self, meta, name):
         _meta = {}
+        if 'id' in meta:
+            _meta['tmdb_episode_id'] = meta['id']
+        if 'tmdb_id' in meta:
+            _meta['tmdb_id'] = meta['tmdb_id']
         if 'air_date' in meta and meta['air_date']:
             _meta['aired'] = meta['air_date']
         if 'episode_number' in meta and meta['episode_number']:

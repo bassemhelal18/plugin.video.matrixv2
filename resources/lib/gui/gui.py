@@ -109,9 +109,6 @@ class cGui:
         videoInfoTag.setTvShowTitle(str(itemValues.get('tvshowtitle', '').strip()))
         videoInfoTag.setTitle(str(itemValues.get('title', "")))
         videoInfoTag.setOriginalTitle(str(itemValues.get('originaltitle', "")))
-        tmdb_id = itemValues.get('tmdb_id')
-        if tmdb_id:
-           videoInfoTag.setUniqueIDs({'tmdb': str(tmdb_id)},'tmdb')
         videoInfoTag.setPlot(str(itemValues.get('plot', "")))
         videoInfoTag.setPlotOutline(str(itemValues.get('tagline', "")))
         videoInfoTag.setYear(int(itemValues.get('year', 0)))
@@ -132,7 +129,13 @@ class cGui:
          videoInfoTag.setSeason(int(itemValues.get('season', 0)))
          videoInfoTag.setEpisode(int(itemValues.get('episode', 0)))
         videoInfoTag.setResumePoint(float(itemValues.get('resumetime', 0.0)), float(itemValues.get('totaltime', 0.0)))
-        
+        tmdb_id = itemValues.get('tmdb_id')             # Show or movie ID
+        tmdb_ep = itemValues.get('tmdb_episode_id')     # Episode ID, if applicable
+        media_type = oGuiElement._mediaType
+        if media_type in ['movie', 'tvshow'] and tmdb_id:
+            videoInfoTag.setUniqueIDs({'tmdb': str(tmdb_id)}, 'tmdb')
+        elif media_type == 'episode':
+            videoInfoTag.setUniqueIDs({'tmdb': str(tmdb_ep),'tvshow.tmdb': str(tmdb_id)}, 'tmdb')
         listitem.setProperty('fanart_image', oGuiElement.getFanart())
         listitem.setArt({'icon': oGuiElement.getIcon(), 'thumb': oGuiElement.getThumbnail(), 'poster': oGuiElement.getThumbnail(), 'fanart': oGuiElement.getFanart()})
         aProperties = oGuiElement.getItemProperties()
