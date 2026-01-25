@@ -109,7 +109,9 @@ class cGui:
         videoInfoTag.setTvShowTitle(str(itemValues.get('tvshowtitle', '').strip()))
         videoInfoTag.setTitle(str(itemValues.get('title', "")))
         videoInfoTag.setOriginalTitle(str(itemValues.get('originaltitle', "")))
-        videoInfoTag.setUniqueIDs(itemValues.get('tmdb_id', ""),'tmdb')
+        tmdb_id = itemValues.get('tmdb_id')
+        if tmdb_id:
+           videoInfoTag.setUniqueIDs({'tmdb': str(tmdb_id)},'tmdb')
         videoInfoTag.setPlot(str(itemValues.get('plot', "")))
         videoInfoTag.setPlotOutline(str(itemValues.get('tagline', "")))
         videoInfoTag.setYear(int(itemValues.get('year', 0)))
