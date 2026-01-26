@@ -131,6 +131,9 @@ class cGui:
         videoInfoTag.setResumePoint(float(itemValues.get('resumetime', 0.0)), float(itemValues.get('totaltime', 0.0)))
         tmdb_id = itemValues.get('tmdb_id')             # Show or movie ID
         tmdb_ep = itemValues.get('tmdb_episode_id')     # Episode ID, if applicable
+        imdb_id = itemValues.get('imdb_id')
+        if imdb_id:
+          videoInfoTag.setUniqueIDs({'imdb': str(imdb_id)}, 'imdb')
         media_type = oGuiElement._mediaType
         if media_type in ['movie', 'tvshow'] and tmdb_id:
             videoInfoTag.setUniqueIDs({'tmdb': str(tmdb_id)}, 'tmdb')

@@ -135,6 +135,9 @@ class cHosterGui:
         tmdb_id = data.get('tmdb_id')             # Show or movie ID
         tmdb_ep = data.get('tmdb_episode_id')     # Episode ID, if applicable
         media_type = data.get('mediatype')
+        imdb_id = data.get('imdb_id')
+        if imdb_id:
+          videoInfoTag.setUniqueIDs({'imdb': str(imdb_id)}, 'imdb')
         if media_type in ['movie', 'tvshow'] and tmdb_id:
             videoInfoTag.setUniqueIDs({'tmdb': str(tmdb_id)}, 'tmdb')
         elif media_type == 'episode':
