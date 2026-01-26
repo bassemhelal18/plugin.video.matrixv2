@@ -35,7 +35,7 @@ class cHosterGui:
         fileName = params.getValue('MovieTitle')
         
         if params.getValue('mediaType')=='episode':
-         value = cTMDB().get_meta_episodes( params.getValue('mediaType'), name=params.getValue('sName'), tmdb_id=params.getValue('tmdbID'), season=params.getValue('season'),episode=params.getValue('episode'), advanced='true')
+         value = cTMDB().get_meta_episodes( params.getValue('mediaType'), name=params.getValue('sName'), year=params.getValue('sYear'), season=params.getValue('season'),episode=params.getValue('episode'), advanced='true')
         else:
          value = cTMDB().get_meta( params.getValue('mediaType'), name=fileName, tmdb_id=params.getValue('tmdbID'), advanced='true')
 

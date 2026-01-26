@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 # Python 3
 
+
 import json
 import re
 
 from requestHandler import cRequestHandler
 from resources.lib.config import cConfig
 from urllib.parse import quote_plus
+from resources.lib.tools import logger
 from xbmcaddon import Addon
 
 class cTMDB:
@@ -184,8 +186,15 @@ class cTMDB:
         else:
             return Language
 
-    def get_meta_episodes(self, media_type, name, tmdb_id='', season='', episode='', advanced='false'):
+    def get_meta_episodes(self, media_type, name, year='', season='', episode='', advanced='false'):
         meta = {}
+        result = self.search_tvshow_name(name, year, advanced=advanced)
+
+        if not result or 'tmdb_id' not in result or not result['tmdb_id']:
+            return {}  # or return None
+
+        tmdb_id = result['tmdb_id']
+
         if media_type == 'episode' and tmdb_id and season and episode:
             url = '%stv/%s/season/%s?api_key=%s&language=%s' % (self.URL, tmdb_id, season, self.api_key,self.lang)
             Data = cRequestHandler(url, ignoreErrors=True).request()
