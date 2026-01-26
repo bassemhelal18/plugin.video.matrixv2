@@ -106,41 +106,39 @@ class cHosterGui:
                  list_item.setProperty('inputstream.adaptive.manifest_headers', header)
                  list_item.setProperty('inputstream.adaptive.stream_params', header)
                 elif vers > 19:list_item.setProperty('inputstream.adaptive.manifest_headers', header)
-        info_tag=ListItemInfoTag(list_item,'video')
-        info={
-            'mediatype':str(data.get('mediatype', "")),
-            'tvshowtitle':str(data.get('showTitle', "")),
-            'title' : str(data.get('title', "")),
-            'originaltitle':str(data.get('originaltitle', "")),
-            'plot':str(data.get('plot', "")),
-            'imdbnumber':str(data.get('imdb_id', "")),
-            'plotoutline':str(data.get('tagline', "")),
-            'year':int(data.get('year', 0)),
-            'rating':float(data.get('rating', 0.0)),
-            'mpaa':str(data.get('mpaa', "")),
-            'duration':int(data.get('duration', 0)),
-            'playcount':int(data.get('playcount', 0)),
-            'trailer':str(data.get('trailer', "")),
-            'tagline':str(data.get('tagline', "")),
-            'studio':list(data.get('studio', '').split("/")),
-            'writer':list(data.get('writer', '').split("/")),
-            'director':list(data.get('director', '').split("/")),
-            'genre':''.join(data.get('genre', [""])).split('/'),
-            'premiered':str(data.get('premiered', "")),
-            'dateadded':str(data.get('date'))
-        }
+        
+        videoInfoTag = list_item.getVideoInfoTag()
+        videoInfoTag.setMediaType(str(data.get('mediatype', '')))
+        videoInfoTag.setTvShowTitle(str(data.get('showTitle', '').strip()))
+        videoInfoTag.setTitle(str(data.get('title', "")))
+        videoInfoTag.setOriginalTitle(str(data.get('originaltitle', "")))
+        videoInfoTag.setPlot(str(data.get('plot', "")))
+        videoInfoTag.setPlotOutline(str(data.get('tagline', "")))
+        videoInfoTag.setYear(int(data.get('year', 0)))
+        videoInfoTag.setRating(float(data.get('rating', 0.0)))
+        videoInfoTag.setMpaa(str(data.get('mpaa', "")))
+        videoInfoTag.setPremiered(str(data.get('premiered', "")))
+        videoInfoTag.setDateAdded(str(data.get('date')))
+        videoInfoTag.setFirstAired(str(data.get('aired')))
+        videoInfoTag.setDuration(int(data.get('duration', 0)))
+        videoInfoTag.setPlaycount(int(data.get('playcount', 0)))
+        videoInfoTag.setTrailer(str(data.get('trailer', "")))
+        videoInfoTag.setTagLine(str(data.get('tagline', "")))
+        videoInfoTag.setStudios(list(data.get('studio', '').split("/")))
+        videoInfoTag.setWriters(list(data.get('writer', '').split("/")))
+        videoInfoTag.setDirectors(list(data.get('director', '').split("/")))
+        videoInfoTag.setGenres(''.join(data.get('genre', [""])).split('/'))
         if data.get('mediatype')!='movie':
-         info.update({'season':int(data.get('season')),
-                      'episode':int(data.get('episode'))})
-        tmdb = {'tmdb':'{0}'.format(data.get('tmdb_id', "")),'imdb':'{0}'.format(data.get('imbd_id', ""))}
-        info_tag.set_unique_ids(tmdb)
-        info_tag.set_resume_point({'ResumeTime': data.get('resumetime', 0.0),
-                                   'TotalTime': data.get('totaltime', 0.0)})
-        info_tag.set_info(info)
-        list_item.setArt({'poster': data.get('cover_url'),
-                           'thumb': data.get('cover_url'),
-                           'icon': data.get('cover_url'),
-                          'fanart': data.get('backdrop_url')})
+         videoInfoTag.setSeason(int(data.get('season', 0)))
+         videoInfoTag.setEpisode(int(data.get('episode', 0)))
+        videoInfoTag.setResumePoint(float(data.get('resumetime', 0.0)), float(data.get('totaltime', 0.0)))
+        tmdb_id = data.get('tmdb_id')             # Show or movie ID
+        tmdb_ep = data.get('tmdb_episode_id')     # Episode ID, if applicable
+        media_type = data.get('mediatype')
+        if media_type in ['movie', 'tvshow'] and tmdb_id:
+            videoInfoTag.setUniqueIDs({'tmdb': str(tmdb_id)}, 'tmdb')
+        elif media_type == 'episode':
+            videoInfoTag.setUniqueIDs({'tmdb': str(tmdb_ep),'tvshow.tmdb': str(tmdb_id)}, 'tmdb')
         list_item.setProperty('IsPlayable', 'true')
         if cGui().pluginHandle > 0:
             xbmcplugin.setResolvedUrl(cGui().pluginHandle, True, list_item)
