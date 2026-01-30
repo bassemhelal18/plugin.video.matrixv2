@@ -230,7 +230,7 @@ msgid "PyLoad on/off"
 msgstr ""
 
 msgctxt "#30083"
-msgid "E-Mail"
+msgid "Username"
 msgstr ""
 
 msgctxt "#30084"
@@ -1135,15 +1135,15 @@ msgid "Animated Movies"
 msgstr ""
 
 msgctxt "#30505"
-msgid "Documentations"
+msgid "Live"
 msgstr ""
 
 msgctxt "#30506"
-msgid "Genre"
+msgid "Movies"
 msgstr ""
 
 msgctxt "#30507"
-msgid "Categories"
+msgid "TVSHOWS"
 msgstr ""
 
 msgctxt "#30508"
@@ -1337,7 +1337,7 @@ msgid "UHDMovies"
 msgstr ""
 
 msgctxt "#30710"
-msgid "Megakino"
+msgid "xsteam"
 msgstr ""
 
 msgctxt "#30711"

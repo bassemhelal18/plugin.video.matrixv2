@@ -241,7 +241,81 @@
 				</setting>
 			</group>
         </category>
+		<category id="account" label="30024" help="">
+			<group id="xstreamacc" label="30710">
+				<setting id="xstream.user" type="string" label="30083" help="">
+					<level>0</level>
+					<default/>
+					<constraints>
+						<allowempty>true</allowempty>
+					</constraints>
+					<control type="edit" format="string">
+						<heading>30083</heading>
+					</control>
+				</setting>
+				<setting id="xstream.pass" type="string" label="30084" help="">
+					<level>0</level>
+					<default/>
+					<constraints>
+						<allowempty>true</allowempty>
+					</constraints>
+					<control type="edit" format="string">
+						<heading>30084</heading>
+						<hidden>true</hidden>
+					</control>
+				</setting>
+			</group>
+		</category>
 		<category id="indexsite1" label="30094">
+			<group id="xstream" label="30710">
+				<setting id="plugin_xstream" type="boolean" label="30050" help="30411">
+					<level>0</level>
+					<default>True</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="global_search_xstream" type="boolean" label="30052">
+					<level>0</level>
+					<default>True</default>
+					<dependencies>
+						<dependency type="enable" operator="!is" setting="plugin_xstream">False</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<!-- Domain Überprüfung mit automatischer und manueller Anpassung -->
+				<setting id="plugin_xstream_checkDomain" type="boolean" label="30277">
+					<level>3</level>
+					<default>True</default>
+					<dependencies>
+						<dependency type="enable" operator="!is" setting="plugin_xstream">false</dependency>
+						<dependency type="visible" operator="!is" setting="plugin_xstream">false</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="plugin_xstream.domain" type="string" label="30278" help="">
+					<level>3</level>
+					<default>tv.nv2.info</default>
+					<constraints>
+						<options>
+							<option label="Xstream1">sa.savpn.xyz</option>
+							<option label="Xstream2">de.muns.gs:2095</option>
+							<option label="Xstream3">a.nvpro.tv:80</option>
+							<allowempty>true</allowempty>
+						</options>
+					</constraints>
+					<dependencies>
+						<dependency type="enable" operator="!is" setting="plugin_xstream">false</dependency>
+						<dependency type="visible" operator="!is" setting="plugin_xstream">false</dependency>
+					</dependencies>
+					<control type="spinner" format="string">
+						<heading>30278</heading>
+					</control>
+				</setting>
+				<setting id="plugin_xstream_status" type="string" label="Dummy" help="">
+					<visible>false</visible>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+			</group>
 			<group id="plugin_faselhd" label="30700">
 				<setting id="plugin_faselhd" type="boolean" label="30050" help="">
 					<level>0</level>
