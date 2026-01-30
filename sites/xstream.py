@@ -1,16 +1,11 @@
-import json
 from resources.lib import common
-import xbmcgui
 from resources.lib.handler.ParameterHandler import ParameterHandler
 from resources.lib.handler.requestHandler import cRequestHandler
 from resources.lib.tools import logger, cParser, cUtil
 from resources.lib.gui.guiElement import cGuiElement
 from resources.lib.config import cConfig
 from resources.lib.gui.gui import cGui
-import base64
-import os
-import re
-import xbmcaddon
+import os, re, xbmcaddon,json,xbmcgui
 
 
 SITE_IDENTIFIER = 'xstream'
@@ -36,9 +31,8 @@ URL_MAIN = 'https://' + DOMAIN
 livetv = URL_MAIN + '/player_api.php?username=%s&password=%s&action=get_live' % (username, password)
 series = URL_MAIN + '/player_api.php?username=%s&password=%s&action=get_series' % (username, password)
 movies = URL_MAIN + '/player_api.php?username=%s&password=%s&action=get_vod' % (username, password)
-URL_SEARCH = URL_MAIN + '/player_api.php?username=%s&password=%s&action=search&search=%s' % (username, password, '%s')
 
-#
+
 
 def load(): # Menu structure of the site plugin
     logger.info('Load %s' % SITE_NAME)
@@ -153,7 +147,7 @@ def showEpisodes():
         oGuiElement.setMediaType('episode')
         params.setParam('sID', ep['id'])
         params.setParam('ext', ep.get('container_extension', 'mp4'))
-        params.setParam('sUrl', params.getValue('sUrl') + '&id=' + str(ep['id']))   
+        params.setParam('sUrl','get_series')   
         cGui().addFolder(oGuiElement, params, False)
     cGui().setView('episodes')
     cGui().setEndOfDirectory()
@@ -174,7 +168,7 @@ def showHosters():
         playUrl = f'{URL_MAIN}/series/{username}/{password}/{sID}.{ext}'
     else:
         playUrl = f'{URL_MAIN}/movie/{username}/{password}/{sID}.{ext}'
-    hoster = {'link': playUrl, 'name': 'Direct', 'displayedName':'Direct', 'resolveable': True, 'resolved': True} # Qualität Anzeige aus Release Eintrag
+    hoster = {'link': playUrl + f'|user-agent={common.RAND_UA}', 'name': 'Direct', 'displayedName':'Direct', 'resolveable': True, 'resolved': True} # Qualität Anzeige aus Release Eintrag
     hosters.append(hoster)
     if hosters:
         hosters.append('getHosterUrl')
@@ -186,79 +180,90 @@ def getHosterUrl(sUrl):
 
 
 def showSearch():
-    sSearchText = cGui().showKeyBoard(
-        sHeading=cConfig().getLocalizedString(30281)
-    )
-    if not sSearchText:
-        return
+    sSearchText = cGui().showKeyBoard(sHeading=cConfig().getLocalizedString(30281))
+    if not sSearchText: return
+    _search(False, sSearchText)
+    cGui().setEndOfDirectory()
 
-    oGui = cGui()
 
-    # search live
-    _searchXtream(
-        oGui,
-        URL_MAIN + f'/player_api.php?username={username}&password={password}&action=get_live_streams',
-        sSearchText
-    )
+def _search(oGui, sSearchText):
+    _searchXtream(oGui, sSearchText)
 
-    # search movies
-    _searchXtream(
-        oGui,
+def _searchXtream(sGui=False, sSearchText=False):
+    oGui = sGui if sGui else cGui()
+
+    urls = [
         URL_MAIN + f'/player_api.php?username={username}&password={password}&action=get_vod_streams',
-        sSearchText
-    )
-
-    # search series
-    _searchXtream(
-        oGui,
         URL_MAIN + f'/player_api.php?username={username}&password={password}&action=get_series',
-        sSearchText
-    )
+        URL_MAIN + f'/player_api.php?username={username}&password={password}&action=get_live_streams'
+    ]
 
-    oGui.setEndOfDirectory()
+    # Make search case-insensitive
+    search_pattern = re.compile(re.escape(sSearchText), re.IGNORECASE)
 
-def _searchXtream(oGui, url, sSearchText):
-    oRequest = cRequestHandler(url)
-    data = json.loads(oRequest.request())
+    
 
-    if not isinstance(data, list):
-        return
-
-    sSearchText = sSearchText.lower()
-
-    for item in data:
-        title = item.get('name', '')
-        if sSearchText not in title.lower():
+    for api_url in urls:
+        oRequest = cRequestHandler(api_url)
+        data = json.loads(oRequest.request())
+        
+        if not isinstance(data, list):
             continue
 
-        isSeries = 'series_id' in item
-        isLive = 'get_live_streams' in url
+        for item in data:
+            
+            title = item.get('name', '')
+            
+            # Use re.search instead of "in" for more flexible matching
+            if not search_pattern.search(title):
+                continue
+            
+            isSeries = 'series_id' in item
 
-        sID = item.get('series_id') if isSeries else item.get('stream_id')
-        thumb = item.get('stream_icon') or item.get('cover', '')
-        ext = item.get('container_extension', 'mp4')
+            # ===================== SERIES =====================
+            if isSeries:
+                sID = item['series_id']
+                thumb = item.get('cover', '')
 
-        # Decide target function
-        target = 'showSeasons' if isSeries else 'showHosters'
+                oGuiElement = cGuiElement(title, SITE_IDENTIFIER, 'showSeasons')
+                oGuiElement.setMediaType('tvshow')
+                oGuiElement.setThumbnail(thumb)
 
-        oGuiElement = cGuiElement(title, SITE_IDENTIFIER, target)
-        oGuiElement.setThumbnail(thumb)
+                params = ParameterHandler()
+                params.setParam('sID', sID)
+                params.setParam('sName', title)
+                params.setParam(
+                    'sUrl',
+                    URL_MAIN + f'/player_api.php?username={username}&password={password}&action=get_series_info&id={sID}'
+                )
 
-        if isSeries:
-            oGuiElement.setMediaType('tvshow')
-        elif isLive:
-            oGuiElement.setMediaType('video')
-        else:
-            oGuiElement.setMediaType('movie')
+                oGui.addFolder(oGuiElement, params, True)
 
-        params = ParameterHandler()
-        params.setParam('sID', sID)
-        params.setParam('sName', title)
-        params.setParam('sUrl', url)
-        params.setParam('ext', ext)
+            # ===================== MOVIE =====================
+            else:
+                sID = item['stream_id']
+                
+                thumb = item.get('stream_icon', '')
+                ext = item.get('container_extension', 'mp4')
 
-        oGui.addFolder(oGuiElement, params, isSeries)
+                oGuiElement = cGuiElement(title, SITE_IDENTIFIER, 'showHosters')
+                oGuiElement.setMediaType('movie')
+                oGuiElement.setThumbnail(thumb)
 
+                params = ParameterHandler()
+                params.setParam('sID', sID)
+                params.setParam('ext', ext)
+                params.setParam('sName', title)
+                params.setParam(
+                    'sUrl',
+                    URL_MAIN + f'/player_api.php?username={username}&password={password}&action=get_vod&id={sID}'
+                )
+
+                oGui.addFolder(oGuiElement, params, False)
+    
+        
+    oGui.setView('tvshows' if isSeries else 'movies')
+    oGui.setEndOfDirectory()
 
 
 
