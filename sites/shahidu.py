@@ -79,7 +79,7 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     sEnd = '<nav aria-label="Page navigation"'
     sHtmlContent1 = cParser.abParse(sHtmlContent, sStart, sEnd)
     
-    sPattern = 'href="([^"]+)".+?image.*?\((.+?)\);.+?class="title">(.+?)</'
+    sPattern = r'href="([^"]+)".+?image.*?\((.+?)\);.+?class="title">(.+?)</'
     isMatch, aResult = cParser.parse(sHtmlContent1, sPattern)
     if not isMatch:
         if not sGui: oGui.showInfo()
@@ -226,7 +226,7 @@ def showHosters():
     sEnd = '<button style='
     sHtmlContent0 = oParser.abParse(sHtmlContent, sStart, sEnd)
     
-    sPattern = '<div\s*class="qual">.+?</i>(.+?)</h1>(.*?)<hr'
+    sPattern = r'<div\s*class="qual">.+?</i>(.+?)</h1>(.*?)<hr'
     isMatch,aResult = cParser.parse(sHtmlContent0, sPattern)
     if isMatch:
        for sQuality,shost in aResult :

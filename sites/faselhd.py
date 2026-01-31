@@ -66,7 +66,7 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     sStart = 'id="postList"'
     sEnd = "<ul class='pagination justify-content-center'>"
     sHtmlContent2 = cParser.abParse(sHtmlContent, sStart, sEnd)
-    pattern = '<div\s*class="postDiv\s*">\s*<a\s*href="(.*?)">.*?data-src="(.*?)".*?alt="(.*?)"'
+    pattern = r'<div\s*class="postDiv\s*">\s*<a\s*href="(.*?)">.*?data-src="(.*?)".*?alt="(.*?)"'
     isMatch, aResult = cParser.parse(sHtmlContent2, pattern)
     if not isMatch:
         if not sGui: oGui.showInfo()
@@ -138,7 +138,7 @@ def showSeasons():
         params.setParam('sUrl', URL_MAIN+sUrl)
         cGui().addFolder(oGuiElement, params, True, total)
     else:
-     pattern = '''<link rel="canonical"\s*href="(.*?)".*?<div class="posterImg">.*?<img src="(.*?)".*?<div class="h1 title">\s*(.*?)\s*</div>'''  # start element
+     pattern = r'''<link rel="canonical"\s*href="(.*?)".*?<div class="posterImg">.*?<img src="(.*?)".*?<div class="h1 title">\s*(.*?)\s*</div>'''  # start element
      isMatch, aResult = cParser.parse(sHtmlContent, pattern)
      if  isMatch:
       total = len(aResult)
@@ -167,7 +167,7 @@ def showEpisodes():
     sEnd = '<div class="postShare">'
     sHtmlContent = cParser.abParse(sHtmlContent, sStart, sEnd)
     
-    pattern = '<a href="(.+?)".*?>\s*(.*?)\s*</a>'  # start element
+    pattern = r'<a href="(.+?)".*?>\s*(.*?)\s*</a>'  # start element
     isMatch, aResult = cParser.parse(sHtmlContent, pattern)
     if not isMatch: return
     total = len(aResult)
@@ -253,7 +253,7 @@ def _search(oGui, sSearchText):
 def prase_function(data):
     if 'adilbo' in data:
      t_script = re.findall('var adilbo.*?;.*?\'(.*?);', data, re.S)
-     t_int = re.findall('/g.....(.*?)\)', data, re.S)
+     t_int = re.findall(r'/g.....(.*?)\)', data, re.S)
      if t_script and t_int:
          script = t_script[0].replace("'",'')
          script = script.replace("+",'')
@@ -262,7 +262,7 @@ def prase_function(data):
          page = ''
          for elm in sc:
              c_elm = base64.b64decode(elm+'==').decode()
-             t_ch = re.findall('\d+', c_elm, re.S)
+             t_ch = re.findall(r'\d+', c_elm, re.S)
              if t_ch:
                 nb = int(t_ch[0])+int(t_int[0] if t_int[0] != '' else t_int[1])
                 page = page + chr(nb)

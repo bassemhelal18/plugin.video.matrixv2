@@ -104,7 +104,7 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
             oGui.addFolder(oGuiElement, params, isTvshow, total)
         
     if not sGui and not sSearchText:
-        isMatchNextPage,page = cParser().parse(sHtmlContent, '<li class="active"><a\s*href="(.*?)">(.*?)</a>')
+        isMatchNextPage,page = cParser().parse(sHtmlContent, r'<li class="active"><a\s*href="(.*?)">(.*?)</a>')
         sNextUrl=''
         for sUrl, sPage in page:
              sPage = int(sPage)+1
@@ -131,7 +131,7 @@ def showSeasons():
        sHtmlContent = prase_function(sHtmlContent)
        sHtmlContent =str(sHtmlContent.encode('latin-1'),'utf-8')
     
-    pattern = '<a\s*href="([^<]+)">([^<]+)<em>'  # start element
+    pattern = r'<a\s*href="([^<]+)">([^<]+)<em>'  # start element
     
     isMatch, aResult = cParser.parse(sHtmlContent, pattern)
     if isMatch:
@@ -200,7 +200,7 @@ def showHosters():
        sHtmlContent = prase_function(sHtmlContent)
        sHtmlContent =str(sHtmlContent.encode('latin-1'),'utf-8')
     
-    pattern = '<li data-index="([^"]+)"[\s\S]*?data-id="([^"]+)"' 
+    pattern = r'<li data-index="([^"]+)"[\s\S]*?data-id="([^"]+)"' 
     isMatch, aResult = cParser().parse(sHtmlContent, pattern)
     if isMatch:
      for sIndex ,sId in aResult:
@@ -294,7 +294,7 @@ def _search(oGui, sSearchText):
 def prase_function(page): 
     if 'cimanow_HTML_encoder' in page:
      t_script = re.findall('<script.*?;.*?\'(.*?);', page, re.S)
-     t_int = re.findall('/g.....(.*?)\)', page, re.S)
+     t_int = re.findall(r'/g.....(.*?)\)', page, re.S)
      if t_script and t_int:
          script = t_script[0].replace("'",'')
          script = script.replace("+",'')
@@ -303,7 +303,7 @@ def prase_function(page):
          
          for elm in sc:
              c_elm = base64.b64decode(elm+'==').decode()
-             t_ch = re.findall('\d+', c_elm, re.S)
+             t_ch = re.findall(r'\d+', c_elm, re.S)
              if t_ch:
                 nb = int(t_ch[0])+int(t_int[0])
                 page = page + chr(nb)

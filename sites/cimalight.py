@@ -148,7 +148,7 @@ def showSeasons():
             sYear = str(m.group(0))
             sSeason = sSeason.replace(sYear,'')
         
-        isSeason,sSeason = cParser.parse(sSeason, '\d+')
+        isSeason,sSeason = cParser.parse(sSeason, r'\d+')
         if not isSeason:
          sSeason='1'
         

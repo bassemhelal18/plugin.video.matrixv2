@@ -162,7 +162,7 @@ def showEpisodes():
     sEnd = '<section class="otherser"'
     sHtmlContent = cParser.abParse(sHtmlContent, sStart, sEnd)
     
-    pattern = '<a href="(.+?)" title.*?class="epnum">.*?<span>الحلقة</span>\s*(.*?)\s*</div>'  # start element
+    pattern = r'<a href="(.+?)" title.*?class="epnum">.*?<span>الحلقة</span>\s*(.*?)\s*</div>'  # start element
     isMatch, aResult = cParser.parse(sHtmlContent, pattern)
     if  isMatch: 
       total = len(aResult)

@@ -136,7 +136,7 @@ def showSeasons():
         if m:
             sYear = str(m.group(0))
             sSeason = sSeason.replace(sYear,'')
-        isSeason,sSeason = cParser.parse(sSeason, '\d+')
+        isSeason,sSeason = cParser.parse(sSeason, r'\d+')
         if not isSeason:
          sSeason='1'
         
@@ -171,7 +171,7 @@ def showSeasons():
            if m:
               sYear = str(m.group(0))
            sSeason = sSeason.replace(sYear,'')
-           isSeason,sSeason = cParser.parse(sSeason, '\d+')
+           isSeason,sSeason = cParser.parse(sSeason, r'\d+')
            if not isSeason:
             sSeason='1'
         
@@ -202,7 +202,7 @@ def showSeasons():
              if m:
                sYear = str(m.group(0))
              sSeason = sSeason.replace(sYear,'')
-             isSeason,sSeason = cParser.parse(sSeason, '\d+')
+             isSeason,sSeason = cParser.parse(sSeason, r'\d+')
              if not isSeason:
               sSeason='1'
         
@@ -234,7 +234,7 @@ def showEpisodes():
     sEnd = '<div class="clr">'
     sHtmlContent1 = cParser.abParse(sHtmlContent, sStart, sEnd)
     if '<div class="EpsList">'  in sHtmlContent1:
-     sPattern = '<a href="([^<]+)" title=".*?">\s*(.*?)\s*</a>'  # start element
+     sPattern = r'<a href="([^<]+)" title=".*?">\s*(.*?)\s*</a>'  # start element
      isMatch, aResult = cParser.parse(sHtmlContent1, sPattern)
      if isMatch:
        total = len(aResult)
@@ -259,7 +259,7 @@ def showEpisodes():
           total = len(aResult)
           for sEpisode,sUrl in aResult:
             
-            sEpisode,sEpisode = cParser.parseSingleResult(sEpisode,'الحلقة \d+')
+            sEpisode,sEpisode = cParser.parseSingleResult(sEpisode,r'الحلقة \d+')
             sEpisode = str(sEpisode).replace('الحلقة','').replace('حلقة','').replace('الحلقه','').replace('حلقه','').strip()
             
             oGuiElement = cGuiElement('Episode ' + sEpisode, SITE_IDENTIFIER, 'showHosters')
@@ -274,7 +274,7 @@ def showEpisodes():
         sStart = '<div class="EpsList">'
         sEnd = '<div class="clr">'
         sHtmlContent1 = cParser.abParse(sHtmlContent, sStart, sEnd)
-        sPattern = '<a href="([^<]+)" title=".*?">\s*(.*?)\s*</a>'  # start element
+        sPattern = r'<a href="([^<]+)" title=".*?">\s*(.*?)\s*</a>'  # start element
         isMatch, aResult = cParser.parse(sHtmlContent1, sPattern)
         if isMatch:
           total = len(aResult)
@@ -318,7 +318,7 @@ def showHosters():
         hosters.append(hoster)
     
     
-    sPattern = '<li>(?:.*?<em>(.*?)<\/em>)?.*?<a[^>]+href="([^"]+)"'
+    sPattern = r'<li>(?:.*?<em>(.*?)<\/em>)?.*?<a[^>]+href="([^"]+)"'
     isMatch,aResult = cParser.parse(sHtmlContent, sPattern)
     if isMatch:
        for sQuality,shost in aResult :

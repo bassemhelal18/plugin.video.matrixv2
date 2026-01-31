@@ -66,7 +66,7 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     
     
     
-    pattern = '<div class="entry-image">.*?<a href="(.*?)" title="Download (.*?) \((.*?)\).*?".*?src="(.*?)"'
+    pattern = r'<div class="entry-image">.*?<a href="(.*?)" title="Download (.*?) \((.*?)\).*?".*?src="(.*?)"'
     isMatch, aResult = cParser.parse(sHtmlContent, pattern)
     if not isMatch:
         if not sGui: oGui.showInfo()
@@ -403,7 +403,7 @@ def get_mkv(id):
   Request.addHeaderEntry("Origin", "https://driveseed.org")
   response = Request.request()
        
-  pattern = '<meta property="og:title" content=".*?((?:2160p|1080p|720p).*?)\.mkv.*?"/>'
+  pattern = r'<meta property="og:title" content=".*?((?:2160p|1080p|720p).*?)\.mkv.*?"/>'
   isMatch, aResult = cParser.parse(response, pattern)
   if not isMatch: return None,None
   for sRes in aResult:
@@ -429,7 +429,7 @@ def get_mkv2(id):
   Request.addHeaderEntry("Origin", "https://driveseed.org")
   response = Request.request()
   
-  pattern = '<meta property="og:title" content=".*?((?:2160p|1080p|720p).*?)\.mkv.*?"/>'
+  pattern = r'<meta property="og:title" content=".*?((?:2160p|1080p|720p).*?)\.mkv.*?"/>'
   isMatch, aResult = cParser.parse(response, pattern)
   if not isMatch: return None,None
   for sRes in aResult:
