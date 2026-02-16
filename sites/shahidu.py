@@ -32,7 +32,7 @@ URL_MOVIES_Arabic = URL_MAIN + 'category/افلام-عربي'
 URL_SERIES_English = URL_MAIN + 'category/مسلسلات-اجنبي'
 URL_SERIES_Arabic = URL_MAIN + 'category/مسلسلات-عربي'
 URL_MOVIES_Kids = URL_MAIN + 'category/افلام-انمي'
-Ramadan = URL_MAIN + 'category/مسلسلات-رمضان-2025'
+Ramadan = URL_MAIN + 'category/مسلسلات-رمضان-2026'
 URL_SEARCH = URL_MAIN + 'search?s=%s'
 
 #ToDo Serien auch auf reinen Filmseiten, prüfen ob Filterung möglich

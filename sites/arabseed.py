@@ -38,7 +38,7 @@ URL_MOVIES_Arabic = URL_MAIN + 'category/arabic-movies-5/'
 URL_SERIES_English = URL_MAIN + 'category/foreign-series/'
 URL_SERIES_Arabic = URL_MAIN + 'category/arabic-series/'
 URL_MOVIES_Kids = URL_MAIN + 'category/%d8%a7%d9%81%d9%84%d8%a7%d9%85-%d8%a7%d9%86%d9%8a%d9%85%d9%8a%d8%b4%d9%86/'
-Ramadan = URL_MAIN + 'category/مسلسلات-رمضان/ramadan-series-2025/'
+Ramadan = URL_MAIN + 'category/مسلسلات-رمضان/ramadan-series-2026/'
 URL_SEARCH = URL_MAIN + 'find/?word=%s&type='
 
 #ToDo Serien auch auf reinen Filmseiten, prüfen ob Filterung möglich
