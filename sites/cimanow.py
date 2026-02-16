@@ -105,17 +105,18 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
         
     if not sGui and not sSearchText:
         isMatchNextPage,page = cParser().parse(sHtmlContent, r'<li class="active"><a\s*href="(.*?)">(.*?)</a>')
-        sNextUrl=''
-        for sUrl, sPage in page:
+        if isMatchNextPage:
+         sNextUrl=''
+         for sUrl, sPage in page:
              sPage = int(sPage)+1
              if 'page/' in sUrl:
                  sUrl = sUrl.split('page')[0]
              sNextUrl = str(sUrl)+'/page/'+str(sPage)
              
-        params.setParam('sUrl', sNextUrl)
-        params.setParam('trumb', os.path.join(ART, 'Next.png'))
-        oGui.addNextPage(SITE_IDENTIFIER, 'showEntries', params)
-        oGui.setView('tvshows' if isTvshow else 'movies')
+         params.setParam('sUrl', sNextUrl)
+         params.setParam('trumb', os.path.join(ART, 'Next.png'))
+         oGui.addNextPage(SITE_IDENTIFIER, 'showEntries', params)
+         oGui.setView('tvshows' if isTvshow else 'movies')
         oGui.setEndOfDirectory()
 
 
