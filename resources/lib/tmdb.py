@@ -214,8 +214,14 @@ class cTMDB:
         else:
             return {}
 
-    def get_meta_seasons(self, tmdb_id='', season='', advanced='false'):
+    def get_meta_seasons(self, name, year, season='', advanced='false'):
         meta = {}
+        result = self.search_tvshow_name(name, year, advanced=advanced)
+        
+        if not result or 'tmdb_id' not in result or not result['tmdb_id']:
+            return {}
+        tmdb_id = result['tmdb_id']
+
         if tmdb_id and season:
             url = '%stv/%s/season/%s?api_key=%s&language=%s' % (self.URL, tmdb_id, season, self.api_key, self.lang)
             Data = cRequestHandler(url, ignoreErrors=True).request()
