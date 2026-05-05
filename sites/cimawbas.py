@@ -15,6 +15,8 @@ from resources.lib.tools import logger, cParser
 from resources.lib.gui.guiElement import cGuiElement
 from resources.lib.config import cConfig
 from resources.lib.gui.gui import cGui
+import cloudscraper
+
 
 SITE_IDENTIFIER = 'cimawbas'
 SITE_NAME = 'Cimawbas'
@@ -31,11 +33,11 @@ DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'vid.my-cim
 URL_MAIN = 'https://' + DOMAIN + '/'
 
 
-URL_MOVIES_English = URL_MAIN + 'categories-4cima.php?cat=english-movies-4cima-7'
+URL_MOVIES_English = URL_MAIN + 'categories-4cima.php?cat=english-movies-mycima-7'
 URL_MOVIES_Arabic = URL_MAIN + 'categories-4cima.php?cat=aflam-3rby-mycima-6'
-URL_SERIES_English = URL_MAIN + 'categories-4cima.php?cat=english-series-4Cima-1'
-URL_SERIES_Arabic = URL_MAIN + 'categories-4cima.php?cat=arabic-series-4Cima-5'
-URL_MOVIES_Kids = URL_MAIN + 'category-4cima.php?cat=anime-movies-4Cima'
+URL_SERIES_English = URL_MAIN + 'categories-4cima.php?cat=english-series-Mycima-1'
+URL_SERIES_Arabic = URL_MAIN + 'categories-4cima.php?cat=arabic-series-Mycima-5'
+URL_MOVIES_Kids = URL_MAIN + 'categories-4cima.php?cat=anime-movies-Mycima'
 Ramadan = URL_MAIN + 'category-4cima.php?cat=mosalsalat-ramadan-2025'
 URL_SEARCH = URL_MAIN + 'search.php?keywords=%s&video-id='
 
@@ -71,10 +73,11 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     params = ParameterHandler()
     isTvshow = False
     if not sUrl: sUrl = params.getValue('sUrl')
-    oRequest = cRequestHandler(sUrl, ignoreErrors=(sGui is not False))
-    if cConfig().getSetting('global_search_' + SITE_IDENTIFIER) == 'true':
-        oRequest.cacheTime = 60 * 60 * 6  # 6 Stunden
-    sHtmlContent = oRequest.request()
+    scraper = cloudscraper.create_scraper(
+            browser={'browser': 'chrome', 'platform': 'windows', 'mobile': False},
+            delay=4
+        )
+    sHtmlContent = scraper.get(sUrl, timeout=10).text
     pattern = '<li class="col-xs-6 col-sm-.*?<a href="(.*?)" title="(.*?)".*?<img src="(.*?)" alt'
     isMatch, aResult = cParser.parse(sHtmlContent, pattern)
     if not isMatch:
@@ -129,8 +132,11 @@ def showSeasons():
     sUrl = params.getValue('sUrl')
     sThumbnail = params.getValue('sThumbnail')
     sName = params.getValue('sName')
-    oRequest = cRequestHandler(sUrl)
-    sHtmlContent = oRequest.request()
+    scraper = cloudscraper.create_scraper(
+            browser={'browser': 'chrome', 'platform': 'windows', 'mobile': False},
+            delay=4
+        )
+    sHtmlContent = scraper.get(sUrl, timeout=10).text
 
     sPattern = "openCity.+?'(.*?)'.*?>(.+?)</button>"  # start element
     isMatch, aResult = cParser.parse(sHtmlContent, sPattern)
@@ -171,8 +177,11 @@ def showEpisodes():
     sUrl = params.getValue('sUrl')
     
     sThumbnail = params.getValue('sThumbnail')
-    oRequestHandler = cRequestHandler(sUrl)
-    sHtmlContent = oRequestHandler.request()
+    scraper = cloudscraper.create_scraper(
+            browser={'browser': 'chrome', 'platform': 'windows', 'mobile': False},
+            delay=4
+        )
+    sHtmlContent = scraper.get(sUrl, timeout=10).text
     sSeason = params.getValue('season')
     sShowName = params.getValue('sName')
     fakeseason = params.getValue('fakeseason')
@@ -205,9 +214,12 @@ def showHosters():
     hosters = []
     sUrl = ParameterHandler().getValue('sUrl')
     sUrl = sUrl.replace('watch.php','play.php')
-    oRequest = cRequestHandler(sUrl)
-    sHtmlContent = oRequest.request()
-    
+    scraper = cloudscraper.create_scraper(
+            browser={'browser': 'chrome', 'platform': 'windows', 'mobile': False},
+            delay=4
+        )
+    sHtmlContent = scraper.get(sUrl, timeout=10).text
+
     sPattern = "<iframe src='(.*?)'"
     isMatch,aResult = cParser.parse(sHtmlContent, sPattern)
     if isMatch:
@@ -225,8 +237,11 @@ def showHosters():
         hosters.append(hoster)
     
     sUrl2 = sUrl.replace('play.php','downloads.php')
-    oRequest = cRequestHandler(sUrl2)
-    sHtmlContent2 = oRequest.request()
+    scraper = cloudscraper.create_scraper(
+            browser={'browser': 'chrome', 'platform': 'windows', 'mobile': False},
+            delay=4
+        )
+    sHtmlContent2 = scraper.get(sUrl2, timeout=10).text
     sPattern = '<a rel="nofollow" href="(.*?)" target="_blank">'
     isMatch,aResult = cParser.parse(sHtmlContent2, sPattern)
     if isMatch:
