@@ -29,7 +29,7 @@ if cConfig().getSetting('global_search_' + SITE_IDENTIFIER) == 'false':
     logger.info('-> [SitePlugin]: globalSearch for %s is deactivated.' % SITE_NAME)
 
 # Domain Abfrage
-DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'asd.pics')
+DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'm.asd.ink')
 URL_MAIN = 'https://' + DOMAIN + '/'
 
 
@@ -251,13 +251,12 @@ def showHosters():
             sStart = 'class="qualities__list">'
             sEnd = '</ul>'
             sHtmlContent = cParser.abParse(sHtmlContent4, sStart, sEnd)
-    
-            pattern = '<div class="qu">(.+?)</div>'   # start element
+            pattern = '<div class="qu">(.+?)<'   # start element
     
             isMatch, aResult = cParser.parse(sHtmlContent, pattern)
             if not isMatch: return
             for sQual in aResult:
-                oRequestHandler = cRequestHandler(URL_MAIN+'/get__quality__servers/','POST')
+                oRequestHandler = cRequestHandler(URL_MAIN+'get__quality__servers/','POST')
                 oRequestHandler.addHeaderEntry('User-Agent', common.IOS_USER_AGENT)
                 oRequestHandler.addHeaderEntry('referer', actionurl)
                 oRequestHandler.addHeaderEntry('X-Requested-With', 'XMLHttpRequest')
