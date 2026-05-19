@@ -6,7 +6,7 @@ import xbmcgui
 import re
 import os
 import hashlib
-import json
+import json, cloudscraper
 import traceback
 import ssl
 import certifi
@@ -261,11 +261,16 @@ class cRequestHandler:
                         logger.error(' -> [requestHandler]: Failed DDOS-GUARD active: ' + self._sUrl)
                         return 'DDOS GUARD PROTECTION'
                 elif 'cloudflare' in str(e.headers):
-                    if not self.ignoreErrors:
+                    try :
+                      scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'platform': 'windows', 'mobile': False},delay=4)
+                      sContent = scraper.get(self._sUrl, timeout=10).text
+                      return sContent
+                    except Exception as e:
+                     if not self.ignoreErrors:
                         value = ('!!! CLOUDFLARE PROTECTION ACTIVE!!! Additional Information:' + str(e.__class__.__name__) + ' : ' + str(e), str(traceback.format_exc().splitlines()[-3].split('addons')[-1]))
                         xbmcgui.Dialog().ok(cConfig().getLocalizedString(30166), str(value))  # Error
-                    logger.error(' -> [requestHandler]: Failed Cloudflare active: ' + self._sUrl)
-                    return 'CLOUDFLARE PROTECTION ACTIVE' # Meldung geht als "e.doc" in die exception nach default.py
+                     logger.error(' -> [requestHandler]: Failed Cloudflare active: ' + self._sUrl)
+                     return 'CLOUDFLARE PROTECTION ACTIVE' # Meldung geht als "e.doc" in die exception nach default.py
                 else:
                     if not self.ignoreErrors:
                         xbmcgui.Dialog().ok('Matrixv2', cConfig().getLocalizedString(30259) + ' {0} {1}'.format(self._sUrl, str(e)))
