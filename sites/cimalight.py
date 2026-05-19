@@ -16,7 +16,6 @@ from resources.lib.tools import logger, cParser
 from resources.lib.gui.guiElement import cGuiElement
 from resources.lib.config import cConfig
 from resources.lib.gui.gui import cGui
-import cloudscraper
 
 
 SITE_IDENTIFIER = 'cimalight'
@@ -74,11 +73,10 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     params = ParameterHandler()
     isTvshow = False
     if not sUrl: sUrl = params.getValue('sUrl')
-    scraper = cloudscraper.create_scraper(
-            browser={'browser': 'chrome', 'platform': 'windows', 'mobile': False},
-            delay=4
-        )
-    sHtmlContent = scraper.get(sUrl, timeout=10).text
+    oRequest = cRequestHandler(sUrl, ignoreErrors=(sGui is not False))
+    if cConfig().getSetting('global_search_' + SITE_IDENTIFIER) == 'true':
+        oRequest.cacheTime = 60 * 60 * 6  # 6 Stunden
+    sHtmlContent = oRequest.request()
     pattern = '<li class="col-xs-6 col-sm-4 col-md-3">.*?<a href="(.*?)" title="(.*?)".*?<img src="(.*?)" alt'
     isMatch, aResult = cParser.parse(sHtmlContent, pattern)
     if not isMatch:
@@ -133,11 +131,8 @@ def showSeasons():
     sUrl = params.getValue('sUrl')
     sThumbnail = params.getValue('sThumbnail')
     sName = params.getValue('sName')
-    scraper = cloudscraper.create_scraper(
-            browser={'browser': 'chrome', 'platform': 'windows', 'mobile': False},
-            delay=4
-        )
-    sHtmlContent= scraper.get(sUrl, timeout=10).text
+    oRequest = cRequestHandler(sUrl)
+    sHtmlContent = oRequest.request()
 
     sPattern = "openCity.+?'(.*?)'.*?>(.+?)</button>"  # start element
     isMatch, aResult = cParser.parse(sHtmlContent, sPattern)
@@ -178,11 +173,8 @@ def showEpisodes():
     sUrl = params.getValue('sUrl')
     
     sThumbnail = params.getValue('sThumbnail')
-    scraper = cloudscraper.create_scraper(
-            browser={'browser': 'chrome', 'platform': 'windows', 'mobile': False},
-            delay=4
-        )
-    sHtmlContent= scraper.get(sUrl, timeout=10).text
+    oRequestHandler = cRequestHandler(sUrl)
+    sHtmlContent = oRequestHandler.request()
     sSeason = params.getValue('season')
     sShowName = params.getValue('sName')
     fakeseason = params.getValue('fakeseason')
@@ -215,11 +207,8 @@ def showHosters():
     hosters = []
     sUrl = ParameterHandler().getValue('sUrl')
     sUrl2 = sUrl
-    scraper = cloudscraper.create_scraper(
-            browser={'browser': 'chrome', 'platform': 'windows', 'mobile': False},
-            delay=4
-        )
-    sHtmlContent2= scraper.get(sUrl.replace('watch.php','downloads.php'), timeout=10).text
+    oRequest = cRequestHandler(sUrl.replace('watch.php','downloads.php'))
+    sHtmlContent2 = oRequest.request()
     
     
     sPattern = '<a rel="nofollow" href="(.*?)" target="_blank">'
@@ -252,24 +241,16 @@ def showHosters():
         hoster = {'link': shost, 'name': sName, 'displayedName':sName} # Qualität Anzeige aus Release Eintrag
         hosters.append(hoster)
     
-    scraper = cloudscraper.create_scraper(
-            browser={'browser': 'chrome', 'platform': 'windows', 'mobile': False},
-            delay=4
-        )
-    sHtmlContent= scraper.get(sUrl2, timeout=10).text
+    oRequest = cRequestHandler(sUrl2)
+    sHtmlContent = oRequest.request() 
     sPattern =  '<a class="xtgo" href="([^"]+)"' 
     aResult = cParser.parse(sHtmlContent,sPattern)
     if aResult[0]:
         sRefer = aResult[1][0] 
-    scraper = cloudscraper.create_scraper(
-            browser={'browser': 'chrome', 'platform': 'windows', 'mobile': False},
-            delay=4
-        )
-    headers = {
-            'User-Agent': common.FF_USER_AGENT,
-            'Referer': URL_MAIN,
-            }
-    sHtmlContent5= scraper.get(sRefer.replace('&amp;','&'), headers=headers, timeout=10).text
+    oRequestHandler = cRequestHandler(sRefer.replace('&amp;','&'))
+    oRequestHandler.addHeaderEntry('User-Agent', common.RAND_UA)
+    oRequestHandler.addHeaderEntry('referer', URL_MAIN)
+    sHtmlContent5 = oRequestHandler.request().replace("&#39;","'")
     sPattern = 'data-embed="(.*?)"'
     isMatch,aResult = cParser.parse(sHtmlContent5, sPattern)
     if isMatch:

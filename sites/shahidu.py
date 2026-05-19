@@ -11,7 +11,6 @@ from resources.lib.tools import logger, cParser
 from resources.lib.gui.guiElement import cGuiElement
 from resources.lib.config import cConfig
 from resources.lib.gui.gui import cGui
-import cloudscraper
 
 
 SITE_IDENTIFIER = 'shahidu'
@@ -70,12 +69,12 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     isTvshow = False
     if not sUrl: sUrl = params.getValue('sUrl')
     sUrl2=sUrl
-    scraper = cloudscraper.create_scraper(
-            browser={'browser': 'chrome', 'platform': 'windows', 'mobile': False},
-            delay=4
-        )
+    oRequest = cRequestHandler(sUrl , ignoreErrors=(sGui is not False))
+    if cConfig().getSetting('global_search_' + SITE_IDENTIFIER) == 'true':
+        oRequest.cacheTime = 60 * 60 * 6  # 6 Stunden
     iPage = int(params.getValue('page'))
-    sHtmlContent = scraper.get(sUrl+ '?page=' + str(iPage) if iPage > 0 else sUrl, timeout=10).text
+    oRequest = cRequestHandler(sUrl + '?page=' + str(iPage) if iPage > 0 else sUrl, ignoreErrors=(sGui is not False))
+    sHtmlContent = oRequest.request()
     
     
     sStart = '<div class="container my-3">'

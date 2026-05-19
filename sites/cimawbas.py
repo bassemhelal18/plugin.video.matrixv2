@@ -15,7 +15,6 @@ from resources.lib.tools import logger, cParser
 from resources.lib.gui.guiElement import cGuiElement
 from resources.lib.config import cConfig
 from resources.lib.gui.gui import cGui
-import cloudscraper
 
 
 SITE_IDENTIFIER = 'cimawbas'
@@ -73,11 +72,10 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     params = ParameterHandler()
     isTvshow = False
     if not sUrl: sUrl = params.getValue('sUrl')
-    scraper = cloudscraper.create_scraper(
-            browser={'browser': 'chrome', 'platform': 'windows', 'mobile': False},
-            delay=4
-        )
-    sHtmlContent = scraper.get(sUrl, timeout=10).text
+    oRequest = cRequestHandler(sUrl, ignoreErrors=(sGui is not False))
+    if cConfig().getSetting('global_search_' + SITE_IDENTIFIER) == 'true':
+        oRequest.cacheTime = 60 * 60 * 6  # 6 Stunden
+    sHtmlContent = oRequest.request()
     pattern = '<li class="col-xs-6 col-sm-.*?<a href="(.*?)" title="(.*?)".*?<img src="(.*?)" alt'
     isMatch, aResult = cParser.parse(sHtmlContent, pattern)
     if not isMatch:
@@ -132,11 +130,8 @@ def showSeasons():
     sUrl = params.getValue('sUrl')
     sThumbnail = params.getValue('sThumbnail')
     sName = params.getValue('sName')
-    scraper = cloudscraper.create_scraper(
-            browser={'browser': 'chrome', 'platform': 'windows', 'mobile': False},
-            delay=4
-        )
-    sHtmlContent = scraper.get(sUrl, timeout=10).text
+    oRequest = cRequestHandler(sUrl)
+    sHtmlContent = oRequest.request()
 
     sPattern = "openCity.+?'(.*?)'.*?>(.+?)</button>"  # start element
     isMatch, aResult = cParser.parse(sHtmlContent, sPattern)
@@ -177,11 +172,8 @@ def showEpisodes():
     sUrl = params.getValue('sUrl')
     
     sThumbnail = params.getValue('sThumbnail')
-    scraper = cloudscraper.create_scraper(
-            browser={'browser': 'chrome', 'platform': 'windows', 'mobile': False},
-            delay=4
-        )
-    sHtmlContent = scraper.get(sUrl, timeout=10).text
+    oRequestHandler = cRequestHandler(sUrl)
+    sHtmlContent = oRequestHandler.request()
     sSeason = params.getValue('season')
     sShowName = params.getValue('sName')
     fakeseason = params.getValue('fakeseason')
@@ -214,11 +206,8 @@ def showHosters():
     hosters = []
     sUrl = ParameterHandler().getValue('sUrl')
     sUrl = sUrl.replace('watch.php','play.php')
-    scraper = cloudscraper.create_scraper(
-            browser={'browser': 'chrome', 'platform': 'windows', 'mobile': False},
-            delay=4
-        )
-    sHtmlContent = scraper.get(sUrl, timeout=10).text
+    oRequest = cRequestHandler(sUrl)
+    sHtmlContent = oRequest.request()
 
     sPattern = "<iframe src='(.*?)'"
     isMatch,aResult = cParser.parse(sHtmlContent, sPattern)
@@ -237,11 +226,8 @@ def showHosters():
         hosters.append(hoster)
     
     sUrl2 = sUrl.replace('play.php','downloads.php')
-    scraper = cloudscraper.create_scraper(
-            browser={'browser': 'chrome', 'platform': 'windows', 'mobile': False},
-            delay=4
-        )
-    sHtmlContent2 = scraper.get(sUrl2, timeout=10).text
+    oRequest = cRequestHandler(sUrl2)
+    sHtmlContent2 = oRequest.request()
     sPattern = '<a rel="nofollow" href="(.*?)" target="_blank">'
     isMatch,aResult = cParser.parse(sHtmlContent2, sPattern)
     if isMatch:
