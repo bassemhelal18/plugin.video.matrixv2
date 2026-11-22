@@ -44,7 +44,7 @@ URL_MOVIES_Kids = URL_MAIN + 'dubbed-movies'
 # Live-search endpoint (POST, XHR). The classic ?s= page answered addon
 # (non-browser) requests with a Cloudflare 403 challenge; this search-box
 # route returned 200 without a challenge when tested on Nov 22, 2026.
-URL_SEARCH_AJAX = URL_MAIN + 'wp-admin/admin-ajax.php'
+URL_SEARCH = URL_MAIN + 'wp-admin/admin-ajax.php'
 
 #ToDo Serien auch auf reinen Filmseiten, prüfen ob Filterung möglich
 def load(): # Menu structure of the site plugin
@@ -69,7 +69,7 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     params = ParameterHandler()
     isTvshow = False
     if sSearchText:
-        oRequest = cRequestHandler(URL_SEARCH_AJAX, method='POST',
+        oRequest = cRequestHandler(URL_SEARCH, method='POST',
                                    data={'action': 'dtc_live', 'trsearch': sSearchText},
                                    ignoreErrors=(sGui is not False))
         oRequest.addHeaderEntry('X-Requested-With', 'XMLHttpRequest')
@@ -99,8 +99,19 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     sStart = 'id="postList"'
     sEnd = "<ul class='pagination justify-content-center'>"
     sHtmlContent2 = cParser.abParse(sHtmlContent, sStart, sEnd)
-    pattern = r'<div\s*class="postDiv\s*">\s*<a\s*href="(.*?)">.*?data-src="(.*?)".*?alt="(.*?)"'
-    isMatch, aResult = cParser.parse(sHtmlContent2, pattern)
+    # Keep each lookup inside its card/tag. A missing image attribute must
+    # not make the regex retry combinations across the rest of the page.
+    aResult = []
+    for sCard in re.split(r'<div\s*class="postDiv\s*">', sHtmlContent2)[1:]:
+        isUrl, aUrls = cParser.parse(sCard, r'^\s*<a\s*href="([^"<>]*)"')
+        oImage = re.search(r'<img\b[^>]*>', sCard.split('</a>', 1)[0])
+        if not isUrl or not oImage:
+            continue
+        isThumb, aThumbs = cParser.parse(oImage.group(0), r'\bdata-src="([^"<>]*)"')
+        isName, aNames = cParser.parse(oImage.group(0), r'\balt="([^"<>]*)"')
+        if isThumb and isName:
+            aResult.append((aUrls[0], aThumbs[0], aNames[0]))
+    isMatch = bool(aResult)
     if not isMatch:
         if not sGui: oGui.showInfo()
         return
