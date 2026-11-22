@@ -28,17 +28,21 @@ if cConfig().getSetting('global_search_' + SITE_IDENTIFIER) == 'false':
     logger.info('-> [SitePlugin]: globalSearch for %s is deactivated.' % SITE_NAME)
 
 # Domain Abfrage
-DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'vid.my-cima.net')
+DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'cima.my-cima.net')
+if DOMAIN == 'vid.my-cima.net':
+    DOMAIN = 'cima.my-cima.net'
+    cConfig().setSetting('plugin_'+ SITE_IDENTIFIER +'.domain', DOMAIN)
 URL_MAIN = 'https://' + DOMAIN + '/'
 
 
-URL_MOVIES_English = URL_MAIN + 'categories-4cima.php?cat=english-movies-mycima-7'
-URL_MOVIES_Arabic = URL_MAIN + 'categories-4cima.php?cat=aflam-3rby-mycima-6'
-URL_SERIES_English = URL_MAIN + 'categories-4cima.php?cat=english-series-Mycima-1'
-URL_SERIES_Arabic = URL_MAIN + 'categories-4cima.php?cat=arabic-series-Mycima-5'
-URL_MOVIES_Kids = URL_MAIN + 'categories-4cima.php?cat=anime-movies-Mycima'
-Ramadan = URL_MAIN + 'category-4cima.php?cat=mosalsalat-ramadan-2025'
+URL_MOVIES_English = URL_MAIN + 'category.php?cat=english-movies-mycima-7'
+URL_MOVIES_Arabic = URL_MAIN + 'category.php?cat=aflam-3rby-mycima-6'
+URL_SERIES_English = URL_MAIN + 'category.php?cat=english-series-Mycima-1'
+URL_SERIES_Arabic = URL_MAIN + 'category.php?cat=arabic-series-Mycima-5'
+URL_MOVIES_Kids = URL_MAIN + 'category.php?cat=anime-movies-Mycima'
+Ramadan = URL_MAIN + 'category.php?cat=mosalsalat-ramadan-2026-mycima'
 URL_SEARCH = URL_MAIN + 'search.php?keywords=%s&video-id='
+URL_SEARCH_AJAX = URL_MAIN + 'ajax-search.php'
 
 #ToDo Serien auch auf reinen Filmseiten, prüfen ob Filterung möglich
 def load(): # Menu structure of the site plugin
@@ -260,7 +264,93 @@ def showSearch():
     cGui().setEndOfDirectory()
 
 
+def _searchPostFallback(sSearchText):
+    # Real POST of the search form fields through a fresh cloudscraper session.
+    # Returns the response body, or '' on any failure (caller shows empty state).
+    try:
+        import cloudscraper
+        scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'platform': 'windows', 'mobile': False}, delay=4, solveDepth=1)
+        headers = {'X-Requested-With': 'XMLHttpRequest', 'Origin': URL_MAIN[:-1], 'Referer': URL_MAIN}
+        response = scraper.post(URL_SEARCH_AJAX, data={'queryString': sSearchText}, headers=headers, timeout=(5, 15), allow_redirects=False)
+        if getattr(response, 'status_code', 0) != 200:
+            logger.info(' -> [cimawbas]: search fallback answered HTTP %s' % getattr(response, 'status_code', 'unknown'))
+            return ''
+        logger.info(' -> [cimawbas]: search fallback answered HTTP 200 (%s characters)' % len(response.text))
+        return response.text
+    except Exception as e:
+        # Exception messages can contain response content; log only the class.
+        logger.error(' -> [cimawbas]: search fallback failed (%s)' % type(e).__name__)
+        return ''
+    finally:
+        if 'scraper' in locals():
+            try:
+                scraper.close()
+            except Exception:
+                pass
+
 def _search(oGui, sSearchText):
-    showEntries(URL_SEARCH % cParser.quotePlus(sSearchText), oGui, sSearchText)
-
-
+    # Search contract captured from the site's own live search in a browser:
+    # POST ajax-search.php with form field queryString. The classic search.php
+    # results page no longer answers plain requests (Cloudflare check / empty page).
+    # Whether plain requests pass from the addon still needs on-device testing.
+    oRequest = cRequestHandler(URL_SEARCH_AJAX, ignoreErrors=(oGui is not False), method='POST', data={'queryString': sSearchText})
+    oRequest.addHeaderEntry('X-Requested-With', 'XMLHttpRequest')
+    oRequest.addHeaderEntry('Origin', URL_MAIN[:-1])
+    oRequest.addHeaderEntry('Referer', URL_MAIN)
+    sHtmlContent = oRequest.request()
+    sPattern = 'data-video-id="[^"]*"[^>]*>\\s*<a href="([^"]*watch\\.php\\?vid=[^"]+)"[^>]*>([^<]+)</a>'
+    isMatch, aResult = cParser.parse(sHtmlContent, sPattern)
+    # Cimalight's device test supports preserving POST in this client path.
+    # Cimawbas has not yet been verified on-device; retain its existing results.
+    if not isMatch and oRequest.getStatus() == '403':
+        sHtmlContent = _searchPostFallback(sSearchText)
+        isMatch, aResult = cParser.parse(sHtmlContent, sPattern)
+    if not isMatch:
+        if not oGui: cGui().showInfo()
+        return
+    oGui = oGui if oGui else cGui()
+    params = ParameterHandler()
+    items = {}
+    order = []
+    for sUrl, sName in aResult:
+        isTvshow = False
+        if sUrl.startswith('//'):
+            sUrl = 'https:' + sUrl
+        elif not sUrl.startswith('http'):
+            sUrl = URL_MAIN + sUrl.lstrip('/')
+        isEpisode = 'حلقة' in sName
+        isTvshow, aTmp = cParser.parse(sName, 'مسلسل')
+        if not isTvshow:
+            isTvshow, aTmp = cParser.parse(sName, 'حلقة')
+            if not isTvshow:
+                isTvshow, aTmp = cParser.parse(sName, 'series')
+                if not isTvshow:
+                    isTvshow, aTmp = cParser.parse(sName, 'episodes')
+        sName = sName.replace('مترجمة','').replace('الجزء','الموسم').replace('مترجم','').replace('ماي سيما','').replace('فور سيما','').replace('فيلم','').replace(' HD','').replace('مشاهدة','').replace('مسلسل','').replace('اون','').replace('أون','').replace('لاين','').replace('يوتيوب','').split('الموسم')[0].split('الحلقة')[0].replace('سلسل','').replace("كول سيما","").replace("جميع مواسم","").replace("كامل","").strip()
+        sYear = ''
+        m = re.search(r'(?<!^)(?<!\d)(19|20)\d{2}\b', sName)
+        if m:
+            sYear = str(m.group(0))
+            sName = sName.replace(sYear,'').strip()
+        # Keep the site's own matches as returned; only drop empty leftovers
+        if not sName:
+            continue
+        # Episode hits of the same show collapse into one entry
+        if sName not in items:
+            items[sName] = (sUrl, isTvshow, sYear, isEpisode)
+            order.append(sName)
+        else:
+            # Prefer the series page over a single-episode page
+            oldUrl, oldTvshow, oldYear, oldEpisode = items[sName]
+            if oldEpisode and not isEpisode:
+                items[sName] = (sUrl, isTvshow, sYear, isEpisode)
+    total = len(order)
+    for sName in order:
+        sUrl, isTvshow, sYear, isEpisode = items[sName]
+        oGuiElement = cGuiElement(sName, SITE_IDENTIFIER, 'showSeasons' if isTvshow else 'showHosters')
+        oGuiElement.setMediaType('tvshow' if isTvshow else 'movie')
+        if sYear:
+            oGuiElement.setYear(sYear)
+        params.setParam('sUrl', sUrl)
+        params.setParam('sName', sName)
+        oGui.addFolder(oGuiElement, params, isTvshow, total)
