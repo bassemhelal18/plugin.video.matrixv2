@@ -42,8 +42,7 @@ URL_SERIES_English = URL_MAIN + 'category.php?cat=english-series7'
 URL_SERIES_Arabic = URL_MAIN + 'category.php?cat=arabic-series18'
 URL_MOVIES_Kids = URL_MAIN + 'category.php?cat=anime-movies1'
 Ramadan = URL_MAIN + 'category.php?cat=ramadan-2026'
-URL_SEARCH = URL_MAIN + 'search.php?keywords=%s&video-id='
-URL_SEARCH_AJAX = URL_MAIN + 'ajax-search.php'
+URL_SEARCH= URL_MAIN + 'ajax-search.php'
 
 #ToDo Serien auch auf reinen Filmseiten, prüfen ob Filterung möglich
 def load(): # Menu structure of the site plugin
@@ -295,7 +294,7 @@ def _searchPostFallback(sSearchText):
         import cloudscraper
         scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'platform': 'windows', 'mobile': False}, delay=4, solveDepth=1)
         headers = {'X-Requested-With': 'XMLHttpRequest', 'Origin': URL_MAIN[:-1], 'Referer': URL_MAIN}
-        response = scraper.post(URL_SEARCH_AJAX, data={'queryString': sSearchText}, headers=headers, timeout=(5, 15), allow_redirects=False)
+        response = scraper.post(URL_SEARCH, data={'queryString': sSearchText}, headers=headers, timeout=(5, 15), allow_redirects=False)
         if getattr(response, 'status_code', 0) != 200:
             logger.info(' -> [cimalight]: search fallback answered HTTP %s' % getattr(response, 'status_code', 'unknown'))
             return ''
@@ -318,7 +317,7 @@ def _search(oGui, sSearchText):
     # POST ajax-search.php with form field queryString. The classic search.php
     # results page no longer answers plain requests (Cloudflare check / empty page).
     # Whether plain requests pass from the addon still needs on-device testing.
-    oRequest = cRequestHandler(URL_SEARCH_AJAX, ignoreErrors=(oGui is not False), method='POST', data={'queryString': sSearchText})
+    oRequest = cRequestHandler(URL_SEARCH, ignoreErrors=(oGui is not False), method='POST', data={'queryString': sSearchText})
     oRequest.addHeaderEntry('X-Requested-With', 'XMLHttpRequest')
     oRequest.addHeaderEntry('Origin', URL_MAIN[:-1])
     oRequest.addHeaderEntry('Referer', URL_MAIN)
