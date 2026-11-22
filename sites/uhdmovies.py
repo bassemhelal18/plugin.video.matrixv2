@@ -2,10 +2,12 @@
 
 
 import os
+import json
+import time
 import re
 import requests
 import xbmcaddon
-from urllib.parse import quote, unquote
+from urllib.parse import quote, unquote, urljoin, urlsplit
 from resources.lib import common
 from resources.lib.handler.ParameterHandler import ParameterHandler
 from resources.lib.handler.requestHandler import cRequestHandler
@@ -27,7 +29,7 @@ if cConfig().getSetting('global_search_' + SITE_IDENTIFIER) == 'false':
     logger.info('-> [SitePlugin]: globalSearch for %s is deactivated.' % SITE_NAME)
 
 # Domain Abfrage
-DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'uhdmovies.stream')
+DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'uhdmovies.ceo')
 URL_MAIN = 'https://' + DOMAIN + '/'
 
 
@@ -75,7 +77,7 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     total = len(aResult)
     for sUrl, sName, sYear, sThumbnail  in aResult:
         sName = sName.strip()
-        if sSearchText and not cParser.search(sSearchText, sName):
+        if sSearchText and sSearchText.casefold() not in sName.casefold():
             continue
         if '-' in sYear:
            sYear = sYear.split('-')[0]
@@ -221,150 +223,136 @@ def showHosters():
     params = ParameterHandler()
     sUrl = params.getValue('sUrl')
     sType = params.getValue('mediaType')
-    sName = params.getValue('sName')
     hosters = []
-    
     if sType == 'movie':
-     sHtmlContent = cRequestHandler(sUrl).request()
-     
-     pattern = '<p style="text-align: center;">.*?href="(.*?)"'
-     isMatch, aResult = cParser.parse(sHtmlContent, pattern)
-     if not isMatch: return
-     for slink in aResult:
-       _wp_http = slink.split('?sid=')[1]
-       action_url, _wp_http2, token = make_post_request(_wp_http)
-       resp = get_pepe_url(action_url, _wp_http2, token)
-       matches = get_match(resp)
-       pepe_url = matches[0]
-       cookies = {
-            "__eoi": "ID=4a86dd07e2cfa744:T=1710970060:RT=1710970060:S=AA-AfjbVJgiJ3UbrHbBiGQPwwxlA",
-            "__qca": "P0-1796148875-1710970059080"}
-
-
-       if '?go=' in pepe_url:
-        key = str(pepe_url.split('?go=')[1])
-        cookies[key] = _wp_http2
-    
-       response = make_get_request(pepe_url, cookies, action_url)
-       final_url = parse_redirect_page(response)
-       file_id = get_zfile(final_url)
-       res,sRes = get_mkv(file_id)
-       if res is not None:
-        s = getheader(res)
-        hoster = {'link':  urllib_parse.quote(res, '/:=&?')+s, 'name': sRes, 'displayedName':sRes, 'resolveable': True,'resolved': True} # Qualität Anzeige aus Release Eintrag
-        hosters.append(hoster)
-       res ,sRes2 = get_mkv2(file_id)
-       if res is not None:
-        s = getheader(res)
-        hoster = {'link':urllib_parse.quote(res, '/:=&?')+s, 'name': sRes2, 'displayedName':sRes2, 'resolveable': True,'resolved': True}
-        hosters.append(hoster)
-    else:
-        
-        pattern = '(http.*?==)'
-        isMatch, aResult = cParser.parse(sUrl, pattern)
-        if not isMatch: return
-        for slink in aResult:
-        
-          _wp_http = slink.split('?sid=')[1]
-          action_url, _wp_http2, token = make_post_request(_wp_http)
-          resp = get_pepe_url(action_url, _wp_http2, token)
-          matches = get_match(resp)
-          pepe_url = matches[0]
-          cookies = {
-            "__eoi": "ID=4a86dd07e2cfa744:T=1710970060:RT=1710970060:S=AA-AfjbVJgiJ3UbrHbBiGQPwwxlA",
-            "__qca": "P0-1796148875-1710970059080"}
-
-
-          if '?go=' in pepe_url:
-           key = str(pepe_url.split('?go=')[1])
-           cookies[key] = _wp_http2
-    
-          response = make_get_request(pepe_url, cookies, action_url)
-          final_url = parse_redirect_page(response)
-          file_id = get_zfile(final_url)
-          res,sRes = get_mkv(file_id)
-          if res is not None:
-           s = getheader(res)
-           hoster = {'link':  urllib_parse.quote(res, '/:=&?')+s, 'name': sRes, 'displayedName':sRes, 'resolveable': True,'resolved': True} # Qualität Anzeige aus Release Eintrag
-           hosters.append(hoster)
-        
-          res,sRes2 = get_mkv2(file_id)
-          if res is not None:
-            s = getheader(res)
-            hoster = {'link':urllib_parse.quote(res, '/:=&?')+s, 'name': sRes2, 'displayedName':sRes2, 'resolveable': True,'resolved': True}
-            hosters.append(hoster)    
+        sHtmlContent = cRequestHandler(sUrl).request()
+        soup = BeautifulSoup(sHtmlContent, 'html.parser')
+        for link in soup.find_all('a', class_='maxbutton-download-g-drive', href=True):
+            # Quality descriptions are strong/p blocks, not h3 headings.
+            sRes = link.get_text(' ', strip=True)
+            for heading in link.find_all_previous(['strong', 'p', 'h3', 'h4', 'h5']):
+                label = heading.get_text(' ', strip=True)
+                if re.search(r'\b(?:2160|1080|720|480)p\b|\b4K\b', label, re.I):
+                    quality = re.search(r'\b(?:2160|1080|720|480)p\b|\b4K\b', label, re.I)
+                    sRes = label[quality.start():]
+                    break
+            hosters.append({'link': link['href'], 'name': 'UHDMovies',
+                            'displayedName': sRes, 'resolveable': True})
+    elif sUrl:
+        hosters.append({'link': sUrl, 'name': 'UHDMovies',
+                        'displayedName': 'Episode', 'resolveable': True})
     if hosters:
         hosters.append('getHosterUrl')
-    return hosters    
+    return hosters
 
-        
+
 def getheader(url):
     sRefer = '{}'.format(cParser.urlparse(url))
     sRefer = sRefer.lower()
     headers = {'User-Agent': common.RAND_UA,
                'Referer': 'https://{0}/'.format(sRefer),
-               'Origin': 'https://{0}'.format(sRefer),
-               'verifypeer': 'false'}
+               'Origin': 'https://{0}'.format(sRefer)}
     
     return '|%s' % '&'.join(['%s=%s' % (key, urllib_parse.quote_plus(headers[key])) for key in headers])    
 
 def make_post_request(_wp_http):
-        url = "https://tech.unblockedgames.world/"
-        Request=cRequestHandler(url)
-        Request.addParameters("_wp_http", _wp_http)
-        response = Request.request()
-        soup = BeautifulSoup(response ,'html.parser')
-        form = soup.find('form', id='landing')
-        action_url = form['action']
-        _wp_http2 = form.find('input', {'name': '_wp_http2'})['value']
-        token = form.find('input', {'name': 'token'})['value']
-        return action_url, _wp_http2, token    
+    # Keep the original helper chain, but use this link's current landing form.
+    session = requests.Session()
+    try:
+        response = session.get(_wp_http, timeout=(5, 20))
+        response.raise_for_status()
+        origin = urlsplit(response.url).netloc
+        if origin != 'en.thenaukriadda.in':
+            raise ValueError('Unknown link intermediary')
+        form = BeautifulSoup(response.text, 'html.parser').find('form', id='lp-land')
+        action_url = urljoin(response.url, form['action'])
+        if urlsplit(action_url).netloc != origin:
+            raise ValueError('Unknown landing target')
+        fields = {i['name']: i.get('value', '') for i in form.select('input[name]')}
+        response = session.post(action_url, data=fields, headers={'Referer': response.url}, timeout=(5, 20))
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, 'html.parser')
+        form = soup.find('form', id='lp-s1-form')
+        action_url = urljoin(response.url, form['action'])
+        timer = int(soup.find(id='lp-timer-s1').get_text(strip=True))
+        if urlsplit(action_url).netloc != origin or not 0 <= timer <= 30:
+            raise ValueError('Changed continuation form')
+        time.sleep(timer)
+        fields = {i['name']: i.get('value', '') for i in form.select('input[name]')}
+        token = {'session': session, 'fields': fields, 'referer': response.url, 'origin': origin}
+        return action_url, fields.get('_lp_http2', ''), token
+    except (requests.RequestException, ValueError, TypeError, KeyError, AttributeError):
+        session.close()
+        return None, None, None
+
 
 def get_pepe_url(action_url, _wp_http2, token):
-        url = action_url
-        Request=cRequestHandler(url)
-        Request.addParameters("_wp_http2", _wp_http2)
-        Request.addParameters("token", token)
-        Request.addHeaderEntry("Referer", "https://tech.unblockedgames.world/")
-        Request.addHeaderEntry("Origin", "https://tech.unblockedgames.world")
-        response = Request.request()
-        
-        return response   
+    if not action_url or not token:
+        return ''
+    try:
+        response = token['session'].post(action_url, data=token['fields'],
+                                        headers={'Referer': token['referer']}, timeout=(5, 20))
+        response.raise_for_status()
+        duration = re.search(r'\bdur\s*=\s*(\d+)', response.text)
+        cookie = re.search(r'\bsc\(("(?:[^"\\]|\\.)*"),("(?:[^"\\]|\\.)*"),60\)', response.text)
+        if not duration or not cookie or not 0 <= int(duration.group(1)) <= 30:
+            raise ValueError('Changed link generation')
+        name, value = json.loads(cookie.group(1)), json.loads(cookie.group(2))
+        if not re.fullmatch(r'lp-[a-zA-Z0-9]+', name):
+            raise ValueError('Changed routing data')
+        token['session'].cookies.set(name, value, domain=token['origin'], path='/')
+        time.sleep(int(duration.group(1)))
+        return response.text
+    except (requests.RequestException, ValueError, TypeError, KeyError):
+        token['session'].close()
+        return ''
+
 
 def get_match(resp):
-        pattern = r'https://tech\.unblockedgames\.world/\?go=[^"]+'
-        matches = re.findall(pattern, resp)
-        return matches    
+    match = re.search(r"setAttribute\('href',\s*(\"(?:[^\"\\]|\\.)*\")\)", resp or '')
+    if match:
+        try:
+            url = json.loads(match.group(1))
+            if urlsplit(url).scheme == 'https' and urlsplit(url).netloc == 'en.thenaukriadda.in' and urlsplit(url).query.startswith('lp_go='):
+                return [url]
+        except ValueError:
+            pass
+    return []
+
 
 def make_get_request(url, cookies, ref):
-        headers = {
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
-            "Accept-Language": "en-GB,en;q=0.8",
-            "Connection": "keep-alive",
-            "Host": "tech.unblockedgames.world",
-            "Sec-Fetch-Dest": "document",
-            "Sec-Fetch-Mode": "navigate",
-            "Sec-Fetch-Site": "same-origin",
-            "Sec-Fetch-User": "?1",
-            "Sec-GPC": "1",
-            "Upgrade-Insecure-Requests": "1",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-            "Referrer": ref,
-            "Cookie": "; ".join([f"{key}={value}" for key, value in cookies.items()]),
-        }
-        response = requests.get(url, headers=headers, allow_redirects=True)
+    if not cookies:
+        return ''
+    try:
+        response = cookies['session'].get(url, headers={'Referer': ref}, timeout=(5, 20))
+        response.raise_for_status()
         return response.text
+    except requests.RequestException:
+        return ''
+    finally:
+        cookies['session'].close()
+
 
 def parse_redirect_page(html):
-        pattern = r'<meta\s+http-equiv="refresh"\s+content="0;url=(.*?)"\s*/?>'
-        match = re.search(pattern, html)
-        if match:
-            redirect_url = match.group(1)
-            return redirect_url
-        else:
+    match = re.search(r'<meta\s+http-equiv="refresh"\s+content="0;url=(.*?)"\s*/?>', html or '')
+    if match:
+        url = match.group(1)
+    else:
+        match = re.search(r'window\.location\.replace\(("(?:[^"\\]|\\.)*")\);\},(\d+)\)', html or '')
+        if not match or int(match.group(2)) > 30000:
             return None
+        time.sleep(int(match.group(2)) / 1000.0)
+        try:
+            url = json.loads(match.group(1))
+        except ValueError:
+            return None
+    if urlsplit(url).scheme == 'https' and urlsplit(url).netloc in ('driveseed.org', 'driveleech.org'):
+        return url
+    return None
+
 
 def get_zfile(url):
+  if not url: return None
   Request=cRequestHandler(url)
   Request.addHeaderEntry("Referer", "https://driveleech.org/")
   Request.addHeaderEntry("Origin", "https://driveleech.org")
@@ -383,9 +371,27 @@ def get_zfile(url):
 
 
 def getHosterUrl(sUrl=False):
-    
-    return [{'streamUrl': sUrl, 'resolved': True}]
-    
+    streams = []
+    if not sUrl:
+        return [{'streamUrl': '', 'resolved': True}]
+    # Prepare only the chosen quality, then retain both original MKV branches.
+    action_url, _wp_http2, token = make_post_request(sUrl)
+    resp = get_pepe_url(action_url, _wp_http2, token)
+    matches = get_match(resp)
+    if matches:
+        response = make_get_request(matches[0], token, action_url)
+        final_url = parse_redirect_page(response)
+        file_id = get_zfile(final_url)
+        for extractor in (get_mkv, get_mkv2):
+            res, sRes = extractor(file_id)
+            if res is not None:
+                streams.append({'streamUrl': urllib_parse.quote(res, '/:=&?') + getheader(res),
+                                'resolved': True})
+    elif token:
+        token['session'].close()
+    # The host framework indexes the result even when unavailable.
+    return streams or [{'streamUrl': '', 'resolved': True}]
+
 
 def showSearch():
     sSearchText = cGui().showKeyBoard()
@@ -395,9 +401,10 @@ def showSearch():
 
 
 def _search(oGui, sSearchText):
-    showEntries(URL_SEARCH % sSearchText, oGui, sSearchText)
+    showEntries(URL_SEARCH % quote(sSearchText, safe=''), oGui, sSearchText)
 
 def get_mkv(id):
+  if not id: return None,None
   Request=cRequestHandler(f"https://driveseed.org/zfile/{id}")
   Request.addHeaderEntry("Referer", f"https://driveseed.org/file/{id}")
   Request.addHeaderEntry("Origin", "https://driveseed.org")
@@ -409,10 +416,10 @@ def get_mkv(id):
   for sRes in aResult:
    sRes = sRes
   
-  pattern = 'class="text-center">.*?<a href="(.*?.mkv)'
+  pattern = r'class="text-center">.*?<a href="([^"]+\.mkv)["]'
   isMatch, aResult = cParser.parse(response, pattern)
   if not isMatch:
-    pattern = 'iframe id.*?src=".*?link=(.*?.mkv)"'
+    pattern = r'iframe id.*?src=".*?link=([^"]+\.mkv)"'
     isMatch, aResult = cParser.parse(response, pattern)
     if not isMatch: return None,None
   for link in aResult:
@@ -424,6 +431,7 @@ def get_mkv(id):
         
 
 def get_mkv2(id):
+  if not id: return None,None
   Request=cRequestHandler(f"https://driveseed.org/wfile/{id}")
   Request.addHeaderEntry("Referer", "https://driveseed.org/")
   Request.addHeaderEntry("Origin", "https://driveseed.org")
