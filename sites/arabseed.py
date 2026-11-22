@@ -3,10 +3,11 @@
 
 
 import json
+from bs4 import BeautifulSoup
 import os
 import re, requests
 import xbmcaddon
-from urllib.parse import unquote,quote
+from urllib.parse import unquote,quote,urljoin,urlsplit
 from resources.lib.handler.ParameterHandler import ParameterHandler
 from resources.lib.handler.requestHandler import cRequestHandler
 from resources.lib.tools import logger, cParser, cUtil
@@ -29,15 +30,15 @@ if cConfig().getSetting('global_search_' + SITE_IDENTIFIER) == 'false':
     logger.info('-> [SitePlugin]: globalSearch for %s is deactivated.' % SITE_NAME)
 
 # Domain Abfrage
-DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'm.asd.ink')
+DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'm.myseed.tv')
 URL_MAIN = 'https://' + DOMAIN + '/'
 
 
 URL_MOVIES_English = URL_MAIN + 'category/foreign-movies/'
-URL_MOVIES_Arabic = URL_MAIN + 'category/arabic-movies-5/'
+URL_MOVIES_Arabic = URL_MAIN + 'category/arabic-movies/'
 URL_SERIES_English = URL_MAIN + 'category/foreign-series/'
 URL_SERIES_Arabic = URL_MAIN + 'category/arabic-series/'
-URL_MOVIES_Kids = URL_MAIN + 'category/%d8%a7%d9%81%d9%84%d8%a7%d9%85-%d8%a7%d9%86%d9%8a%d9%85%d9%8a%d8%b4%d9%86/'
+URL_MOVIES_Kids = URL_MAIN + 'category/animation-movies/'
 Ramadan = URL_MAIN + 'category/مسلسلات-رمضان/ramadan-series-2026/'
 URL_SEARCH = URL_MAIN + 'find/?word=%s&type='
 
@@ -78,7 +79,7 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
         oRequest.cacheTime = 60 * 60 * 6  # 6 Stunden
     
     
-    oRequest.addHeaderEntry('Referer', quote(sUrl))
+    oRequest.addHeaderEntry('Referer', quote(sUrl, safe='%/:?=&'))
     sHtmlContent = oRequest.request()
     
     pattern = '<div class="item__contents.*?<a href="(.*?)".*?data-src="(.*?)".*?alt="(.*?)"'
@@ -98,7 +99,7 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
         if m:
             sYear = str(m.group(0))
             sName = sName.replace(sYear,'')
-        if sSearchText and not cParser.search(sSearchText, sName):
+        if sSearchText and sSearchText.casefold() not in sName.casefold():
             continue
         
         if sName not in itemList:
@@ -132,6 +133,7 @@ def showSeasons():
     sName = params.getValue('sName')
     oRequest = cRequestHandler(sUrl)
     sHtmlContent = oRequest.request()
+    csrf__token = ''
     isMatch, token = cParser.parseSingleResult(sHtmlContent,'''['"]csrf__token['"]: ['"](.*?)["']''')
     if isMatch:
        csrf__token = token
@@ -197,7 +199,10 @@ def showEpisodes():
      oRequestHandler.addParameters('csrf_token', csrf__token)
      sHtmlContent = oRequestHandler.request()
       
-     sHtmlContent = str(json.loads(sHtmlContent))
+     try:
+      sHtmlContent = json.loads(sHtmlContent).get('html', '')
+     except (ValueError, TypeError, AttributeError):
+      sHtmlContent = ''
      pattern = '<a href="(.*?)".*?class="epi__num">.*?<b>(.*?)</b>'  # start element
      isMatch, aResult = cParser.parse(sHtmlContent, pattern)
      if  isMatch: 
@@ -267,8 +272,8 @@ def showHosters():
                 
                 sHtmlContent2 = getlinks(str(sHtmlContent41),actionurl,token,psot_id)
                 
-                sPattern = "(https.*?),(.*?)'"
-                isMatch,aResult = cParser.parse(str(sHtmlContent2), sPattern)
+                aResult = [item.rsplit(',', 1) for item in (sHtmlContent2 or [])]
+                isMatch = bool(aResult)
      
                 if isMatch:
                  for shost, sQuality in aResult :
@@ -282,7 +287,7 @@ def showHosters():
                        sName = 'Arabseed'
                     elif shost.startswith('//'):
                       shost = 'https:' + shost
-                    hoster = {'link': shost, 'name': sName, 'displayedName':sName+' '+sQuality, 'quality': sQuality} # Qualität Anzeige aus Release Eintrag
+                    hoster = {'link': shost, 'name': sName, 'displayedName':sName+' '+sQuality, 'quality': sQuality, 'resolveable': urlsplit(shost).netloc == urlsplit(URL_MAIN).netloc} # Qualität Anzeige aus Release Eintrag
                     hosters.append(hoster)
     
     
@@ -292,7 +297,25 @@ def showHosters():
 
 
 def getHosterUrl(sUrl=False):
-    
+    # Only unwrap this site's own current direct-player chain.
+    if sUrl and urlsplit(sUrl).netloc == urlsplit(URL_MAIN).netloc and urlsplit(sUrl).path == '/vids.php':
+        request = cRequestHandler(sUrl)
+        request.addHeaderEntry('User-Agent', common.IOS_USER_AGENT)
+        request.addHeaderEntry('Referer', URL_MAIN)
+        page = request.request()
+        frame = BeautifulSoup(page, 'html.parser').find('iframe', src=True)
+        if frame:
+            gateway = urljoin(sUrl, frame['src'])
+            if urlsplit(gateway).netloc == 'd.myseed.tv' and urlsplit(gateway).path == '/player-gateway.php':
+                request = cRequestHandler(gateway)
+                request.addHeaderEntry('User-Agent', common.IOS_USER_AGENT)
+                request.addHeaderEntry('Referer', URL_MAIN)
+                page = request.request()
+                source = BeautifulSoup(page, 'html.parser').select_one('video source[src]')
+                if source and urlsplit(source['src']).scheme == 'https':
+                    media = source['src'] + '|Referer=' + quote(gateway, safe='') + '&User-Agent=' + quote(common.IOS_USER_AGENT, safe='')
+                    return [{'streamUrl': media, 'resolved': True}]
+        return [{'streamUrl': '', 'resolved': True}]
     return [{'streamUrl': sUrl, 'resolved': False}]
 
 
@@ -307,28 +330,35 @@ def _search(oGui, sSearchText):
     showEntries(URL_SEARCH % cParser.quotePlus(sSearchText), oGui, sSearchText)
 
 def getlinks(sHtmlContent,actionurl,token, psot_id):
-    sHtmlContent = json.loads(sHtmlContent)
-    sHtmlContent = sHtmlContent["html"]
+    try:
+     sHtmlContent = json.loads(sHtmlContent).get('html', '')
+    except (ValueError, TypeError, AttributeError):
+     return []
     listqual=[]
     pattern = '''data-server=['"]([^"]+)['"].*?qu=['"]([^"]+)['"]'''   # start element
     
     isMatch, aResult = cParser.parse(sHtmlContent, pattern)
-    if not isMatch: return
+    if not isMatch: return []
     for server, sQual  in aResult:
        
        oRequestHandler = cRequestHandler(URL_MAIN+'get__watch__server/','POST')
        oRequestHandler.addHeaderEntry('User-Agent', common.IOS_USER_AGENT)
-       oRequestHandler.addHeaderEntry('referer', quote(actionurl, '/:?=&'))
+       oRequestHandler.addHeaderEntry('referer', quote(actionurl, '%/:?=&'))
        oRequestHandler.addHeaderEntry('X-Requested-With', 'XMLHttpRequest')
        oRequestHandler.addParameters('quality', sQual)
        oRequestHandler.addParameters('server', server)
        oRequestHandler.addParameters('csrf_token', token)
        oRequestHandler.addParameters('post_id', psot_id)
        sHtmlContent42 = oRequestHandler.request()
-       sHtmlContent42 = json.loads(sHtmlContent42)
-       sHosterUrl = sHtmlContent42["server"]
+       try:
+        serverUrl = json.loads(sHtmlContent42).get('server', '')
+        if not serverUrl: continue
+        sHosterUrl = urljoin(URL_MAIN, serverUrl)
+       except (ValueError, TypeError, AttributeError):
+        continue
+       if not sHosterUrl or urlsplit(sHosterUrl).scheme not in ('https', 'http'): continue
           
-       listqual.append(sHosterUrl+' ,'+sQual)
+       listqual.append(sHosterUrl+','+sQual)
         
     return listqual      
     
