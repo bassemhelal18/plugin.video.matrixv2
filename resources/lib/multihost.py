@@ -42,6 +42,7 @@ class cMegamax:
         self.list = []
         
     def GetUrls(self, url):
+        self.list = []
         try:
          sHosterUrl = url.replace('download','iframe')
          oRequestHandler = cRequestHandler(sHosterUrl)
@@ -64,7 +65,10 @@ class cMegamax:
                                 'X-Inertia-Partial-Data':'streams',
                                 'X-Inertia-Version':sVer}
 
-         r = s.get(sHosterUrl, headers=headers).json()
+         with s:
+          response = s.get(sHosterUrl, headers=headers, timeout=(5, 20))
+          response.raise_for_status()
+          r = response.json()
         
          for key in r['props']['streams']['data']:
             sQual = key['label'].replace(' (source)','')
@@ -74,12 +78,13 @@ class cMegamax:
                 if sHosterUrl.startswith('//'):
                     sHosterUrl = 'https:' + sHosterUrl
         
+                if sHosterUrl.startswith(('https://', 'http://')):
                     self.list.append(f'url={sHosterUrl}, qual={sQual}')
                     
                     
                     
          return self.list
-        except:return None 
+        except (requests.RequestException, ValueError, TypeError, KeyError, AttributeError):return [] 
 
 class cJheberg:
     def __init__(self):

@@ -4,9 +4,10 @@
 
 import os
 import re
+from bs4 import BeautifulSoup
 from resources.lib.multihost import cMegamax
 import xbmcaddon
-from urllib.parse import unquote,quote
+from urllib.parse import unquote,quote,urljoin
 from resources.lib.handler.ParameterHandler import ParameterHandler
 from resources.lib.handler.requestHandler import cRequestHandler
 from resources.lib.tools import logger, cParser
@@ -26,12 +27,12 @@ if cConfig().getSetting('global_search_' + SITE_IDENTIFIER) == 'false':
     logger.info('-> [SitePlugin]: globalSearch for %s is deactivated.' % SITE_NAME)
 
 # Domain Abfrage
-DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'tuk.tuktukarab.cfd')
+DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'tuktukcinemas.com')
 URL_MAIN = 'https://' + DOMAIN + '/'
 
 
 URL_MOVIES_English = URL_MAIN + 'category/movies-2/افلام-اجنبي/'
-URL_SERIES_English = URL_MAIN + 'category/series-9/مسلسلات-اجنبي/'
+URL_SERIES_English = URL_MAIN + 'sercat/مسلسلات-اجنبي/'
 URL_MOVIES_Kids = URL_MAIN + 'category/anime-6/افلام-انمي/'
 URL_SEARCH = URL_MAIN + '?s=%s'
 
@@ -70,6 +71,9 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     if not isMatch:
         if not sGui: oGui.showInfo()
         return
+    cards = BeautifulSoup(sHtmlContent, 'html.parser').select('.Block--Item a[title][href]')
+    if cards:
+        aResult = [(a['href'], a['title'], (a.find('img').get('data-src') or a.find('img').get('src') or '')) for a in cards if a.find('img')]
     itemList =[]
     total = len(aResult)
     
@@ -87,7 +91,7 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
         if m:
             sYear = str(m.group(0))
             sName = sName.replace(sYear,'')
-        if sSearchText and not cParser.search(sSearchText, sName):
+        if sSearchText and sSearchText.casefold() not in sName.casefold():
             continue
         
         if 'data-src' in sThumbnail:
@@ -110,7 +114,7 @@ def showEntries(sUrl=False, sGui=False, sSearchText=False):
     if not sGui and not sSearchText:
         isMatchNextPage, sNextUrl = cParser.parseSingleResult(sHtmlContent,'class="next page-numbers" href="(.*?)">')
         if isMatchNextPage:
-            params.setParam('sUrl', URL_MAIN[:-1]+sNextUrl)
+            params.setParam('sUrl', urljoin(sUrl, sNextUrl))
             params.setParam('trumb', os.path.join(ART, 'Next.png'))
             oGui.addNextPage(SITE_IDENTIFIER, 'showEntries', params)
         
@@ -127,12 +131,17 @@ def showSeasons():
     oRequest = cRequestHandler(sUrl)
     sHtmlContent = oRequest.request()
     
+    originalHtml = sHtmlContent
     sStart = 'class="allseasonss"'
     sEnd = 'class="allepcont getMoreByScroll">'
     sHtmlContent = cParser.abParse(sHtmlContent, sStart, sEnd)
     
     sPattern = 'href="(.+?)" title.*?alt="(.*?)" data-srccs="(.*?)"'
     isMatch, aResult = cParser.parse(sHtmlContent, sPattern)
+    if not isMatch:
+     cards = BeautifulSoup(originalHtml, 'html.parser').select('.SeriesSeasons a[title][href]')
+     aResult = [(a['href'], a['title'], (a.find('img').get('data-src') or a.find('img').get('src') or sThumbnail)) for a in cards if a.find('img')]
+     isMatch = bool(aResult)
     if  isMatch:
        
      total = len(aResult)
@@ -158,12 +167,17 @@ def showEpisodes():
     sSeason = params.getValue('season')
     sShowName = params.getValue('sName')
     
+    originalHtml = sHtmlContent
     sStart = '<section class="allepcont getMoreByScroll">'
     sEnd = '<section class="otherser"'
     sHtmlContent = cParser.abParse(sHtmlContent, sStart, sEnd)
     
     pattern = r'<a href="(.+?)" title.*?class="epnum">.*?<span>الحلقة</span>\s*(.*?)\s*</div>'  # start element
     isMatch, aResult = cParser.parse(sHtmlContent, pattern)
+    if not isMatch:
+      cards = BeautifulSoup(originalHtml, 'html.parser').select('a.SeriesEpisodeCard[href]')
+      aResult = [(a['href'], a.select_one('.SeriesEpisodeNumber strong').get_text(strip=True)) for a in cards if a.select_one('.SeriesEpisodeNumber strong')]
+      isMatch = bool(aResult)
     if  isMatch: 
       total = len(aResult)
       for sUrl, sEpisode in aResult:
@@ -185,31 +199,30 @@ def showHosters():
     
     sHtmlContent = cRequestHandler(sUrl).request()
     
+    sHtmlContent4 = sHtmlContent
     pattern = 'watchAndDownlaod" href="(.*?)">'  # start element
     isMatch, aResult = cParser.parse(sHtmlContent, pattern)
-    if not isMatch: return
-    for slink in aResult:
+    for slink in aResult if isMatch else []:
         
         oRequestHandler = cRequestHandler(slink)
         oRequestHandler.addHeaderEntry('User-Agent', common.RAND_UA)
-        oRequestHandler.addHeaderEntry('Referer', slink.split('watch/')[0])
+        oRequestHandler.addHeaderEntry('Referer', quote(slink.split('watch/')[0], safe='%/:?=&'))
         oRequestHandler.addHeaderEntry('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7')
         oRequestHandler.addHeaderEntry('Accept-Language', 'en-US,en;q=0.9,ar;q=0.8,en-GB;q=0.7')
         sHtmlContent4 = oRequestHandler.request()  
         
         
     sPattern = 'data-link="?(.+?)"? '
-    isMatch,aResult = cParser.parse(sHtmlContent4, sPattern)
+    aResult = [el['data-link'] for el in BeautifulSoup(sHtmlContent4, 'html.parser').select('[data-link]')]
+    isMatch = bool(aResult)
     if isMatch:
        for shost in aResult :
         shost = decode(shost)
         if 'megamax' in shost or 'megatuktuk' in shost or 'megaxmax' in shost:
-            shost,sframe = shost.split('iframe/')
-            shost2 = 'https://megamax.me/iframe/' +sframe
-            sHtmlContent2 = cMegamax().GetUrls(shost2)
+            sHtmlContent2 = cMegamax().GetUrls(shost) or []
             for item in sHtmlContent2:
-                    shost = item.split(',')[0].split('=')[1]
-                    sQuality = item.split(',')[1].split('=')[1]
+                    shost = item.rsplit(', qual=', 1)[0].split('=', 1)[1]
+                    sQuality = item.rsplit(', qual=', 1)[1]
                     
                     sName = cParser.urlparse(shost)
                     if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
