@@ -3,6 +3,8 @@
 
 import os
 import re
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin, urlsplit, urlunsplit, parse_qsl, urlencode
 import xbmcaddon
 from six.moves.urllib.parse import unquote,quote
 from resources.lib.handler.ParameterHandler import ParameterHandler
@@ -24,7 +26,11 @@ if cConfig().getSetting('global_search_' + SITE_IDENTIFIER) == 'false':
     logger.info('-> [SitePlugin]: globalSearch for %s is deactivated.' % SITE_NAME)
 
 # Domain Abfrage
-DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'shaaheid4u.net')
+DOMAIN = cConfig().getSetting('plugin_'+ SITE_IDENTIFIER +'.domain', 'shahed4u.here')
+# Only the previous shipped default migrates; custom settings are preserved.
+if DOMAIN == 'shaaheid4u.net':
+    DOMAIN = 'shahed4u.here'
+    cConfig().setSetting('plugin_'+ SITE_IDENTIFIER +'.domain', DOMAIN)
 URL_MAIN = 'https://' + DOMAIN + '/'
 
 
@@ -63,217 +69,238 @@ def load(): # Menu structure of the site plugin
     cGui().setEndOfDirectory()
 
 
-def showEntries(sUrl=False, sGui=False, sSearchText=False):
-    oGui = sGui if sGui else cGui()
-    params = ParameterHandler()
-    isTvshow = False
-    if not sUrl: sUrl = params.getValue('sUrl')
-    sUrl2=sUrl
-    oRequest = cRequestHandler(sUrl , ignoreErrors=(sGui is not False))
-    if cConfig().getSetting('global_search_' + SITE_IDENTIFIER) == 'true':
-        oRequest.cacheTime = 60 * 60 * 6  # 6 Stunden
-    iPage = int(params.getValue('page'))
-    oRequest = cRequestHandler(sUrl + '?page=' + str(iPage) if iPage > 0 else sUrl, ignoreErrors=(sGui is not False))
-    sHtmlContent = oRequest.request()
-    
-    
-    sStart = '<div class="container my-3">'
-    sEnd = '<nav aria-label="Page navigation"'
-    sHtmlContent1 = cParser.abParse(sHtmlContent, sStart, sEnd)
-    
-    sPattern = r'href="([^"]+)".+?image.*?\((.+?)\);.+?class="title">(.+?)</'
-    isMatch, aResult = cParser.parse(sHtmlContent1, sPattern)
-    if not isMatch:
-        if not sGui: oGui.showInfo()
-        return
-    itemList =[]
-    total = len(aResult)
-    
-    for sUrl, sThumbnail,sName in aResult:
-        isTvshow, aResult = cParser.parse(unquote(sUrl), 'مسلسل')
-        if not isTvshow:
-            isTvshow, aResult = cParser.parse(unquote(sUrl),'حلقة')
-            if not isTvshow:
-               isTvshow, aResult = cParser.parse(unquote(sUrl),'serie')
-        sName = sName.replace('مترجمة','').replace('مترجم','').replace('فيلم','').replace('مسلسل','').replace('اون','').replace('أون','').replace('لاين','').split('الموسم')[0].split('الحلقة')[0].replace('سلسل','').replace('مشاهدة','').replace('التريلر','').strip()
-        sYear = ''
-        m = re.search(r'(?<!^)(?<!\d)(19|20)\d{2}\b', sName)
-        if m:
-            sYear = str(m.group(0))
-            sName = sName.replace(sYear,'')
-        if sSearchText and not cParser.search(sSearchText, sName):
-            continue
-        
-        if sName not in itemList:
-            itemList.append(sName)
-            oGuiElement = cGuiElement(sName, SITE_IDENTIFIER, 'showSeasons' if isTvshow else 'showHosters')
-            oGuiElement.setThumbnail(sThumbnail)
-            oGuiElement.setMediaType('tvshow' if isTvshow else 'movie')
-            if sYear:
-             oGuiElement.setYear(sYear)
-            params.setParam('sUrl', sUrl)
-            params.setParam('sName', sName)
-            params.setParam('sThumbnail', sThumbnail)
-            oGui.addFolder(oGuiElement, params, isTvshow, total)
-        
-    if not sGui and not sSearchText:
-        sPageNr = int(params.getValue('page'))
-        if sPageNr == 0:
-            sPageNr = 2
-        else:
-            sPageNr += 1
-        params.setParam('page', int(sPageNr))
-        params.setParam('sUrl', sUrl)
-        params.setParam('trumb', os.path.join(ART, 'Next.png'))
-        oGui.addNextPage(SITE_IDENTIFIER, 'showEntries', params)
-        oGui.setView('tvshows' if isTvshow else 'movies')
-        oGui.setEndOfDirectory()
+def _page(url, referer=None):
+    request = cRequestHandler(url)
+    # urllib serializes headers as latin-1. Quote Arabic URL characters once,
+    # preserving existing percent escapes and URL delimiters.
+    request.addHeaderEntry('Referer', quote(referer or URL_MAIN, safe="%/:?=&!+$,;@#[]()*'~-._"))
+    return request, BeautifulSoup(request.request() or '', 'html.parser')
 
+
+def _http(base, value):
+    if not value:
+        return ''
+    url = urljoin(base, value)
+    return url if urlsplit(url).scheme in ('http', 'https') else ''
+
+
+def _title(value):
+    value = re.sub(r'\b(?:19|20)\d{2}\b', '', value)
+    for word in ('مشاهدة', 'مترجمة', 'مترجم', 'فيلم', 'مسلسل', 'اون لاين', 'أون لاين'):
+        value = value.replace(word, '')
+    return value.split('الموسم')[0].split('الحلقة')[0].strip()
+
+
+def showEntries(sUrl=False, sGui=False, sSearchText=False):
+    gui = sGui if sGui else cGui()
+    params = ParameterHandler()
+    listing = sUrl or params.getValue('sUrl') or URL_MAIN
+    # Legacy navigation parameters must not replace an existing search query.
+    page = str(params.getValue('page') or '')
+    if page.isdigit() and int(page) > 1:
+        parts = urlsplit(listing)
+        query = dict(parse_qsl(parts.query))
+        query['page'] = page
+        listing = urlunsplit(parts._replace(query=urlencode(query)))
+    request, doc = _page(listing)
+    cards = doc.select('a.show-card[href]')
+    seen = set()
+    count = 0
+    for card in cards:
+        title = card.select_one('.title')
+        if not title:
+            continue
+        raw = title.get_text(' ', strip=True)
+        name = _title(raw)
+        link = _http(listing, card.get('href'))
+        is_series = any(x in urlsplit(link).path for x in ('/serie/', '/series/', '/season/', '/episode/'))
+        identity = name if is_series else link
+        if not name or not link or identity in seen:
+            continue
+        # The site's own search matches are retained, never compiled as regex.
+        seen.add(identity)
+        element = cGuiElement(name, SITE_IDENTIFIER, 'showSeasons' if is_series else 'showHosters')
+        element.setMediaType('tvshow' if is_series else 'movie')
+        year = re.search(r'\b(?:19|20)\d{2}\b', raw)
+        if year:
+            element.setYear(year.group())
+        image = card.select_one('img')
+        thumbnail = _http(listing, (image.get('data-src') or image.get('src')) if image else '')
+        element.setThumbnail(thumbnail)
+        item = ParameterHandler()
+        item.setParam('sUrl', link)
+        item.setParam('sName', name)
+        item.setParam('sThumbnail', thumbnail)
+        gui.addFolder(element, item, is_series, len(cards))
+        count += 1
+    if not count and not sGui:
+        gui.showInfo()
+    if not sGui:
+        nxt = doc.select_one('a[rel="next"][href]')
+        if nxt:
+            next_url = _http(listing, nxt['href'])
+            if urlsplit(next_url).netloc == urlsplit(listing).netloc:
+                item = ParameterHandler()
+                item.setParam('sUrl', next_url)
+                item.setParam('page', 0)
+                item.setParam('trumb', os.path.join(ART, 'Next.png'))
+                gui.addNextPage(SITE_IDENTIFIER, 'showEntries', item)
+        gui.setView('movies')
+        gui.setEndOfDirectory()
+
+
+def _number(anchor):
+    spans = anchor.select('span')
+    text = spans[-1].get_text(' ', strip=True) if spans else anchor.get_text(' ', strip=True)
+    match = re.search(r'\d+', text)
+    return match.group() if match else ''
+
+
+def _parts(kind):
+    params = ParameterHandler()
+    url = params.getValue('sUrl')
+    request, doc = _page(url)
+    anchors = [a for a in doc.select('a.epss[href]') if '/' + kind + '/' in urlsplit(_http(url, a['href'])).path]
+    return params, url, doc, anchors
 
 
 def showSeasons():
-    params = ParameterHandler()
-    sUrl = params.getValue('sUrl')
-    sThumbnail = params.getValue('sThumbnail')
-    sName = params.getValue('sName')
-    oRequest = cRequestHandler(sUrl)
-    sHtmlContent = oRequest.request()
-    
-    
-    sStart = 'جميع المواسم'
-    sEnd = '<hr class'
-    sHtmlContent = cParser.abParse(sHtmlContent, sStart, sEnd)
-    sPattern = '<a href="(.+?)".+?>الموسم</span>.+?>(.+?)</span>'
-    isMatch, aResult = cParser.parse(sHtmlContent, sPattern)
-    if  isMatch:
-       
-     total = len(aResult)
-     for sUrl,sSeason in aResult:
-        sSeason = sSeason.replace("مترجم","").replace("مترجمة","").replace(" الحادي عشر","11").replace(" الثاني عشر","12").replace(" الثالث عشر","13").replace(" الرابع عشر","14").replace(" الخامس عشر","15").replace(" السادس عشر","16").replace(" السابع عشر","17").replace(" الثامن عشر","18").replace(" التاسع عشر","19").replace(" العشرون","20").replace(" الحادي و العشرون","21").replace(" الثاني و العشرون","22").replace(" الثالث و العشرون","23").replace(" الرابع والعشرون","24").replace(" الخامس و العشرون","25").replace(" السادس والعشرون","26").replace(" السابع والعشرون","27").replace(" الثامن والعشرون","28").replace(" التاسع والعشرون","29").replace(" الثلاثون","30").replace(" الحادي و الثلاثون","31").replace(" الثاني والثلاثون","32").replace(" الاول","1").replace(" الثاني","2").replace(" الثانى","2").replace(" الثالث","3").replace(" الرابع","4").replace(" الخامس","5").replace(" السادس","6").replace(" السابع","7").replace(" الثامن","8").replace(" التاسع","9").replace(" العاشر","10")
-        oGuiElement = cGuiElement('Season'+' ' +sSeason, SITE_IDENTIFIER, 'showEpisodes')
-        oGuiElement.setTVShowTitle(sName)
-        oGuiElement.setSeason(sSeason)
-        oGuiElement.setMediaType('season')
-        params.setParam('sThumbnail', sThumbnail)
-        params.setParam('sUrl', sUrl.strip())
-        cGui().addFolder(oGuiElement, params, True, total)
-    
+    params, url, doc, anchors = _parts('season')
+    if not anchors:
+        # Series/episode pages without separate seasons may list episodes directly.
+        showEpisodes()
+        return
+    seen = set()
+    for anchor in anchors:
+        link = _http(url, anchor['href'])
+        number = _number(anchor)
+        if link in seen or not number:
+            continue
+        seen.add(link)
+        item = ParameterHandler()
+        for key in ('sName', 'sThumbnail'):
+            item.setParam(key, params.getValue(key) or '')
+        item.setParam('sUrl', link)
+        item.setParam('season', number)
+        element = cGuiElement('Season ' + number, SITE_IDENTIFIER, 'showEpisodes')
+        element.setTVShowTitle(params.getValue('sName') or '')
+        element.setThumbnail(params.getValue('sThumbnail') or '')
+        element.setSeason(number)
+        element.setMediaType('season')
+        cGui().addFolder(element, item, True, len(anchors))
     cGui().setView('seasons')
     cGui().setEndOfDirectory()
 
+
 def showEpisodes():
-    params = ParameterHandler()
-    sUrl = params.getValue('sUrl')
-    oRequest = cRequestHandler(sUrl)
-    sHtmlContent = oRequest.request()
-    sThumbnail = params.getValue('sThumbnail')
-    sSeason = params.getValue('season')
-    sShowName = params.getValue('sName')
-    
-    pattern = 'href="([^"]+)" class="epss.+?</span>.+?>(.+?)</span>'  # start element
-    isMatch, aResult = cParser.parse(sHtmlContent, pattern)
-    if  isMatch: 
-      total = len(aResult)
-      for sUrl, sEpisode in aResult:
-        if "season/" in sUrl:
-                continue 
-        if 'http' not in sUrl:
-           sUrl = URL_MAIN+sUrl
-        oGuiElement = cGuiElement('Episode ' + sEpisode, SITE_IDENTIFIER, 'showHosters')
-        oGuiElement.setTVShowTitle(sShowName)
-        oGuiElement.setSeason(sSeason)
-        oGuiElement.setEpisode(sEpisode)
-        oGuiElement.setMediaType('episode')
-        params.setParam('sUrl', sUrl.replace('episode/','download/'))
-        cGui().addFolder(oGuiElement, params, False, total)
+    params, url, doc, anchors = _parts('episode')
+    seen = set()
+    for anchor in anchors:
+        link = _http(url, anchor['href'])
+        number = _number(anchor)
+        if link in seen or not number:
+            continue
+        seen.add(link)
+        item = ParameterHandler()
+        item.setParam('sUrl', link)
+        element = cGuiElement('Episode ' + number, SITE_IDENTIFIER, 'showHosters')
+        element.setTVShowTitle(params.getValue('sName') or '')
+        element.setThumbnail(params.getValue('sThumbnail') or '')
+        if params.getValue('season'):
+            element.setSeason(params.getValue('season'))
+        element.setEpisode(number)
+        element.setMediaType('episode')
+        cGui().addFolder(element, item, False, len(anchors))
+    if not anchors:
+        cGui().showInfo()
     cGui().setView('episodes')
     cGui().setEndOfDirectory()
 
 
+def _downloadPage(url):
+    request, doc = _page(url)
+    if '/download/' in urlsplit(url).path:
+        return url, doc
+    anchor = doc.select_one('a.btn.download[href]')
+    if not anchor:
+        return '', doc
+    download = _http(url, anchor['href'])
+    if urlsplit(download).netloc != urlsplit(url).netloc:
+        return '', doc
+    return download, _page(download, url)[1]
+
+
+def _downloads(doc, base):
+    result = []
+    for anchor in doc.select('.down-container a.btn-down[href]'):
+        if anchor.has_attr('data-honeytoken') or anchor.get('aria-hidden') == 'true':
+            continue
+        spans = anchor.select('.info > span')
+        name = spans[0].get_text(' ', strip=True) if spans else ''
+        quality = spans[1].get_text(' ', strip=True) if len(spans) > 1 else ''
+        link = _http(base, anchor['href'])
+        if name and link and not cConfig().isBlockedHoster(name.rstrip('.'))[0]:
+            result.append((link, name, quality))
+    return result
+
+
 def showHosters():
+    # Current watch servers require browser-generated interaction signals.
+    # Do not invent those signals or mistake their JSON metadata for host URLs.
+    url = ParameterHandler().getValue('sUrl')
+    download, doc = _downloadPage(url)
+    choices = _downloads(doc, download) if download else []
     hosters = []
-    sUrl = ParameterHandler().getValue('sUrl')
-    if 'download/' not in sUrl:
-      sUrl =sUrl.replace('film/','download/')
-    sUrl2 = sUrl.replace('/download/','/watch/')
-    
-    
-    sHtmlContent = cRequestHandler(sUrl2).request()
-    sPattern = '"url":"([^"]+)",'
-    isMatch,aResult = cParser.parse(sHtmlContent, sPattern)
-     
-    if isMatch:
-       for shost in aResult :
-        shost = deescape(shost)
-        sName = cParser.urlparse(shost)
-        sName =  sName.split('.')[-2]
-        if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
-        if 'youtube' in shost:
-            continue
-        if 'filegram' in shost:
-            shost = shost + "$$" + URL_MAIN
-        if 'fdewsdc' in shost:
-            shost = shost + "$$" + URL_MAIN
-        if 'fsdcmo' in shost:
-            shost = shost + "$$" + URL_MAIN           
-        elif shost.startswith('//'):
-               shost = 'https:' + shost
-        hoster = {'link': shost, 'name': sName, 'displayedName':sName} # Qualität Anzeige aus Release Eintrag
-        hosters.append(hoster)
-    
-    oRequestHandler = cRequestHandler(sUrl)
-    sHtmlContent = oRequestHandler.request()
-    oParser = cParser()
-    sStart = 'class="down-container">'
-    sEnd = '<button style='
-    sHtmlContent0 = oParser.abParse(sHtmlContent, sStart, sEnd)
-    
-    sPattern = r'<div\s*class="qual">.+?</i>(.+?)</h1>(.*?)<hr'
-    isMatch,aResult = cParser.parse(sHtmlContent0, sPattern)
-    if isMatch:
-       for sQuality,shost in aResult :
-        sQuality=sQuality.replace("سيرفرات تحميل","").strip()
-        sHtmlContent1 = shost
-        sPattern = 'href="([^"]+)'
-        isMatch,aResult = cParser.parse(sHtmlContent1, sPattern)
-        if isMatch:
-         for sUrl3 in aResult:
-          
-          sName = cParser.urlparse(sUrl3)
-          if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschließen
-          if 'youtube' in sUrl3:
-            continue
-          if 'filegram' in sUrl3:
-            sUrl3 = sUrl3 + "$$" + URL_MAIN
-          if 'fdewsdc' in sUrl3:
-            sUrl3 = sUrl3 + "$$" + URL_MAIN
-          if 'fsdcmo' in sUrl3:
-            sUrl3 = sUrl3 + "$$" + URL_MAIN      
-          elif sUrl3.startswith('//'):
-               sUrl3 = 'https:' + sUrl3
-          hoster = {'link': sUrl3, 'name': sName, 'displayedName':sName+' '+sQuality, 'quality': sQuality} # Qualität Anzeige aus Release Eintrag
-          hosters.append(hoster)
+    for index, (link, name, quality) in enumerate(choices):
+        # Refresh short-lived wrapper URLs only when a server is selected.
+        hosters.append({'link': download + '#matrixv2-server=' + urlencode({'name': name, 'quality': quality}),
+                        'name': name, 'displayedName': name + ' ' + quality,
+                        'quality': quality})
     if hosters:
         hosters.append('getHosterUrl')
+    else:
+        cGui().showInfo()
     return hosters
 
 
 def getHosterUrl(sUrl=False):
-    
-    return [{'streamUrl': sUrl, 'resolved': False}]
+    if not sUrl:
+        return []
+    parts = urlsplit(sUrl)
+    if not parts.fragment.startswith('matrixv2-server='):
+        return [{'streamUrl': sUrl, 'resolved': False}]
+    try:
+        selection = dict(parse_qsl(parts.fragment.split('=', 1)[1]))
+        download = urlunsplit(parts._replace(fragment=''))
+        request, doc = _page(download)
+        choices = _downloads(doc, download)
+        matches = [entry for entry in choices if entry[1] == selection.get('name') and entry[2] == selection.get('quality')]
+        if not matches:
+            return []
+        wrapper = matches[0][0]
+        if urlsplit(wrapper).netloc != urlsplit(download).netloc:
+            return [{'streamUrl': wrapper, 'resolved': False}]
+        if not urlsplit(wrapper).path.startswith('/m/'):
+            return []
+        request, doc = _page(wrapper, download)
+        final = request.getRealUrl() or wrapper
+        # Follow only an ordinary HTTP redirect. Never decode
+        # protection tokens, run website JS, or return expired same-site wrappers.
+        if urlsplit(final).netloc != urlsplit(download).netloc and _http(wrapper, final):
+            return [{'streamUrl': final, 'resolved': False}]
+    except (ValueError, TypeError, IndexError):
+        pass
+    logger.info(' -> [shahidu]: selected server unavailable or expired')
+    cGui().showInfo()
+    return []
 
 
 def showSearch():
-    sSearchText = cGui().showKeyBoard()
-    if not sSearchText: return
-    _search(False, sSearchText)
-    cGui().setEndOfDirectory()
+    text = cGui().showKeyBoard()
+    if not text:
+        return
+    _search(False, text)
 
 
 def _search(oGui, sSearchText):
     showEntries(URL_SEARCH % cParser.quotePlus(sSearchText), oGui, sSearchText)
-
-
-def deescape(escaped):
-  return escaped.encode().decode('unicode_escape').encode().decode("utf-8", "replace")
-    
