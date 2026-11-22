@@ -223,29 +223,79 @@ def showHosters():
     params = ParameterHandler()
     sUrl = params.getValue('sUrl')
     sType = params.getValue('mediaType')
+    sName = params.getValue('sName')
     hosters = []
+    
     if sType == 'movie':
-        sHtmlContent = cRequestHandler(sUrl).request()
-        soup = BeautifulSoup(sHtmlContent, 'html.parser')
-        for link in soup.find_all('a', class_='maxbutton-download-g-drive', href=True):
-            # Quality descriptions are strong/p blocks, not h3 headings.
-            sRes = link.get_text(' ', strip=True)
-            for heading in link.find_all_previous(['strong', 'p', 'h3', 'h4', 'h5']):
-                label = heading.get_text(' ', strip=True)
-                if re.search(r'\b(?:2160|1080|720|480)p\b|\b4K\b', label, re.I):
-                    quality = re.search(r'\b(?:2160|1080|720|480)p\b|\b4K\b', label, re.I)
-                    sRes = label[quality.start():]
-                    break
-            hosters.append({'link': link['href'], 'name': 'UHDMovies',
-                            'displayedName': sRes, 'resolveable': True})
-    elif sUrl:
-        hosters.append({'link': sUrl, 'name': 'UHDMovies',
-                        'displayedName': 'Episode', 'resolveable': True})
+     sHtmlContent = cRequestHandler(sUrl).request()
+     
+     pattern = r'<a(?=[^>]*class="[^"]*maxbutton-download-g-drive)(?=[^>]*href="([^"]+)")[^>]*>'
+     isMatch, aResult = cParser.parse(sHtmlContent, pattern)
+     if not isMatch: return
+     for slink in aResult:
+       _wp_http = slink
+       action_url, _wp_http2, token = make_post_request(_wp_http)
+       resp = get_pepe_url(action_url, _wp_http2, token)
+       matches = get_match(resp)
+       if not matches:
+        if token: token['session'].close()
+        continue
+       pepe_url = matches[0]
+       cookies = token
+
+
+    
+       response = make_get_request(pepe_url, cookies, action_url)
+       final_url = parse_redirect_page(response)
+       file_id = get_zfile(final_url)
+       res,sRes = get_mkv(file_id)
+       if res is not None:
+        s = getheader(res)
+        hoster = {'link':  urllib_parse.quote(res, '/:=&?')+s, 'name': sRes, 'displayedName':sRes, 'resolveable': True,'resolved': True} # Qualität Anzeige aus Release Eintrag
+        hosters.append(hoster)
+       res ,sRes2 = get_mkv2(file_id)
+       if res is not None:
+        s = getheader(res)
+        hoster = {'link':urllib_parse.quote(res, '/:=&?')+s, 'name': sRes2, 'displayedName':sRes2, 'resolveable': True,'resolved': True}
+        hosters.append(hoster)
+    else:
+        
+        pattern = r'(https://[^\s]+)' 
+        isMatch, aResult = cParser.parse(sUrl, pattern)
+        if not isMatch: return
+        for slink in aResult:
+        
+          _wp_http = slink
+          action_url, _wp_http2, token = make_post_request(_wp_http)
+          resp = get_pepe_url(action_url, _wp_http2, token)
+          matches = get_match(resp)
+          if not matches:
+           if token: token['session'].close()
+           continue
+          pepe_url = matches[0]
+          cookies = token
+
+
+    
+          response = make_get_request(pepe_url, cookies, action_url)
+          final_url = parse_redirect_page(response)
+          file_id = get_zfile(final_url)
+          res,sRes = get_mkv(file_id)
+          if res is not None:
+           s = getheader(res)
+           hoster = {'link':  urllib_parse.quote(res, '/:=&?')+s, 'name': sRes, 'displayedName':sRes, 'resolveable': True,'resolved': True} # Qualität Anzeige aus Release Eintrag
+           hosters.append(hoster)
+        
+          res,sRes2 = get_mkv2(file_id)
+          if res is not None:
+            s = getheader(res)
+            hoster = {'link':urllib_parse.quote(res, '/:=&?')+s, 'name': sRes2, 'displayedName':sRes2, 'resolveable': True,'resolved': True}
+            hosters.append(hoster)    
     if hosters:
         hosters.append('getHosterUrl')
-    return hosters
+    return hosters    
 
-
+        
 def getheader(url):
     sRefer = '{}'.format(cParser.urlparse(url))
     sRefer = sRefer.lower()
@@ -371,27 +421,9 @@ def get_zfile(url):
 
 
 def getHosterUrl(sUrl=False):
-    streams = []
-    if not sUrl:
-        return [{'streamUrl': '', 'resolved': True}]
-    # Prepare only the chosen quality, then retain both original MKV branches.
-    action_url, _wp_http2, token = make_post_request(sUrl)
-    resp = get_pepe_url(action_url, _wp_http2, token)
-    matches = get_match(resp)
-    if matches:
-        response = make_get_request(matches[0], token, action_url)
-        final_url = parse_redirect_page(response)
-        file_id = get_zfile(final_url)
-        for extractor in (get_mkv, get_mkv2):
-            res, sRes = extractor(file_id)
-            if res is not None:
-                streams.append({'streamUrl': urllib_parse.quote(res, '/:=&?') + getheader(res),
-                                'resolved': True})
-    elif token:
-        token['session'].close()
-    # The host framework indexes the result even when unavailable.
-    return streams or [{'streamUrl': '', 'resolved': True}]
-
+    
+    return [{'streamUrl': sUrl, 'resolved': True}]
+    
 
 def showSearch():
     sSearchText = cGui().showKeyBoard()
