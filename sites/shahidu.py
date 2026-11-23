@@ -244,17 +244,39 @@ def _downloads(doc, base):
     return result
 
 
+def _externalHost(link, download):
+    # Reuse the existing ordinary HTTP path. No token decoding or site JS.
+    if urlsplit(link).netloc != urlsplit(download).netloc:
+        return link if _http(download, link) else ''
+    if not urlsplit(link).path.startswith('/m/'):
+        return ''
+    request = cRequestHandler(link)
+    request.addHeaderEntry('Referer', quote(download or URL_MAIN, safe="%/:?=&!+$,;@#[]()*'~-._"))
+    request.request()
+    final = request.getRealUrl() or link
+    if urlsplit(final).netloc != urlsplit(download).netloc and _http(link, final):
+        return final
+    return ''
+
+
 def showHosters():
-    # Current watch servers require browser-generated interaction signals.
-    # Do not invent those signals or mistake their JSON metadata for host URLs.
+    # Eager host collection; same ordinary handler and original choice order.
     url = ParameterHandler().getValue('sUrl')
     download, doc = _downloadPage(url)
     choices = _downloads(doc, download) if download else []
     hosters = []
-    for index, (link, name, quality) in enumerate(choices):
-        # Refresh short-lived wrapper URLs only when a server is selected.
-        hosters.append({'link': download + '#matrixv2-server=' + urlencode({'name': name, 'quality': quality}),
-                        'name': name, 'displayedName': name + ' ' + quality,
+    resolved_links = {}  # Per collection only; never persist short-lived links.
+    for link, name, quality in choices:
+        try:
+            if link not in resolved_links:
+                resolved_links[link] = _externalHost(link, download)
+            final = resolved_links[link]
+        except (ValueError, TypeError, IndexError):
+            final = ''
+        if not final:
+            continue
+        hosters.append({'link': final, 'name': name,
+                        'displayedName': name + ' ' + quality,
                         'quality': quality})
     if hosters:
         hosters.append('getHosterUrl')
@@ -264,35 +286,8 @@ def showHosters():
 
 
 def getHosterUrl(sUrl=False):
-    if not sUrl:
-        return []
-    parts = urlsplit(sUrl)
-    if not parts.fragment.startswith('matrixv2-server='):
-        return [{'streamUrl': sUrl, 'resolved': False}]
-    try:
-        selection = dict(parse_qsl(parts.fragment.split('=', 1)[1]))
-        download = urlunsplit(parts._replace(fragment=''))
-        request, doc = _page(download)
-        choices = _downloads(doc, download)
-        matches = [entry for entry in choices if entry[1] == selection.get('name') and entry[2] == selection.get('quality')]
-        if not matches:
-            return []
-        wrapper = matches[0][0]
-        if urlsplit(wrapper).netloc != urlsplit(download).netloc:
-            return [{'streamUrl': wrapper, 'resolved': False}]
-        if not urlsplit(wrapper).path.startswith('/m/'):
-            return []
-        request, doc = _page(wrapper, download)
-        final = request.getRealUrl() or wrapper
-        # Follow only an ordinary HTTP redirect. Never decode
-        # protection tokens, run website JS, or return expired same-site wrappers.
-        if urlsplit(final).netloc != urlsplit(download).netloc and _http(wrapper, final):
-            return [{'streamUrl': final, 'resolved': False}]
-    except (ValueError, TypeError, IndexError):
-        pass
-    logger.info(' -> [shahidu]: selected server unavailable or expired')
-    cGui().showInfo()
-    return []
+    # Original pass-through contract: host URL is already in the host list.
+    return [{'streamUrl': sUrl, 'resolved': False}]
 
 
 def showSearch():
