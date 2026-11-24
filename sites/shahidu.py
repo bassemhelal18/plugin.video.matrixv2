@@ -5,6 +5,7 @@ import os
 import re
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlsplit, urlunsplit, parse_qsl, urlencode
+from resources.lib import common
 import xbmcaddon
 from six.moves.urllib.parse import unquote,quote
 from resources.lib.handler.ParameterHandler import ParameterHandler
@@ -75,6 +76,11 @@ def _page(url, referer=None):
     # preserving existing percent escapes and URL delimiters.
     request.addHeaderEntry('Referer', quote(referer or URL_MAIN, safe="%/:?=&!+$,;@#[]()*'~-._"))
     return request, BeautifulSoup(request.request() or '', 'html.parser')
+
+
+def _hdr_url(value):
+    # Same quoting policy as _page: urllib sends headers as latin-1.
+    return quote(value, safe="%/:?=&!+$,;@#[]()*'~-._")
 
 
 def _http(base, value):
@@ -217,72 +223,81 @@ def showEpisodes():
     cGui().setEndOfDirectory()
 
 
-def _downloadPage(url):
-    request, doc = _page(url)
-    if '/download/' in urlsplit(url).path:
-        return url, doc
-    anchor = doc.select_one('a.btn.download[href]')
-    if not anchor:
-        return '', doc
-    download = _http(url, anchor['href'])
-    if urlsplit(download).netloc != urlsplit(url).netloc:
-        return '', doc
-    return download, _page(download, url)[1]
-
-
-def _downloads(doc, base):
-    result = []
-    for anchor in doc.select('.down-container a.btn-down[href]'):
-        if anchor.has_attr('data-honeytoken') or anchor.get('aria-hidden') == 'true':
-            continue
-        spans = anchor.select('.info > span')
-        name = spans[0].get_text(' ', strip=True) if spans else ''
-        quality = spans[1].get_text(' ', strip=True) if len(spans) > 1 else ''
-        link = _http(base, anchor['href'])
-        if name and link and not cConfig().isBlockedHoster(name.rstrip('.'))[0]:
-            result.append((link, name, quality))
-    return result
-
-
-def _externalHost(link, download):
-    # Reuse the existing ordinary HTTP path. No token decoding or site JS.
-    if urlsplit(link).netloc != urlsplit(download).netloc:
-        return link if _http(download, link) else ''
-    if not urlsplit(link).path.startswith('/m/'):
-        return ''
-    request = cRequestHandler(link)
-    request.addHeaderEntry('Referer', quote(download or URL_MAIN, safe="%/:?=&!+$,;@#[]()*'~-._"))
-    request.request()
-    final = request.getRealUrl() or link
-    if urlsplit(final).netloc != urlsplit(download).netloc and _http(link, final):
-        return final
-    return ''
 
 
 def showHosters():
-    # Eager host collection; same ordinary handler and original choice order.
-    url = ParameterHandler().getValue('sUrl')
-    download, doc = _downloadPage(url)
-    choices = _downloads(doc, download) if download else []
-    hosters = []
-    resolved_links = {}  # Per collection only; never persist short-lived links.
-    for link, name, quality in choices:
-        try:
-            if link not in resolved_links:
-                resolved_links[link] = _externalHost(link, download)
-            final = resolved_links[link]
-        except (ValueError, TypeError, IndexError):
-            final = ''
-        if not final:
-            continue
-        hosters.append({'link': final, 'name': name,
-                        'displayedName': name + ' ' + quality,
-                        'quality': quality})
-    if hosters:
-        hosters.append('getHosterUrl')
-    else:
-        cGui().showInfo()
-    return hosters
+    # Diagnostic only. No additional requests or changed headers/cache settings.
+    diag = dict(stage='start', choices=0, attempts=0, completed=0, html=0,
+                empty_invalid=0, same_site=0, external=0, duplicate=0)
+    statuses = {}
+    try:
+        # Download page -> /m/ redirect per server -> real external host page.
+        hosters = []
+        seen = set()
+        url = ParameterHandler().getValue('sUrl')
+        diag['stage'] = 'title'
+        sHtmlContent = cRequestHandler(url).request()
+
+        isactionurl, actionurl = cParser.parseSingleResult(sHtmlContent, '<a href="([^<]+)" class="btn download">')
+        if isactionurl:
+            actionurl = _http(url, actionurl)
+            oRequestHandler = cRequestHandler(actionurl)
+            oRequestHandler.addHeaderEntry('User-Agent', common.IOS_USER_AGENT)
+            oRequestHandler.addHeaderEntry('referer', _hdr_url(URL_MAIN))
+            diag['stage'] = 'download'
+            sHtmlContent4 = oRequestHandler.request()
+            Pattern = r'<a\s[^>]*?href="(?P<link>[^"]+)"[^>]*class="btn btn-down\s*"[^>]*>\s*<div class="icon">\s*<i[^>]*><\/i>\s*<\/div>\s*<div class="info\s*">\s*<span>(?P<name>[^<]+)<\/span>\s*<span>\s*<i[^>]*><\/i>\s*<span>(?P<quality>\d+)<\/span>'
+            isMatch, aResult = cParser().parse(sHtmlContent4, Pattern)
+            if isMatch:
+                diag['choices'] = len(aResult)
+                for link, name, quality in aResult:
+                    link = _http(actionurl, link)
+                    if not link:
+                        continue
+                    # caching=False: the cache path returns before the final URL is set.
+                    oReq = cRequestHandler(link, caching=False)
+                    oReq.addHeaderEntry('User-Agent', common.IOS_USER_AGENT)
+                    oReq.addHeaderEntry('referer', _hdr_url(actionurl))
+                    diag['stage'] = 'intermediary'
+                    diag['attempts'] += 1
+                    body = oReq.request()
+                    diag['completed'] += 1
+                    status = str(oReq.getStatus())
+                    status = status if status.isdigit() and len(status) == 3 else 'unknown'
+                    statuses[status] = statuses.get(status, 0) + 1
+                    if isinstance(body, str) and ('<html' in body.lower() or '<!doctype html' in body.lower()):
+                        diag['html'] += 1
+                    final = oReq.getRealUrl()
+                    # Keep only genuine external host pages: http(s), and not the site's own domain.
+                    parts = urlsplit(final or '')
+                    if parts.scheme not in ('http', 'https') or not parts.netloc:
+                        diag['empty_invalid'] += 1
+                        continue
+                    if parts.netloc.lower().split(':')[0] == urlsplit(URL_MAIN).netloc.lower():
+                        diag['same_site'] += 1
+                        continue
+                    diag['external'] += 1
+                    if final in seen:
+                        diag['duplicate'] += 1
+                        continue
+                    # Log the host only, final URLs can carry signed/session values.
+                    # Diagnostic variant: no host names or final URLs in our output.
+                    seen.add(final)
+                    hosters.append({'link': final, 'name': name,
+                                    'displayedName': name + ' ' + quality,
+                                    'quality': quality})
+        diag['stage'] = 'done'
+        if hosters:
+            hosters.append('getHosterUrl')
+        else:
+            cGui().showInfo()
+        return hosters
+
+    finally:
+        logger.info('SHAHID_DIAG stage=%s choices=%d attempts=%d completed=%d handler_status=%s html=%d empty_invalid=%d same_site=%d external=%d duplicate=%d' % (
+            diag['stage'], diag['choices'], diag['attempts'], diag['completed'],
+            ','.join('%s:%d' % (key, statuses[key]) for key in sorted(statuses)) or 'none',
+            diag['html'], diag['empty_invalid'], diag['same_site'], diag['external'], diag['duplicate']))
 
 
 def getHosterUrl(sUrl=False):
